@@ -1,0 +1,69 @@
+# Public training data
+
+The competition's public training release is
+[`aims-foundations/measurement-db`](https://huggingface.co/datasets/aims-foundations/measurement-db),
+downloaded with the baseline's own tool so the layout matches what the
+submission expects:
+
+```bash
+python baseline/tools/prepare_data.py --out payload --no-embeddings
+```
+
+## What is on disk
+
+- Revision `54074453da7b9911be0f48e4c560be547bc84d21`, downloaded 2026-10-07.
+- 61 eligible benchmarks of 102 listed. Eligibility is the competition's:
+  `response_type == "binary"` and `granularity == "item"`.
+- 304 parquet files, 24.22 GB, of which 23.4 GB is `traces.parquet` and 17 GB of
+  that is `alignment_faking` alone. The tables used for training and scoring
+  total under 1 GB. Nothing in this repository reads traces.
+- Roughly 1.36M items and 16.4M responses. The largest benchmarks by response
+  count are bridging_gap, alignment_faking, babilong, afrieval, and cruxeval.
+- 6,895 subject-benchmark pairs have at least 80 distinct items, which is the
+  rule that makes a pair scoreable.
+
+Per-table schema:
+
+| table | columns used here |
+| --- | --- |
+| `subjects.parquet` | subject_id, display_name, normalized_name, provider, release_date, access_date, harness, harness_version, reasoning_effort, subject_features_extra |
+| `items.parquet` | item_id, content, item_features |
+| `response.parquet` | subject_id, item_id, response, trial, interactors |
+
+`traces.parquet` is downloaded but unused.
+
+## Two data quirks that shape the code
+
+`normalized_name` is empty for many subjects, so `schema.subject_record` falls
+back to `display_name`. The same system is also named differently across
+benchmarks (`CMMLU / gemma3_27b_it`, `UnifiedQA-T5-11B (ARC prompt)`), so
+`canonical_identity` reduces names before any cross-benchmark lookup. Even after
+that reduction most systems appear in a single benchmark, which limits how much
+a subject prior can help.
+
+Items and responses are separate tables keyed by `item_id` and `subject_id`.
+There can be several responses per item, one per trial; the split keeps all
+trials of an item together, and acquisition reveals one recorded response per
+item.
+
+## Embeddings
+
+`payload/` has no `embeddings/` directory. The companion release
+`measurement-db-embed` contains three files (`real_webagents`,
+`researchcodebench`, `swe_rebench`), and none of those benchmarks are in the
+eligible public set, so `prepare_data.py` fails if asked for embeddings at this
+revision. Only the keyword/table retrieval tools in the baseline are usable;
+the semantic-retrieval tool cannot be built.
+
+## Checking for updates
+
+The repository has more than 100,000 files, so `repo_info` truncates its file
+listing and file counts prove nothing. Compare the commit instead:
+
+```python
+from huggingface_hub import HfApi
+HfApi().repo_info("aims-foundations/measurement-db", repo_type="dataset").sha
+```
+
+If that equals the revision recorded in `payload/data/corpus_manifest.json`,
+the payload matches the live release. As of 2026-10-20 it does.

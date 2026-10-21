@@ -1,0 +1,29 @@
+{
+  "default": {
+    "benchmarks": [
+      "bbq",
+      "editbench",
+      "devbench",
+      "cmmlu",
+      "afrimedqa",
+      "cruxeval",
+      "ai2d_test",
+      "helm_afr"
+    ],
+    "pairs_per_benchmark": 4,
+    "evaluation_items": 120,
+    "acquisition_items": 40,
+    "min_items": 80,
+    "seed": 0
+  },
+  "longctx": {
+    "benchmarks": [
+      "babilong"
+    ],
+    "pairs_per_benchmark": 4,
+    "evaluation_items": 80,
+    "acquisition_items": 40,
+    "min_items": 80,
+    "seed": 0
+  }
+}
