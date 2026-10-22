@@ -1,6 +1,6 @@
 # Local experiment tracking
 
-MLflow is installed in `.venv-laya`. Evaluation runs are logged automatically
+MLflow is installed in both `.venv-laya` and `.venv-laya-mlx`. Evaluation runs are logged automatically
 when that optional dependency is available. Everything uses the project-local
 SQLite database and artifact directories under `runs/mlflow/` by default.
 Logging does not require the web dashboard to be running.
@@ -22,11 +22,57 @@ choose another port with `--port` if necessary.
 The server binds to localhost. No hosted account is required. Backend usage
 telemetry defaults to disabled in the project launcher and tracking client.
 
+## Which columns to show
+
+The **GenAI** tab is for LLM-evaluation datasets and does not contain these
+predictors; the run table is under **Model training → Runs**. Either tab opens
+with a demo filter (`metrics.rmse < 1 and params.model = "tree"`) that matches
+nothing here — clear it, then filter on `params.suite` when you want the smoke
+runs out of the way.
+
+MLflow derives columns from whatever keys a run logged, so the column list is
+the union over all runs in the experiment and there is no separate schema to
+maintain. New runs write this set, chosen so a table mixing predictors stays
+readable:
+
+| Column | Meaning |
+| --- | --- |
+| `brier_alc` | Weighted area under the budget curve; the ranking metric |
+| `brier_0`, `brier_1`, `brier_3`, `brier_7`, `brier_15`, `brier_31` | Score at each nested label budget |
+| `ece_alc` | Budget-weighted ECE, diagnostic |
+| `ece_budget_mean` | Older unweighted ECE mean, diagnostic |
+| `n_pairs` | Subject–benchmark pairs scored |
+| `completed_pairs` | Pairs finished; progress for interrupted runs |
+| `completed_eval_inputs` | Scored system–question records so far. `n_eval_inputs` is the *planned* count, so these differ on a stopped run |
+| `forward_items`, `truncated_items` | Laya inference inputs and how many were truncated |
+| `evaluation_seconds` | Scoring time, excluding model initialization |
+
+Parameters worth keeping selected: `predictor`, `suite`, `seed`, `n_eval_inputs`,
+`input_contract`, `dataset_revision`, `sample_sha256`, `suite_sha256`. Laya runs
+add `laya_backend`, `laya_model`, `laya_max_len`, `laya_batch_size`,
+`laya_use_labels`, `laya_device` / `laya_device_resolved`, `laya_dtype` /
+`laya_dtype_resolved`, `laya_prompt_version`, `checkpoint_revision`,
+`checkpoint_weights_sha256`, and `question_sha256`.
+
+Everything else lives in artifacts rather than the table: suite shape in
+`config.json` and `suite.json`, every checkpoint hash and package version in
+`runtime.json`, per-pair and per-benchmark scores in `scores/`. Per-benchmark
+Brier ALC is still logged as `benchmark/<name>/brier_alc` for charting, but it is
+not part of the default column set. The column selection itself is stored in
+your browser, so it is not something a run can preset.
+
+Runs recorded before 2026-10-21 use the older keys: `resolved_device`,
+`resolved_compute_dtype`, `laya_revision`, `checkpoint_sha256/*`, a stepped
+`brier_by_budget` duplicate of `brier_0`…`brier_31`, `n_eval_inputs` as both a
+parameter and a metric, and `predictor`/`suite`/`suite_sha256` duplicated as
+tags. Those records were left unchanged; select the new names for comparisons
+that include newer runs.
+
 ## Record an experiment
 
 ```bash
-.venv-laya/bin/python scripts/run_eval.py --suite smoke --predictor constant empirical_mean laya
-.venv-laya/bin/python scripts/run_eval.py --suite smoke --predictor laya --laya-model multilingual
+.venv-laya-mlx/bin/python scripts/run_eval.py --suite smoke --predictor constant empirical_mean laya
+.venv-laya-mlx/bin/python scripts/run_eval.py --suite smoke --predictor laya --laya-model multilingual
 ```
 
 Each predictor gets its own immutable MLflow run with a descriptive name. Repeat
@@ -58,13 +104,15 @@ Useful options:
 - Suite and sample hashes, the resolved random seed, and `sample_manifest.csv`
   containing every acquisition/evaluation item ID and position. Use the same
   seed and dataset revision to reproduce a sample.
-- For Laya: checkpoint commit, English/multilingual choice, actual device,
+- For Laya: backend, actual precision policy, checkpoint commit,
+  English/multilingual choice, actual device,
   context limit, batch size, revealed-example mode, prompt version, and question
   definition/hash. The current version is `task_correctness_v1`.
 - Brier ALC, Brier at each budget, per-benchmark Brier ALC, evaluation time,
-  number of scored pairs, `n_eval_inputs` (system–question records at budget
-  zero), and Laya truncation counts. Laya also logs `completed_pairs` and running
-  inference/truncation counts during execution.
+  `n_pairs`, `n_eval_inputs` (planned system–question records), and Laya
+  truncation counts. Every predictor logs `completed_pairs` and
+  `completed_eval_inputs` as it finishes each pair; Laya also logs running
+  inference/truncation counts.
 - `predictions.csv`: probability for every scored subject-item-budget input,
   with the number of recorded trials and positive outcomes. Those counts allow
   reconstructing response-weighted Brier scores; acquisition items are excluded.
@@ -77,6 +125,11 @@ Useful options:
   This interface sample retains anonymous IDs and empty fields; Laya state
   examples show the rendered text after omitting them.
 - `question_definition.json`, `config.json`, and `run_details.json`.
+- `runtime.json`: selected backend/device, weight/config/tokenizer hashes,
+  checkpoint subfolder, actual backend versions, precision policy, and separate
+  initialization timing. Evaluation timing synchronizes the selected device.
+  Default Laya output folders distinguish backend and precision policy.
+  See [laya-backends.md](laya-backends.md) for the shared interface and validation.
 - New runs carry `input_contract=codabench_v1`. Laya saves exact state/question
   examples and one shared correctness question without added criteria.
   `laya_prompt_version=task_correctness_v1` distinguishes these from earlier

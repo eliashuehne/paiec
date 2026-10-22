@@ -19,7 +19,6 @@ import secrets
 import sys
 import time
 from datetime import datetime, timezone
-from importlib.metadata import version
 from pathlib import Path
 
 import pandas as pd
@@ -33,6 +32,7 @@ from paiec.competition import INPUT_CONTRACT, competition_input
 from paiec.stats import load_or_build_subject_stats
 from paiec.textmodel import TextRidge, load_or_build_text_training
 from paiec.tracking import ExperimentTracker
+from paiec.laya_runtime import DEFAULT_CHECKPOINT_REVISION
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -60,17 +60,13 @@ def predictor_instance(name, args, data_root, suite, cache):
     if name != "laya":
         return make_predictor(name, data_root, suite, cache, args.k)
     from paiec.laya_predictor import LayaPredictor
-    from huggingface_hub import snapshot_download
-    snapshot = snapshot_download(
-        "convaiinnovations/laya", revision=args.laya_revision,
-        allow_patterns=["rl_agent_config.json"],
-    )
     predictor = LayaPredictor(
         model=args.laya_model, device=args.laya_device,
         max_len=args.laya_max_len, batch_size=args.laya_batch_size,
-        use_labels=args.laya_use_labels, revision=Path(snapshot).name,
+        use_labels=args.laya_use_labels, revision=args.laya_revision,
+        backend=args.laya_backend, dtype=args.laya_dtype,
     )
-    print(f"  Laya {predictor.model}, {predictor.device}, max_len={predictor.max_len}, "
+    print(f"  Laya {predictor.backend}/{predictor.model}, {predictor.device}, max_len={predictor.max_len}, "
           f"revealed examples={predictor.use_labels}, prompt={predictor.prompt_version}", flush=True)
     return predictor
 
@@ -128,6 +124,17 @@ def sample_manifest(pairs, suite) -> pd.DataFrame:
     return pd.DataFrame(records)
 
 
+def evaluation_counts(pairs, suite) -> list[int]:
+    """Scored items per pair; the 50/50 split can cap below ``evaluation_items``."""
+    from paiec.split import make_split
+    return [
+        len(make_split(pair.item_ids, benchmark=pair.benchmark, subject_id=pair.subject_id,
+                       seed=suite["seed"], acquisition_items=suite["acquisition_items"],
+                       evaluation_items=suite["evaluation_items"]).evaluation)
+        for pair in pairs
+    ]
+
+
 def make_predictor(name: str, data_root: Path, suite: dict, cache: Path, k: float):
     if name == "constant":
         return Constant(0.5)
@@ -167,11 +174,14 @@ def main() -> int:
     ap.add_argument("--cache", default=str(ROOT / "runs" / "cache"))
     ap.add_argument("--out", default=None)
     ap.add_argument("--laya-model", choices=["english", "multilingual"], default="english")
+    ap.add_argument("--laya-backend", choices=["mlx", "torch"], default="mlx")
+    ap.add_argument("--laya-dtype", choices=["auto", "float16", "float32"], default="auto",
+                    help="MLX precision (auto=float16); torch requires auto and retains upstream precision policy")
     ap.add_argument("--laya-device", choices=["auto", "mps", "cpu", "cuda"], default="auto")
     ap.add_argument("--laya-max-len", type=int, default=512)
     ap.add_argument("--laya-batch-size", type=int, default=1)
     ap.add_argument("--laya-use-labels", action="store_true", help="include revealed examples in Laya's input")
-    ap.add_argument("--laya-revision", default=None, help="optional Hugging Face checkpoint revision")
+    ap.add_argument("--laya-revision", default=DEFAULT_CHECKPOINT_REVISION, help="pinned upstream checkpoint revision")
     ap.add_argument("--no-tracking", action="store_true", help="disable MLflow logging")
     ap.add_argument("--experiment", default="PAIEC", help="MLflow experiment name")
     ap.add_argument("--tracking-uri", default=None, help="override the project-local SQLite store")
@@ -184,6 +194,7 @@ def main() -> int:
     settings = EvaluationConfig(
         suite=SuiteConfig.model_validate(suite), predictors=args.predictor, prior_weight=args.k,
         laya=LayaConfig(model=args.laya_model, device=args.laya_device,
+                        backend=args.laya_backend, dtype=args.laya_dtype,
                         max_len=args.laya_max_len, batch_size=args.laya_batch_size,
                         use_labels=args.laya_use_labels, revision=args.laya_revision),
     )
@@ -210,22 +221,23 @@ def main() -> int:
     tracker = ExperimentTracker(ROOT, enabled=not args.no_tracking,
                                 experiment=args.experiment, tracking_uri=args.tracking_uri)
     for name in args.predictor:
-        params = {"input_contract": INPUT_CONTRACT, "predictor": name, "suite": args.suite, "suite_sha256": suite_hash,
-                  "dataset_revision": metadata["dataset_revision"],
+        # Comparison columns only. Suite shape, hashes, and package provenance are
+        # artifacts (config.json, suite.json, runtime.json), not table columns.
+        params = {"input_contract": INPUT_CONTRACT, "predictor": name, "suite": args.suite,
+                  "suite_sha256": suite_hash, "dataset_revision": metadata["dataset_revision"],
                   "sample_sha256": sample_hash, "n_eval_inputs": n_eval_inputs,
-                  **{key: value for key, value in suite.items() if key != "benchmarks"},
-                  "benchmarks": ",".join(suite["benchmarks"])}
+                  "seed": suite["seed"]}
         if name == "shrunk_mean":
             params["prior_weight"] = args.k
         title = f"{args.suite} / {name} / {INPUT_CONTRACT}"
         if name == "laya":
-            params.update({f"laya_{key}": value for key, value in settings.laya.model_dump().items() if value is not None})
-            title += f" / {args.laya_model} / {args.laya_max_len} / {'with labels' if args.laya_use_labels else 'zero-shot'}"
+            params.update({f"laya_{key}": value for key, value in settings.laya.model_dump().items()
+                           if value is not None and key != "revision"})
+            title += f" / {args.laya_backend} / {args.laya_dtype} / {args.laya_model} / {args.laya_max_len} / {'with labels' if args.laya_use_labels else 'zero-shot'}"
             from paiec.laya_predictor import PROMPT_VERSION
             params["laya_prompt_version"] = PROMPT_VERSION
             title += f" / {PROMPT_VERSION}"
-        with tracker.run(title, settings.model_dump(), params,
-                         {"input_contract": INPUT_CONTRACT, "predictor": name, "suite": args.suite, "suite_sha256": suite_hash}) as tracked:
+        with tracker.run(title, settings.model_dump(), params, {}) as tracked:
             if tracked:
                 tracked.json(manifest, "reproducibility/corpus_manifest.json")
                 tracked.frame(sample, "sample_manifest.csv")
@@ -239,6 +251,7 @@ def main() -> int:
                 effective_questions = predictor.questions
                 question_hash = hashlib.sha256(json.dumps(effective_questions, sort_keys=True).encode()).hexdigest()
                 tracked.json(effective_questions, "question_definition.json")
+                tracked.json(predictor.runtime_metadata, "runtime.json")
                 tracked.json([
                     {"benchmark": example["benchmark"], "subject_id": example["subject_id"],
                      "item_id": example["item_id"], "budget": 0,
@@ -247,23 +260,40 @@ def main() -> int:
                     for example in input_examples(pairs, suite)
                 ], "laya_input_examples.json")
                 tracked.params({"question_sha256": question_hash, "checkpoint_revision": predictor.revision,
-                                "resolved_device": predictor.device})
+                                "laya_device_resolved": predictor.device,
+                                "laya_dtype_resolved": predictor.runtime_metadata["compute_dtype"]})
+                weights = predictor.runtime_metadata.get("checkpoint_sha256", {}).get("model.safetensors")
+                if weights:
+                    tracked.params({"checkpoint_weights_sha256": weights})
+            counts = evaluation_counts(pairs, suite) if tracked else []
             def progress_pairs():
+                completed = 0
                 for index, pair in enumerate(pairs, start=1):
                     if name == "laya":
                         print(f"  pair {index}/{len(pairs)}: {pair.benchmark}/{pair.subject_id}", flush=True)
                     yield pair
-                    if name == "laya" and tracked:
+                    if name == "laya":
+                        # MLX caches freed Metal buffers per tensor shape; without this
+                        # resident memory climbs with every new item length.
+                        predictor.trim_cache()
+                    if tracked:
+                        completed += counts[index - 1]
                         tracked.client.log_metric(tracked.run_id, "completed_pairs", index)
-                        tracked.client.log_metric(tracked.run_id, "forward_items", predictor.forward_items)
-                        tracked.client.log_metric(tracked.run_id, "truncated_items", predictor.truncated_items)
+                        tracked.client.log_metric(tracked.run_id, "completed_eval_inputs", completed)
+                        if name == "laya":
+                            tracked.client.log_metric(tracked.run_id, "forward_items", predictor.forward_items)
+                            tracked.client.log_metric(tracked.run_id, "truncated_items", predictor.truncated_items)
             prediction_records = [] if tracked else None
+            if name == "laya":
+                predictor.synchronize()
             started = time.perf_counter()
             result = evaluate(
                 progress_pairs(), predictor, seed=suite["seed"],
                 acquisition_items=suite["acquisition_items"], evaluation_items=suite["evaluation_items"],
                 prediction_records=prediction_records,
             )
+            if name == "laya":
+                predictor.synchronize()
             results[name] = result
             detail = {"seconds": time.perf_counter() - started}
             metadata["predictors"][name] = detail
@@ -273,7 +303,8 @@ def main() -> int:
                     batch_size=predictor.batch_size, use_labels=predictor.use_labels,
                     revision=predictor.revision, forward_items=predictor.forward_items,
                     truncated_items=predictor.truncated_items, state_tokens_dropped=predictor.state_tokens_dropped,
-                    packages={package: version(package) for package in ("laya", "torch", "transformers")},
+                    backend=predictor.backend, runtime=predictor.runtime_metadata,
+                    packages=predictor.runtime_metadata["packages"],
                     prompt_version=predictor.prompt_version,
                 )
                 effective_questions = predictor.questions
@@ -307,7 +338,9 @@ def main() -> int:
     if "laya" in results:
         mode = "with_labels" if args.laya_use_labels else "zeroshot"
         prompt_version = metadata["predictors"]["laya"]["prompt_version"]
-        default_out /= f"laya_{INPUT_CONTRACT}_{args.laya_model}_{args.laya_max_len}_{mode}_{prompt_version}"
+        runtime = metadata["predictors"]["laya"]["runtime"]
+        dtype = runtime["compute_dtype"].removeprefix("torch.")
+        default_out /= f"laya_{args.laya_backend}_{dtype}_{INPUT_CONTRACT}_{args.laya_model}_{args.laya_max_len}_{mode}_{prompt_version}"
     if suite["pair_selection"] == "random":
         default_out /= f"seed_{suite['seed']}"
     out = Path(args.out) if args.out else default_out
@@ -327,6 +360,7 @@ def main() -> int:
     (out / "competition_input_examples.jsonl").write_text(interface_examples)
     if "laya" in results:
         (out / "question_definition.json").write_text(json.dumps(effective_questions, indent=2))
+        (out / "runtime.json").write_text(json.dumps(metadata["predictors"]["laya"]["runtime"], indent=2))
     print(f"\nwrote {out}")
     return 0
 

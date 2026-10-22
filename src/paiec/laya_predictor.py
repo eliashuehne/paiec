@@ -14,7 +14,8 @@ import math
 from pathlib import Path
 
 from .competition import competition_input, competition_labels
-from .config import LayaQuestion
+from .config import LayaConfig, LayaQuestion
+from .laya_runtime import DEFAULT_CHECKPOINT_REVISION, create_runtime
 
 QUESTION_PATH = Path(__file__).resolve().parents[2] / "configs" / "laya_question.json"
 PROMPT_VERSION = "task_correctness_v1"
@@ -51,35 +52,52 @@ class LayaPredictor:
     def __init__(
         self, *, model: str = "english", device: str = "auto", max_len: int = 512,
         batch_size: int = 1, use_labels: bool = False, revision: str | None = None,
-        router=None,
+        router=None, backend: str = "mlx", dtype: str = "auto",
     ):
+        LayaConfig(model=model, device=device, max_len=max_len, batch_size=batch_size,
+                   use_labels=use_labels, revision=revision, backend=backend, dtype=dtype)
         self.questions = load_questions()
         if model not in {"english", "multilingual"}:
             raise ValueError("model must be english or multilingual")
         if not 1 <= max_len <= 8192 or batch_size < 1:
             raise ValueError("max_len must be 1..8192 and batch_size must be positive")
+        if backend not in {"torch", "mlx"}:
+            raise ValueError("backend must be torch or mlx")
         if router is None:
-            try:
-                import torch
-                from laya import Router
-            except ImportError as exc:
-                raise RuntimeError("Install the Laya environment; see docs/laya.md") from exc
-            if device == "auto":
-                device = "mps" if torch.backends.mps.is_available() else (
-                    "cuda" if torch.cuda.is_available() else "cpu"
-                )
-            router = Router(device=device, max_loaded=1, revision=revision)
+            router = create_runtime(backend=backend, model=model, device=device,
+                                    dtype=dtype, revision=revision, batch_size=batch_size)
         self.router = router
+        self.runtime_metadata = getattr(router, "metadata", {
+            "backend": backend, "device": device, "checkpoint_revision": revision or DEFAULT_CHECKPOINT_REVISION,
+            "compute_dtype": dtype, "packages": {}, "injected_runtime": True,
+        })
+        if self.runtime_metadata["backend"] != backend:
+            raise ValueError("Injected runtime differs from the requested backend")
+        self.backend = backend
         self.model = model
-        self.device = device
+        self.device = self.runtime_metadata["device"]
         self.max_len = max_len
         self.batch_size = batch_size
         self.use_labels = use_labels
-        self.revision = revision
+        self.revision = self.runtime_metadata["checkpoint_revision"]
         self.forward_items = 0
         self.truncated_items = 0
         self.state_tokens_dropped = 0
         self._cache: OrderedDict[str, float] = OrderedDict()
+
+    def synchronize(self) -> None:
+        if callable(getattr(self.router, "synchronize", None)):
+            self.router.synchronize()
+
+    def trim_cache(self) -> None:
+        """Drop cached device buffers between pairs; no effect on predictions."""
+        if callable(getattr(self.router, "trim_cache", None)):
+            self.router.trim_cache()
+
+    def close(self) -> None:
+        if callable(getattr(self.router, "close", None)):
+            self.router.close()
+        self._cache.clear()
 
     def predict(self, input: list[dict], labeled: list) -> float:
         """Codabench-shaped entry point; no dataset or registry access."""

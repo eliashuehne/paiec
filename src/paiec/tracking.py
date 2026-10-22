@@ -71,16 +71,15 @@ class TrackedRun:
         ece_by_budget = result.frame.groupby("budget")["ece"].mean()
         metrics = {
             "brier_alc": result.brier_alc,
-            "ece_budget_mean": result.ece,
-            "ece_alc": float(np.dot(alc_weights(ece_by_budget.index), ece_by_budget.values)),
-            "evaluation_seconds": seconds, "n_pairs": len(result.pair_alc),
-            "n_eval_inputs": int(result.frame[result.frame.budget.eq(0)]["n_items"].sum()),
             **{f"brier_{budget}": float(value) for budget, value in result.per_budget.items()},
+            "ece_alc": float(np.dot(alc_weights(ece_by_budget.index), ece_by_budget.values)),
+            "ece_budget_mean": result.ece,
+            "n_pairs": len(result.pair_alc),
+            "completed_eval_inputs": int(result.frame[result.frame.budget.eq(0)]["n_items"].sum()),
+            "evaluation_seconds": seconds,
         }
         for key, value in metrics.items():
             self.client.log_metric(self.run_id, key, float(value))
-        for budget, value in result.per_budget.items():
-            self.client.log_metric(self.run_id, "brier_by_budget", float(value), step=int(budget))
         for benchmark, value in result.by_benchmark().items():
             self.client.log_metric(self.run_id, f"benchmark/{benchmark}/brier_alc", float(value))
         self.frame(result.frame, "scores/per_pair_budget.csv")

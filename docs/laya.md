@@ -10,40 +10,53 @@ correctly on a single attempt?” Laya already returns a probability, so there
 are no added criteria or probability instructions. See
 [benchmark-questions.md](benchmark-questions.md) for the exact input contract.
 
-See [project-status.md](project-status.md) for the current handoff and measured
-results. The large run was stopped at the user's request and must not be
-restarted without a new instruction. A switch to the separate community
-[Laya-MLX runtime](https://github.com/mizorewww/laya-mlx) is deferred until the
-user explicitly requests it. The current environment uses PyTorch/MPS; no MLX
-installation or migration has been performed.
+See [laya-backends.md](laya-backends.md) for the current shared MLX/PyTorch
+interface, setup, and measured probability/performance checks. The earlier
+[project handoff](project-status.md) records pre-MLX history. The user authorized
+this integration; the canceled large run remains canceled.
 
-## Environment
+## Environments
 
-Run from the project root. `.venv-laya` is separate from the original `.venv`:
+The default backend is native MLX. Run it from the separate MLX environment:
 
 ```bash
-uv venv --python 3.12 .venv-laya
-uv pip install --python .venv-laya/bin/python -r requirements-laya.lock -e .
+uv venv --python 3.12 .venv-laya-mlx
+uv pip install --python .venv-laya-mlx/bin/python -r requirements-mlx.lock -e .
 ```
 
-The lock file records the package versions tested on Apple Silicon with Python
-3.12.13, Laya 0.4.13, PyTorch 2.14.1, and Transformers 5.20.2. For a fresh
-dependency resolution instead, install the optional extra:
+For a fresh dependency resolution, use `-e '.[mlx,tracking]'` instead of the
+lock. The tested environment uses Python 3.12.13, Laya-MLX 0.5.0, MLX/MLX Metal
+0.32.4, and MLflow 3.17.2. It has no PyTorch or Transformers dependency.
 
-```bash
-uv pip install --python .venv-laya/bin/python -e '.[laya]'
-```
+The original `.venv-laya` environment is preserved for ordinary Laya 0.4.13,
+PyTorch 2.14.1, Transformers 5.20.2, and tracking. Recreate it with
+`requirements-dev.lock` plus the editable project if needed. Select it with
+`.venv-laya/bin/python` and `--laya-backend torch`. The older
+`requirements-laya.lock` predates the MLflow dependency adjustments.
 
-Automatic device selection prefers MPS on this Mac, then CUDA, then CPU. Force
-CPU with `--laya-device cpu` if needed. Only one checkpoint is resident per run.
-Weights live in the normal Hugging Face cache under `~/.cache/huggingface/`,
-outside Git. English weights are approximately 843 MB, excluding tokenizers
-and configuration; multilingual downloads separately.
+MLX `--laya-device auto` uses the Mac GPU and `--laya-dtype auto` means FP16.
+Use `--laya-dtype float32` for closer numerical agreement. Ordinary Laya's auto
+selection prefers MPS on this Mac, then CUDA, then CPU, retaining its upstream
+automatic precision policy. `--laya-device cpu` is available in both backends.
+There is no silent framework fallback and neither Mac path uses the Neural
+Engine.
+
+MLX defaults to caching up to 16.32 GB of freed Metal buffers, which exceeds
+this machine's 12.71 GB recommended working set and let long runs climb into
+swap. The runtime caps the MLX cache at 2 GiB and its memory limit at 6 GiB
+(`PAIEC_MLX_CACHE_LIMIT_GB`, `PAIEC_MLX_MEMORY_LIMIT_GB` override both) and
+clears the cache between scoring pairs. See `docs/laya-backends.md` for the
+measurements. Peak resident memory on real data stayed near 1.5 GB over 216
+items after the change.
+
+Both runtimes load the same original Hugging Face files, with default revision
+`7b928d828b7b0e022f929d9bd2e44165aa270148`. Weights remain cached outside Git;
+model/config/tokenizer hashes are recorded for provenance.
 
 ## First test
 
 ```bash
-.venv-laya/bin/python scripts/run_eval.py --suite smoke --predictor constant empirical_mean laya
+.venv-laya-mlx/bin/python scripts/run_eval.py --suite smoke --predictor constant empirical_mean laya
 ```
 
 This scores eight evaluation items for each of two subject-benchmark pairs,
@@ -71,7 +84,7 @@ must have at least 200 distinct binary-graded items, supporting a 50/50 split
 and 100 evaluation items. Acquisition pools remain disjoint and capped at 40.
 
 ```bash
-.venv-laya/bin/python scripts/run_eval.py --suite sample_10k --predictor constant empirical_mean laya --laya-batch-size 8
+.venv-laya-mlx/bin/python scripts/run_eval.py --suite sample_10k --predictor constant empirical_mean laya --laya-batch-size 8
 ```
 
 A fresh seed is generated each run. The same subjects, questions, split, and
@@ -99,8 +112,8 @@ The `default` suite has 32 pairs across eight benchmarks and up to 120 evaluatio
 items per pair. Run both checkpoints at the same context budget:
 
 ```bash
-.venv-laya/bin/python scripts/run_eval.py --suite default --predictor constant empirical_mean laya --laya-model english --laya-max-len 512
-.venv-laya/bin/python scripts/run_eval.py --suite default --predictor constant empirical_mean laya --laya-model multilingual --laya-max-len 512
+.venv-laya-mlx/bin/python scripts/run_eval.py --suite default --predictor constant empirical_mean laya --laya-model english --laya-max-len 512
+.venv-laya-mlx/bin/python scripts/run_eval.py --suite default --predictor constant empirical_mean laya --laya-model multilingual --laya-max-len 512
 ```
 
 To test longer inputs, repeat with `--laya-max-len 2048`. A larger limit can
@@ -114,7 +127,7 @@ Batch size defaults to one for conservative memory use. Try
 To test adaptation through examples, without changing the pretrained weights:
 
 ```bash
-.venv-laya/bin/python scripts/run_eval.py --suite smoke --predictor constant empirical_mean laya --laya-use-labels --laya-max-len 2048
+.venv-laya-mlx/bin/python scripts/run_eval.py --suite smoke --predictor constant empirical_mean laya --laya-use-labels --laya-max-len 2048
 ```
 
 This appends available task details and observed 0/1 labels from the same
@@ -125,11 +138,11 @@ adaptation method.
 
 ## Results and reproducibility
 
-Outputs are separated by suite, checkpoint, context length, evidence mode,
-and prompt version:
+Outputs are separated by suite, backend/precision, checkpoint, context length,
+evidence mode, and prompt version:
 
 ```text
-runs/eval_smoke/laya_codabench_v1_english_512_zeroshot_task_correctness_v1/
+runs/eval_smoke/laya_mlx_float16_codabench_v1_english_512_zeroshot_task_correctness_v1/
   summary.csv             comparison across predictors, lower Brier is better
   scores_laya.csv         scores for each pair and label budget
   scores_constant.csv
@@ -157,15 +170,18 @@ benchmark-level training/validation/test partitions.
 ## Checks
 
 ```bash
-.venv-laya/bin/python -m unittest discover -s tests -p 'test_*.py'
+.venv-laya-mlx/bin/python -m unittest discover -s tests -p 'test_*.py'
 ```
 
 The adapter tests use a fake router and need no model download. The smoke
 commands above verify real checkpoint inference on the downloaded payload.
 
-The latest recorded full unit-test execution passed 105 tests; see
-`runs/sampling_tests.log`. It was not repeated for the documentation handoff.
-For `task_correctness_v1`, English MPS smoke runs completed
+The latest backend-integration test runs are recorded in `runs/mlx_tests.log`
+and `runs/torch_tests.log`. The earlier sampling implementation passed 105
+tests; the current suite adds runtime-interface checks, including the MLX
+memory-limit setup order and the trim hook. It now passes 116 tests in both
+environments.
+Before MLX integration, `task_correctness_v1` English MPS smoke runs completed
 with and without revealed examples at a 512-token limit. The zero-shot run
 processed 16 inputs without truncation; the example-enabled run processed 96
 inputs, of which 73 were truncated. Both modes produced identical budget-zero

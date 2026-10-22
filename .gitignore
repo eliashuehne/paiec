@@ -6,6 +6,7 @@ prepare_data.log
 # Local environments and build output.
 .venv/
 .venv-laya/
+.venv-laya-mlx/
 dist/
 *.egg-info/
 __pycache__/

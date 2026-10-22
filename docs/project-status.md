@@ -1,5 +1,11 @@
 # Project status and handoff
 
+**Historical pre-MLX handoff.** The user subsequently authorized the runtime
+integration. It is now implemented with MLX as default and PyTorch selectable;
+see [laya-backends.md](laya-backends.md) for current setup and validation. The
+canceled large run remains canceled. Deferred-migration statements below
+record the earlier state, not the current authorization.
+
 Recorded **2026-10-21, America/Los_Angeles**. This document records the current
 working tree and saved experiment evidence, not a new evaluation. No model
 inference, training, installation, or migration was performed to write it.
@@ -293,5 +299,22 @@ Graceful interruption and incremental prediction/score saving remain a separate
 open engineering issue. Hosted competition packaging, dependency policy, model
 prefetching, and allowed runtime hardware also need validation before a real
 submission; a local MLX backend must not be assumed deployable on Codabench.
+
+### MLX memory finding (post-handoff)
+
+The MLX backend's default cache limit equalled its memory limit at `16.32 GB`,
+above this 16 GB machine's `12.71 GB` recommended working set. Because MLX
+caches freed Metal buffers per distinct tensor shape and Laya states vary in
+length, the cache grew with every new batch shape (~0.78 GB each at batch
+eight) with no eviction. This is the plausible cause of the earlier memory
+exhaustion, and it is specific to the MLX path; PyTorch/MPS evicts under
+`PYTORCH_MPS_HIGH_WATERMARK_RATIO`.
+
+The runtime now sets a 2 GiB cache limit and a 6 GiB memory limit before the
+checkpoint loads and clears the cache between scoring pairs. Bounded probes on
+real tables held peak resident memory near 1.5 GB over 216 items, with the
+cache plateauing at 2.15 GB inside an untrimmed 100-item pair. Trimming cost
+about 2% throughput on a repeated 100-item pair. No evaluation suite was
+launched for this change.
 
 This list is a handoff, not authorization to begin migration or restart runs.

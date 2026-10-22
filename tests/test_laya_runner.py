@@ -37,9 +37,9 @@ class LayaRunnerTests(unittest.TestCase):
                     "--suite", "smoke", "--predictor", "laya", "--no-tracking"]
             with patch.object(run_eval, "ROOT", root), patch.object(run_eval, "build_pairs", return_value=[pair]), \
                     patch.object(run_eval, "predictor_instance", return_value=predictor), \
-                    patch.object(run_eval, "version", return_value="test"), patch("sys.argv", argv), redirect_stdout(io.StringIO()):
+                    patch("sys.argv", argv), redirect_stdout(io.StringIO()):
                 self.assertEqual(run_eval.main(), 0)
-            output = root / "runs/eval_smoke" / f"laya_codabench_v1_english_512_zeroshot_{PROMPT_VERSION}"
+            output = root / "runs/eval_smoke" / f"laya_mlx_auto_codabench_v1_english_512_zeroshot_{PROMPT_VERSION}"
             metadata = json.loads((output / "run.json").read_text())
             self.assertEqual(metadata["predictors"]["laya"]["prompt_version"], PROMPT_VERSION)
             question = json.loads((output / "question_definition.json").read_text())

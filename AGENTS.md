@@ -2,8 +2,9 @@
 
 ## Start here
 
-Read `docs/project-status.md` for the current state, important findings, verified
-results, and deferred work. Then read the documentation relevant to the task:
+Read `docs/laya-backends.md` for the current interchangeable runtimes and
+validation, and `docs/project-status.md` for the earlier handoff, important
+findings, saved results, and interrupted-run history. Then read the documentation relevant to the task:
 
 - `docs/benchmark-questions.md`: exact predictor fields and current Laya input.
 - `docs/laya.md`: environment, sampling, context limits, and historical results.
@@ -13,14 +14,15 @@ results, and deferred work. Then read the documentation relevant to the task:
 
 ## Current user decisions
 
-- The user will explicitly say when to begin switching to Laya-MLX. That
-  migration has **not** been authorized or started. Do not install MLX, replace
-  the runtime, change weights, or silently switch backends during familiarization.
+- The user explicitly authorized the MLX migration after the earlier handoff.
+  It is implemented behind a shared interface. MLX is now the default;
+  `--laya-backend torch` selects the preserved reference runtime. Do not
+  interpret older deferred-migration notes as overriding this authorization.
 - The 10,000-input Laya run was stopped at the user's request after 3,000
   completed evaluation records. The user subsequently canceled the proposed
   rerun. Do not restart, recompute, or relabel that interrupted run as completed.
-- These constraints apply to the deferred migration and canceled inference run,
-  not to ordinary lightweight unit checks needed for later authorized code work.
+- The canceled-run constraint does not prohibit small validation checks needed
+  for authorized runtime integration, or ordinary lightweight unit tests.
 - Explain changes and findings in plain language. Distinguish measured results
   from proposals, smoke checks, historical experiments, and unverified claims.
 
@@ -55,12 +57,12 @@ results, and deferred work. Then read the documentation relevant to the task:
   changes; the initial handoff preceded the session commit. Preserve existing
   work. Do not reset, discard, or commit changes unless the user's task calls
   for that action.
-- Use `.venv-laya/bin/python` for the tested Laya/tracking environment, Python
-  3.12. The separate `.venv` uses Python 3.14; do not mix their dependencies.
-- The current runtime is Laya 0.4.13 with PyTorch/MPS on the user's M4 MacBook.
-  MLX is not installed in this environment. Keep the PyTorch environment
-  available for comparisons if an MLX migration is later requested.
-- The tested combined environment is recorded in `requirements-dev.lock`.
+- Use `.venv-laya-mlx/bin/python` for native MLX (Laya-MLX 0.5.0, MLX 0.32.4),
+  or `.venv-laya/bin/python` for Laya 0.4.13 / PyTorch MPS. Both use Python 3.12.
+  Keep the environments separate; the MLX environment has no torch/transformers.
+  The original `.venv` uses Python 3.14. Preserve the PyTorch reference environment.
+- The MLX/tracking environment is recorded in `requirements-mlx.lock`; the
+  PyTorch/tracking reference is recorded in `requirements-dev.lock`.
   `requirements-laya.lock` predates MLflow installation and has dependency
   differences; use the combined lock when tracking is needed.
 - No fine-tuning has been performed. Cached model weights, payload, and run
@@ -69,11 +71,11 @@ results, and deferred work. Then read the documentation relevant to the task:
 - Usual lightweight check, when relevant to authorized code changes:
 
   ```bash
-  .venv-laya/bin/python -m unittest discover -s tests -p 'test_*.py'
+  .venv-laya-mlx/bin/python -m unittest discover -s tests -p 'test_*.py'
   git diff --check
   ```
 
-  The latest recorded full test execution passed 105 tests. Documentation-only
+  See `runs/mlx_tests.log` and `runs/torch_tests.log` for current full test results. Documentation-only
   work does not require new model inference or evaluation runs.
 
 ## Evaluation and experiment integrity
@@ -93,6 +95,13 @@ results, and deferred work. Then read the documentation relevant to the task:
   suite and keys caches by training selection and corpus manifest. Preserve
   that boundary. Lower-level cache helpers and `SubjectPrior` alone do not
   guarantee holdouts if called with contaminated data.
+- `src/paiec/laya_runtime.py` owns backend loading; `LayaPredictor` owns the
+  shared state/question/cache. Preserve this separation. Both engines load the
+  same original pinned upstream weights; never substitute community checkpoint
+  weights silently. Native libraries are imported only for the selected backend.
+- MLX defaults to FP16; FP32 is available for closer probability fidelity.
+  PyTorch retains its automatic precision policy. Log actual precision and
+  compare probabilities as well as token counts; speed alone is insufficient.
 - Log exact prompts, actual backend/device/precision, package and checkpoint
   versions, seed/sample IDs, truncation, and source/config state for new work.
   Do not overwrite historical metrics to make a changed experiment appear

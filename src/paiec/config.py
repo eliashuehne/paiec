@@ -2,7 +2,7 @@
 
 from typing import Annotated, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, FiniteFloat, StringConstraints, field_validator
+from pydantic import BaseModel, ConfigDict, Field, FiniteFloat, StringConstraints, field_validator, model_validator
 
 PredictorName = Literal["constant", "empirical_mean", "subject_prior", "shrunk_mean", "text_ridge", "laya"]
 
@@ -39,12 +39,22 @@ class SuiteConfig(BaseModel):
 class LayaConfig(BaseModel):
     model_config = ConfigDict(extra="forbid", strict=True)
 
+    backend: Literal["mlx", "torch"] = "mlx"
+    dtype: Literal["auto", "float16", "float32"] = "auto"
     model: Literal["english", "multilingual"] = "english"
     device: Literal["auto", "mps", "cpu", "cuda"] = "auto"
     max_len: int = Field(default=512, ge=1, le=8192)
     batch_size: int = Field(default=1, ge=1)
     use_labels: bool = False
     revision: str | None = None
+
+    @model_validator(mode="after")
+    def compatible_runtime(self):
+        if self.backend == "mlx" and self.device == "cuda":
+            raise ValueError("MLX does not support CUDA")
+        if self.backend == "torch" and self.dtype != "auto":
+            raise ValueError("Normal Laya manages precision automatically; use dtype=auto")
+        return self
 
 
 class EvaluationConfig(BaseModel):

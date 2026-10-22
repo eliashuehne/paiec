@@ -80,13 +80,15 @@ exceed the checkpoint context limit; inspect the logged truncation counters.
 
 `LayaPredictor.predict(input, labeled)` accepts the published two-dictionary
 input layout. The CLI still uses a batch helper for efficient local scoring.
-The pretrained checkpoint is unchanged.
+The pretrained checkpoint is unchanged. The same shared predictor supports
+`--laya-backend mlx` (default, `.venv-laya-mlx`) and `--laya-backend torch`
+(reference, `.venv-laya`). See [laya-backends.md](laya-backends.md).
 
 ## Run a comparison
 
 ```bash
-.venv-laya/bin/python scripts/run_eval.py --suite smoke --predictor constant empirical_mean laya
-.venv-laya/bin/python scripts/run_eval.py --suite smoke --predictor laya --laya-use-labels
+.venv-laya-mlx/bin/python scripts/run_eval.py --suite smoke --predictor constant empirical_mean laya
+.venv-laya-mlx/bin/python scripts/run_eval.py --suite smoke --predictor laya --laya-use-labels
 ```
 
 Pass `--laya-revision COMMIT` to pin the pretrained weights when comparing runs.

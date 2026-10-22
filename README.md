@@ -11,16 +11,17 @@ pulled in as a submodule at a pinned commit.
 
 ## Current status
 
-Read [docs/project-status.md](docs/project-status.md) for the implementation
-handoff, measured results, known limitations, and deferred MLX work. Agent
+Read [docs/laya-backends.md](docs/laya-backends.md) for the current selectable
+MLX/PyTorch runtimes, and [docs/project-status.md](docs/project-status.md) for the
+earlier handoff, measured results, known limitations, and interrupted-run history. Agent
 instructions are in [AGENTS.md](AGENTS.md).
 
 The large Laya run was intentionally stopped after 3,000 completed evaluation
 records. It has no saved partial predictions or Brier ALC; the proposed rerun
 was canceled. The current short-prompt smoke result did not beat the 50%
-baseline, and its 16 inputs are too few for broad conclusions. Laya-MLX remains
-deferred until the user explicitly requests it. No inference is currently
-being continued as part of this documentation handoff.
+baseline, and its 16 inputs are too few for broad conclusions. The user has
+since authorized MLX integration: it is now the default runtime, with PyTorch
+still selectable. The canceled run has not been restarted or recomputed.
 
 ## Layout
 
@@ -75,16 +76,23 @@ and [requirements-dev.lock](requirements-dev.lock) for the tested combined envir
 
 ## Pretrained Laya
 
-The separate `.venv-laya` environment runs pretrained Laya on the Mac GPU.
+The separate `.venv-laya-mlx` environment runs pretrained Laya through native
+MLX on the Mac GPU. The original `.venv-laya` PyTorch environment is preserved.
 Start with a small check:
 
 ```bash
-.venv-laya/bin/python scripts/run_eval.py --suite smoke --predictor constant empirical_mean laya
+.venv-laya-mlx/bin/python scripts/run_eval.py --suite smoke --predictor constant empirical_mean laya
 ```
 
 Use `--suite default` for the existing 32-pair evaluation, or add
 `--laya-model multilingual` to compare the other checkpoint. No fine-tuning is
-performed. By default Laya sees only the subject profile and target item, so its
+performed. Select ordinary Laya with `.venv-laya/bin/python` and
+`--laya-backend torch`; select MLX with `--laya-backend mlx` (the default).
+`--laya-dtype float32` enables MLX FP32; its default is FP16. See
+[backend setup and measured checks](docs/laya-backends.md). The runtime caps
+MLX's Metal buffer cache at 2 GiB (override: `PAIEC_MLX_CACHE_LIMIT_GB`) so
+long runs stay near 1.5 GB resident instead of growing into swap.
+By default Laya sees only the subject profile and target item, so its
 scores stay the same at every label budget. Revealed examples are optional with
 `--laya-use-labels`.
 
@@ -103,7 +111,7 @@ and reproducibility details.
 For a larger random sample (100 system–benchmark pairs × 100 questions):
 
 ```bash
-.venv-laya/bin/python scripts/run_eval.py --suite sample_10k --predictor constant empirical_mean laya --laya-batch-size 8
+.venv-laya-mlx/bin/python scripts/run_eval.py --suite sample_10k --predictor constant empirical_mean laya --laya-batch-size 8
 ```
 
 This suite chooses a fresh seed per run, samples systems across the eight

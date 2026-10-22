@@ -33,6 +33,8 @@ class ConfigTests(unittest.TestCase):
                 EvaluationConfig.model_validate(settings)
 
     def test_invalid_model_settings_are_rejected(self):
-        for values in ({"max_len": 8193}, {"batch_size": 0}, {"model": "unknown"}):
+        for values in ({"max_len": 8193}, {"batch_size": 0}, {"model": "unknown"},
+                       {"backend": "unknown"}, {"backend": "mlx", "device": "cuda"},
+                       {"backend": "torch", "dtype": "float16"}):
             with self.subTest(values=values), self.assertRaises(ValidationError):
                 LayaConfig.model_validate(values)
