@@ -13,11 +13,15 @@ from pathlib import Path
 import subprocess
 import sys
 import tempfile
+import warnings
 import zipfile
 
 import numpy as np
 
 from .metrics import alc_weights
+
+# Context tag MLflow uses to group runs that consumed the same data.
+EVALUATION_SPLIT = "evaluation_split"
 
 
 def local_tracking_uri(root: Path) -> str:
@@ -34,6 +38,11 @@ def git_context(root):
 
 def package_versions():
     return {dist.metadata["Name"]: dist.version for dist in metadata.distributions() if dist.metadata.get("Name")}
+
+
+def evaluation_split(sample):
+    """Scored rows of a sample manifest, dropping acquisition positions."""
+    return sample[sample["role"].eq("evaluation")].reset_index(drop=True)
 
 
 def log_source(client, run_id, root):
@@ -66,6 +75,33 @@ class TrackedRun:
 
     def frame(self, frame, filename):
         self.client.log_text(self.run_id, frame.to_csv(index=False), filename)
+
+    def dataset(self, frame, name, context=EVALUATION_SPLIT, targets=None):
+        """Attach one logged dataset so the UI can group runs by shared sample.
+
+        The dataset is the scored-input manifest, not the 23 GB payload: it is
+        small, and its digest changes exactly when the sample changes. Failures
+        are non-fatal, since the same manifest is also kept as an artifact.
+        """
+        try:
+            from mlflow.data import from_pandas
+            from mlflow.entities import DatasetInput, InputTag
+        except ImportError:
+            return None
+        try:
+            with warnings.catch_warnings():
+                # from_pandas warns about integer columns because it assumes the
+                # frame will be fed to a model. This manifest never is.
+                warnings.filterwarnings("ignore", message=".*Inferred schema contains integer column.*")
+                dataset = from_pandas(frame, name=name, targets=targets)
+            self.client.log_inputs(self.run_id, datasets=[DatasetInput(
+                dataset=dataset._to_mlflow_entity(),
+                tags=[InputTag(key="mlflow.data.context", value=context)],
+            )])
+        except Exception as exc:  # dataset logging is a convenience, not evidence
+            print(f"  dataset input not logged: {type(exc).__name__}: {exc}", flush=True)
+            return None
+        return dataset.digest
 
     def result(self, result, seconds, predictions):
         ece_by_budget = result.frame.groupby("budget")["ece"].mean()

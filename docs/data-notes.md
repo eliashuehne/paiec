@@ -29,6 +29,35 @@ The full local audit is reproducible with `scripts/eda.py`. See
 schemas, examples, and plots. The audit found that binary outcomes do not
 universally mean correctness: consult each benchmark's `response_scale`.
 
+## Disk footprint and the duplicated cache
+
+`prepare_data.py` downloads every table with `hf_hub_download` and then copies it
+into `payload/` with `shutil.copyfile`. Both copies persist, so a full build
+costs about twice the payload: on 2026-10-22 `payload/data` was 22.6 GiB and the
+HuggingFace dataset cache held the same 22.6 GiB, against 33 GiB of free space.
+
+The cache is safe to drop once `payload/data/corpus_manifest.json` exists,
+because every scoring path reads `payload/` (the default `--data-root`). It is
+not safe to drop before then: at that point the cache is the only copy.
+
+```bash
+.venv-laya-mlx/bin/python scripts/disk_report.py            # sizes, read-only
+.venv-laya-mlx/bin/python scripts/disk_report.py --cleanup  # reclaim the copy
+```
+
+`scripts/disk_report.py` only ever deletes the dataset cache. It never touches
+`models--convaiinnovations--laya`: those weights are the only copy of the
+checkpoint and share no blobs with the dataset. Deleting the dataset cache does
+not affect tokenizer loading, because `measure_tokens.py` fetches the tokenizer
+from the model repo.
+
+Two smaller notes, so size numbers can be read correctly:
+
+- The cache lists 102 benchmark directories but only 61 are eligible and
+  downloaded. The other 41 are filtered out by the binary/item check.
+- `runs/` is small (~40 MB) even after many evaluations. MLflow stores metrics
+  and CSV artifacts, not trace tensors. It is not worth pruning.
+
 Per-table schema:
 
 | table | columns used here |

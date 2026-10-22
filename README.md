@@ -38,7 +38,10 @@ src/paiec/           harness library
   stats.py           cross-benchmark subject counts
   textmodel.py       hashed-text ridge control
   laya_predictor.py  pretrained English/multilingual Laya adapter
+  compare.py         paired run comparison from logged predictions
 scripts/run_eval.py  command line runner
+scripts/compare_runs.py  compare completed runs with uncertainty
+scripts/disk_report.py   payload/cache sizes; --cleanup reclaims the duplicate
 tests/               unit tests for the protocol, metrics, and predictors
 ```
 

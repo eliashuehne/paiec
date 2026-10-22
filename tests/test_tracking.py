@@ -7,7 +7,7 @@ import unittest
 import pandas as pd
 
 from paiec.evaluate import EvalResult
-from paiec.tracking import ExperimentTracker
+from paiec.tracking import ExperimentTracker, TrackedRun, evaluation_split
 
 
 @unittest.skipUnless(importlib.util.find_spec("mlflow"), "optional tracking dependency is not installed")
@@ -58,3 +58,41 @@ class TrackingTests(unittest.TestCase):
         tracker = ExperimentTracker(self.root, enabled=False)
         with tracker.run("disabled", {}, {}, {}) as tracked:
             self.assertIsNone(tracked)
+
+    def test_evaluation_split_is_attached_as_a_dataset_input(self):
+        sample = pd.DataFrame({
+            "benchmark": ["toy"] * 4, "subject_id": ["s"] * 4,
+            "item_id": ["a", "b", "c", "d"],
+            "role": ["acquisition", "acquisition", "evaluation", "evaluation"],
+            "position": [0, 1, 0, 1],
+        })
+        split = evaluation_split(sample)
+        self.assertEqual(list(split["item_id"]), ["c", "d"])
+        with self.tracker.run("with-dataset", {}, {"predictor": "constant"}, {}) as tracked:
+            digest = tracked.dataset(split, "toy-evaluation_split")
+            run_id = tracked.run_id
+        self.assertTrue(digest)
+        inputs = self.tracker.client.get_run(run_id).inputs.dataset_inputs
+        self.assertEqual(len(inputs), 1)
+        self.assertEqual(inputs[0].dataset.name, "toy-evaluation_split")
+        self.assertEqual(inputs[0].dataset.digest, digest)
+        self.assertEqual(
+            {tag.key: tag.value for tag in inputs[0].tags}.get("mlflow.data.context"),
+            "evaluation_split",
+        )
+        # The digest is a content hash, so a changed split is a different dataset.
+        import mlflow
+
+        changed = split.assign(position=[5, 6])
+        self.assertNotEqual(
+            mlflow.data.from_pandas(changed, name="toy-evaluation_split").digest,
+            mlflow.data.from_pandas(split, name="toy-evaluation_split").digest,
+        )
+
+    def test_dataset_logging_failure_does_not_break_the_run(self):
+        class Broken:
+            def log_inputs(self, *args, **kwargs):
+                raise RuntimeError("store unavailable")
+
+        tracked = TrackedRun(Broken(), "run-id")
+        self.assertIsNone(tracked.dataset(pd.DataFrame({"a": [1]}), "toy"))

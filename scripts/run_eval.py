@@ -31,7 +31,7 @@ from paiec.schema import load_benchmark
 from paiec.competition import INPUT_CONTRACT, competition_input
 from paiec.stats import load_or_build_subject_stats
 from paiec.textmodel import TextRidge, load_or_build_text_training
-from paiec.tracking import ExperimentTracker
+from paiec.tracking import ExperimentTracker, evaluation_split
 from paiec.laya_runtime import DEFAULT_CHECKPOINT_REVISION
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -245,6 +245,10 @@ def main() -> int:
             if tracked:
                 tracked.json(manifest, "reproducibility/corpus_manifest.json")
                 tracked.frame(sample, "sample_manifest.csv")
+                # One dataset input per run links every run scored on the same
+                # evaluation split, so the UI can group and cross-filter them.
+                tracked.dataset(evaluation_split(sample),
+                                f"{args.suite}-evaluation_split")
                 tracked.json(input_examples(pairs, suite), "input_examples.json")
                 tracked.client.log_text(tracked.run_id, interface_examples, "competition_input_examples.jsonl")
                 if name in {"subject_prior", "shrunk_mean", "text_ridge"}:

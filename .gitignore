@@ -14,6 +14,8 @@ __pycache__/
 
 # Run output: predictions, score tables, cached aggregates.
 runs/
+# Default MLflow store, created when a probe runs without --tracking-uri.
+mlruns/
 
 # macOS
 .DS_Store

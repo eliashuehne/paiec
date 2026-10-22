@@ -116,6 +116,7 @@ Useful options:
 - `predictions.csv`: probability for every scored subject-item-budget input,
   with the number of recorded trials and positive outcomes. Those counts allow
   reconstructing response-weighted Brier scores; acquisition items are excluded.
+  `scripts/compare_runs.py` uses exactly this to compare runs (see above).
 - `scores/`: per-pair/per-budget, per-pair ALC, and per-benchmark tables.
 - `input_examples.json`: up to eight actual subject/item inputs (up to four
   from each pair), without grading criteria or reference answers. These are
@@ -162,6 +163,63 @@ No partial Laya Brier ALC exists, and the user canceled recomputation. The
 constant/empirical-mean runs from the same command completed all 10,000 inputs;
 their metrics must not be presented as metrics on the 3,000-record subset.
 See [project-status.md](project-status.md) for IDs and evidence locations.
+
+## Compare runs
+
+`scripts/compare_runs.py` compares completed runs pair by pair and reports
+whether a difference is bigger than pair-to-pair noise:
+
+```bash
+.venv-laya-mlx/bin/python scripts/compare_runs.py --suite sample_200
+.venv-laya-mlx/bin/python scripts/compare_runs.py --suite sample_200 --reference e3f4ee7a --predictor laya
+.venv-laya-mlx/bin/python scripts/compare_runs.py --run e3f4ee7a --run 5bbe8fd4 --csv runs/compare
+```
+
+It reads `predictions.csv` from each run's artifacts and rebuilds the harness's
+per-pair Brier using the logged response counts (`k(1-p)^2 + (w-k)p^2`, averaged
+over responses). That reconstruction reproduces the logged per-pair scores to
+floating-point precision, so no new inference is needed, and the 23 GB payload
+is never touched. Runs whose reconstructed score disagrees with the logged
+`brier_alc` are flagged with a warning.
+
+Output is three tables:
+
+- **summary** — pairs, mean Brier ALC, and the spread across pairs. A large
+  spread means the mean is unstable on that sample.
+- **paired** — delta, median delta, bootstrap interval, paired t-test `p`, a
+  wins/losses/ties count, and whether the comparison used the full sample.
+  A positive delta means the challenger is **worse**, since Brier is
+  lower-is-better; wins/losses are counted for the challenger.
+- **per-benchmark** — mean pair ALC per benchmark, which shows when an aggregate
+  is one or two pairs rather than a broad effect.
+
+Comparisons are refused unless both runs scored the same items. That check uses
+the item IDs in `predictions.csv`, not the suite name, because the same suite at
+a different seed is a different sample. `--allow-partial` compares the shared
+subset and marks the row `partial`; a pair-level-only run compared against an
+item-level run is always partial, since the overlap of items cannot be verified.
+
+With ten pairs only large, consistent differences reach significance; treat `p`
+as one diagnostic and the interval as another. Twenty pairs still cannot detect
+a change worth a few thousandths of Brier. Run `--help` for the remaining
+options (`--filter`, `--experiment`, `--tracking-uri`, `--seed`, `--level`).
+
+## Dataset inputs
+
+Each run also logs one MLflow dataset input: the **evaluation split** of the
+sample manifest, named `<suite>-evaluation_split` and tagged
+`mlflow.data.context=evaluation_split`. Acquisition rows are excluded, so the
+dataset is exactly the scored inputs — 16 rows for `smoke`, 200 for
+`sample_200`. That lets the UI group and cross-filter runs that shared a sample
+without reading each run's artifacts.
+
+The digest is a content hash of the split, so two runs on the same suite and
+seed share a digest while a different seed or suite produces a different one.
+This deliberately does not register the training payload, the trace data, or the
+per-benchmark item text; the manifest artifact and `sample_sha256` remain the
+authoritative record, and dataset logging failure is reported without failing the
+run. Runs recorded before this change have no dataset input and are otherwise
+unchanged.
 
 ## ECE names
 
