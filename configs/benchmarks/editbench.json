@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "benchmark": "editbench",
+  "review_status": "reviewed",
+  "outcome_meanings": {
+    "zero": "failure",
+    "one": "success"
+  },
+  "question": {
+    "type": "noul",
+    "instructions": "Will the target system produce a code edit that passes the benchmark's complete test requirement for this task on a single attempt?",
+    "criteria": {
+      "true": "The edited implementation passes all tests required by the original task evaluator, with no required tests failed or skipped.",
+      "false": "The edited implementation does not meet the complete passing-test requirement, including failed or skipped required tests."
+    }
+  },
+  "evidence": {
+    "dataset_revision": "54074453da7b9911be0f48e4c560be547bc84d21",
+    "benchmark_metadata": "payload/data/editbench/formatted_tables/benchmarks.parquet",
+    "item_metadata": "payload/data/editbench/formatted_tables/items.parquet",
+    "review_notes": "Reviewed response_scale and sampled grading_criterion/verifier. The recorded success condition is passed / (total + skipped) == 1.0 in the official EDIT-Bench test runner."
+  },
+  "limitations": [
+    "Each task has its own executable tests. This definition does not include their reference implementation or hidden assertions."
+  ]
+}

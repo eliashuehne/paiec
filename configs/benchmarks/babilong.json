@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "benchmark": "babilong",
+  "review_status": "reviewed",
+  "outcome_meanings": {
+    "zero": "Answer fails the upstream substring-label comparison.",
+    "one": "Answer passes the upstream substring-label comparison."
+  },
+  "question": {
+    "type": "noul",
+    "instructions": "Will the target system's answer pass the benchmark's original substring-label comparison for this item on a single attempt?",
+    "criteria": {
+      "true": "After the original output preprocessing, the answer satisfies the task-specific label-matching rule for the reference answer.",
+      "false": "The answer fails that label-matching rule, including an empty answer or refusal."
+    }
+  },
+  "evidence": {
+    "dataset_revision": "54074453da7b9911be0f48e4c560be547bc84d21",
+    "benchmark_metadata": "payload/data/babilong/formatted_tables/benchmarks.parquet",
+    "item_metadata": "payload/data/babilong/formatted_tables/items.parquet",
+    "review_notes": "Reviewed response_scale and sampled task-specific grading_criterion/verifier. The source uses substring-label matching after preprocessing, not an unrestricted semantic correctness judge."
+  },
+  "limitations": [
+    "Stored item content can reference context.txt instead of containing the complete long context; that external context is not currently loaded by the adapter.",
+    "The definition describes the original matching rule without exposing task-specific reference values."
+  ]
+}

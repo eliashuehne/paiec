@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "benchmark": "helm_afr",
+  "review_status": "reviewed",
+  "outcome_meanings": {
+    "zero": "incorrect",
+    "one": "correct"
+  },
+  "question": {
+    "type": "noul",
+    "instructions": "Will the target system's answer receive an exact-match score of 1 under this task's published HELM grading protocol on a single attempt?",
+    "criteria": {
+      "true": "The system's answer receives the published task's exact-match success grade against the accepted references.",
+      "false": "The system's answer receives an exact-match grade of 0 under that same protocol."
+    }
+  },
+  "evidence": {
+    "dataset_revision": "54074453da7b9911be0f48e4c560be547bc84d21",
+    "benchmark_metadata": "payload/data/helm_afr/formatted_tables/benchmarks.parquet",
+    "item_metadata": "payload/data/helm_afr/formatted_tables/items.parquet",
+    "review_notes": "Reviewed response_scale and sampled grading_criterion/verifier for the published exact_match task metric. References can contain several accepted entries; curation imports the published grade unchanged."
+  },
+  "limitations": [
+    "The linked HELM implementation is an inspected reference implementation; the published historical run does not record its exact code revision.",
+    "Prompt demonstrations already present in item content are permitted context; the target item reference answer is excluded."
+  ]
+}

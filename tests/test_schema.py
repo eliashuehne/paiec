@@ -31,9 +31,9 @@ class RecordTests(unittest.TestCase):
         self.assertEqual(tuple(record), SUBJECT_FIELDS)
         self.assertEqual(len(record), 8)
 
-    def test_empty_normalized_name_falls_back_to_display_name(self):
+    def test_empty_normalized_name_stays_empty_despite_display_name(self):
         record = subject_record({"normalized_name": None, "display_name": "Model-X"})
-        self.assertEqual(record["normalized_name"], "Model-X")
+        self.assertEqual(record["normalized_name"], "")
 
     def test_present_normalized_name_wins(self):
         record = subject_record(

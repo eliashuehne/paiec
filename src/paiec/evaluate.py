@@ -17,6 +17,7 @@ import pandas as pd
 from .metrics import BUDGETS, brier, brier_alc, ece
 from .pairs import Pair
 from .split import first_labels, labelled_prefix, make_split
+from .competition import competition_input, competition_labels
 
 Predict = Callable[[dict, dict, list], float]
 
@@ -51,6 +52,7 @@ def score_pair(
     budgets: Sequence[int] = BUDGETS,
     acquisition_items: int | None = None,
     evaluation_items: int | None = None,
+    prediction_records: list[dict] | None = None,
 ) -> list[dict]:
     """Score one pair at every budget."""
     split = make_split(
@@ -68,13 +70,32 @@ def score_pair(
     out = []
     for budget in budgets:
         labeled = labelled_prefix(pair, split, budget, revealed)
+        labeled = competition_labels(labeled)
+        subject = competition_input(pair.subject, {})[0]
+        items = [competition_input(pair.subject, pair.item(item_id))[1] for item_id in split.evaluation]
+        batch_predict = getattr(predict, "predict_many", None)
+        if callable(batch_predict):
+            values = list(batch_predict(subject, items, labeled))
+            if len(values) != len(items):
+                raise ValueError("batch predictor returned the wrong number of probabilities")
+        else:
+            values = [predict(subject, item, labeled) for item in items]
         predictions = {}
-        for item_id in split.evaluation:
-            item = pair.item(item_id)
+        for item_id, value in zip(split.evaluation, values):
             predictions[item_id] = _checked(
-                predict(pair.subject, item, labeled),
+                value,
                 f"{pair.benchmark}/{pair.subject_id} at budget {budget}",
             )
+        if prediction_records is not None:
+            outcomes = rows.groupby("item_id")["label"].agg(["size", "sum"])
+            for item_id in split.evaluation:
+                prediction_records.append({
+                    "benchmark": pair.benchmark, "subject_id": pair.subject_id,
+                    "item_id": item_id, "budget": int(budget),
+                    "probability": predictions[item_id],
+                    "n_responses": int(outcomes.loc[item_id, "size"]),
+                    "n_outcomes_one": int(outcomes.loc[item_id, "sum"]),
+                })
         y = rows["label"].to_numpy()
         p = rows["item_id"].map(predictions).to_numpy()
         out.append(
@@ -99,6 +120,7 @@ def evaluate(
     budgets: Sequence[int] = BUDGETS,
     acquisition_items: int | None = None,
     evaluation_items: int | None = None,
+    prediction_records: list[dict] | None = None,
 ) -> EvalResult:
     """Score a suite of pairs and average the curves with equal pair weight."""
     records = []
@@ -111,6 +133,7 @@ def evaluate(
                 budgets=budgets,
                 acquisition_items=acquisition_items,
                 evaluation_items=evaluation_items,
+                prediction_records=prediction_records,
             )
         )
     frame = pd.DataFrame.from_records(records)

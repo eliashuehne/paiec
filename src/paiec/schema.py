@@ -121,13 +121,10 @@ def load_benchmark(data_root: str | Path, benchmark: str) -> BenchTables:
 def subject_record(row) -> dict:
     """Build the eight-field subject dictionary for one subject row.
 
-    ``normalized_name`` is the evaluator's canonical identity, but the public
-    tables leave it empty for many subjects. Falling back to ``display_name``
-    keeps the identity available locally without inventing a string.
+    Missing normalized names stay empty. ``display_name`` is not a published
+    predictor field and must not be used to fill gaps in the official inputs.
     """
     record = {field: clean(row.get(field)) for field in SUBJECT_FIELDS}
-    if not record["normalized_name"]:
-        record["normalized_name"] = clean(row.get("display_name"))
     return record
 
 

@@ -1,8 +1,8 @@
 """Cross-benchmark subject statistics for the prior predictors.
 
-The numbers are counts, not labels of any evaluation item, so caching them is
-safe: they are derived from the public training release and exclude the
-benchmark being predicted at lookup time.
+The runner builds these counts only from public benchmarks outside the full
+evaluation suite. It keys caches by the training selection and data manifest,
+so a lookup never needs to identify an anonymous test benchmark.
 """
 
 from __future__ import annotations
@@ -13,15 +13,10 @@ import pandas as pd
 
 from .schema import benchmark_dir, canonical_identity, clean
 
-_NULLS = {"", "nan", "none", "nat", "<na>"}
-
-
 def _identity_series(subjects: pd.DataFrame) -> pd.Series:
-    """Subject identity with the same fallback and reduction the harness uses."""
+    """Use only the published normalized name, without display-name enrichment."""
     normalized = subjects["normalized_name"].astype("string").fillna("").str.strip()
-    display = subjects["display_name"].astype("string").fillna("").str.strip()
-    fallback = normalized.str.lower().isin(_NULLS)
-    return normalized.where(~fallback, display).map(canonical_identity)
+    return normalized.map(canonical_identity)
 
 
 def build_subject_stats(
@@ -37,7 +32,7 @@ def build_subject_stats(
         directory = benchmark_dir(data_root, benchmark)
         subjects = pd.read_parquet(
             directory / "subjects.parquet",
-            columns=["subject_id", "normalized_name", "display_name"],
+            columns=["subject_id", "normalized_name"],
         )
         mapping = dict(zip(subjects["subject_id"], _identity_series(subjects)))
         responses = pd.read_parquet(

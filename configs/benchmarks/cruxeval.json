@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "benchmark": "cruxeval",
+  "review_status": "reviewed",
+  "outcome_meanings": {
+    "zero": "The original execution grader returned false.",
+    "one": "The original execution grader returned true."
+  },
+  "question": {
+    "type": "noul",
+    "instructions": "Will the target system's code-reasoning answer pass the task's original execution-based grader on a single attempt?",
+    "criteria": {
+      "true": "The proposed input or output expression satisfies the original execution assertion and the task-specific extraction rules.",
+      "false": "The proposed answer fails the original grader, including invalid expressions, execution errors, or timeouts."
+    }
+  },
+  "evidence": {
+    "dataset_revision": "54074453da7b9911be0f48e4c560be547bc84d21",
+    "benchmark_metadata": "payload/data/cruxeval/formatted_tables/benchmarks.parquet",
+    "item_metadata": "payload/data/cruxeval/formatted_tables/items.parquet",
+    "review_notes": "Reviewed response_scale plus both input- and output-task verifier variants. Input prediction accepts any valid input producing the specified output, not only the released reference input; output prediction uses its original assertion and validity restrictions."
+  },
+  "limitations": [
+    "Input and output tasks have different grader restrictions; their item features identify the task.",
+    "The question describes passing the original grader and does not reveal reference input or output values."
+  ]
+}

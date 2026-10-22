@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "benchmark": "cmmlu",
+  "review_status": "reviewed",
+  "outcome_meanings": {
+    "zero": "The reference parser's extracted option does not exactly equal the recorded gold, including no match.",
+    "one": "The reference parser's extracted option exactly equals the recorded gold."
+  },
+  "question": {
+    "type": "noul",
+    "instructions": "Will the target system's extracted option exactly match the recorded reference option under the benchmark's answer parser on a single attempt?",
+    "criteria": {
+      "true": "The first option captured by the benchmark's answer-pattern parser exactly equals the recorded reference option.",
+      "false": "The extracted option differs from the reference, or the parser finds no matching option."
+    }
+  },
+  "evidence": {
+    "dataset_revision": "54074453da7b9911be0f48e4c560be547bc84d21",
+    "benchmark_metadata": "payload/data/cmmlu/formatted_tables/benchmarks.parquet",
+    "item_metadata": "payload/data/cmmlu/formatted_tables/items.parquet",
+    "review_notes": "Reviewed response_scale and sampled grading_criterion/verifier. The pinned OpenCompass parser uses its first regular-expression match, and a missing match yields an empty option that scores 0."
+  },
+  "limitations": [
+    "This is format-sensitive reconstructed option accuracy, not a new semantic judgment of the answer."
+  ]
+}

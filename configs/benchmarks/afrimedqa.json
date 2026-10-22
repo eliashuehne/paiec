@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "benchmark": "afrimedqa",
+  "review_status": "reviewed",
+  "outcome_meanings": {
+    "zero": "Extracted prediction does not match the reference letter",
+    "one": "Extracted prediction matches the reference letter"
+  },
+  "question": {
+    "type": "noul",
+    "instructions": "Will the target system's extracted answer match the reference answer letter for this item on a single attempt?",
+    "criteria": {
+      "true": "The system's extracted answer equals the reference answer letter under the released extraction and exact-match protocol.",
+      "false": "The system's extracted answer does not equal the reference answer letter under that protocol."
+    }
+  },
+  "evidence": {
+    "dataset_revision": "54074453da7b9911be0f48e4c560be547bc84d21",
+    "benchmark_metadata": "payload/data/afrimedqa/formatted_tables/benchmarks.parquet",
+    "item_metadata": "payload/data/afrimedqa/formatted_tables/items.parquet",
+    "review_notes": "Reviewed benchmark response_scale and sampled item grading_criterion/verifier. The native correct field is imported; null grades remain unknown, not outcome 0."
+  },
+  "limitations": [
+    "Historical extraction is model-specific. Missing grades are excluded rather than interpreted as incorrect."
+  ]
+}

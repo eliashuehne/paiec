@@ -1,4 +1,15 @@
 {
+  "smoke": {
+    "benchmarks": [
+      "bbq",
+      "ai2d_test"
+    ],
+    "pairs_per_benchmark": 1,
+    "evaluation_items": 8,
+    "acquisition_items": 40,
+    "min_items": 80,
+    "seed": 0
+  },
   "default": {
     "benchmarks": [
       "bbq",
@@ -25,5 +36,24 @@
     "acquisition_items": 40,
     "min_items": 80,
     "seed": 0
+  },
+  "sample_10k": {
+    "benchmarks": [
+      "bbq",
+      "editbench",
+      "devbench",
+      "cmmlu",
+      "afrimedqa",
+      "cruxeval",
+      "ai2d_test",
+      "helm_afr"
+    ],
+    "pairs_per_benchmark": 20,
+    "total_pairs": 100,
+    "evaluation_items": 100,
+    "acquisition_items": 40,
+    "min_items": 200,
+    "pair_selection": "random",
+    "seed": null
   }
 }

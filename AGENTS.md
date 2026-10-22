@@ -1,0 +1,122 @@
+# Working on PAIEC / Laya
+
+## Start here
+
+Read `docs/project-status.md` for the current state, important findings, verified
+results, and deferred work. Then read the documentation relevant to the task:
+
+- `docs/benchmark-questions.md`: exact predictor fields and current Laya input.
+- `docs/laya.md`: environment, sampling, context limits, and historical results.
+- `docs/mlflow.md`: tracking, artifacts, and interrupted-run limitations.
+- `docs/outcome-semantics.md`: native binary labels are not always correctness.
+- `docs/data-notes.md`: dataset provenance, tables, and EDA.
+
+## Current user decisions
+
+- The user will explicitly say when to begin switching to Laya-MLX. That
+  migration has **not** been authorized or started. Do not install MLX, replace
+  the runtime, change weights, or silently switch backends during familiarization.
+- The 10,000-input Laya run was stopped at the user's request after 3,000
+  completed evaluation records. The user subsequently canceled the proposed
+  rerun. Do not restart, recompute, or relabel that interrupted run as completed.
+- These constraints apply to the deferred migration and canceled inference run,
+  not to ordinary lightweight unit checks needed for later authorized code work.
+- Explain changes and findings in plain language. Distinguish measured results
+  from proposals, smoke checks, historical experiments, and unverified claims.
+
+## Preserve the prediction task and input boundary
+
+- Predict the **target system's** success, not Laya's ability to answer the task.
+- The active question is `configs/laya_question.json`, prompt version
+  `task_correctness_v1`: “Will the target AI system, using the supplied settings,
+  solve this task correctly on a single attempt?” Laya already returns a
+  probability. Do not reintroduce generic criteria or extra probability
+  instructions without a new user-directed experiment.
+- `src/paiec/competition.py` projects records to the published eight subject and
+  four item fields. Missing values stay empty strings at that interface.
+  Do not enrich missing model names with `display_name`, or supply reference
+  answers, grading rules, target outcomes, or benchmark metadata to prediction.
+- Benchmark IDs are anonymous at the predictor boundary. The Laya renderer
+  omits IDs and empty fields from its text; IDs remain in code to match evidence.
+  Preserve the contents of supplied fields, including benchmark mentions that
+  naturally occur in harness names or task text.
+- `configs/benchmarks/*.json` are retained public-data research notes. They are
+  not an active question registry. Do not restore prompt selection by benchmark
+  name or infer the identities of hidden competition benchmarks.
+- Revealed examples are optional and budget-limited. Default Laya inference
+  ignores them. When enabled, only matching subject/benchmark examples enter
+  the state, with their recorded numeric labels. Never use evaluation labels.
+- Preserve raw labels. Some public tables encode attack success or a decision,
+  rather than correctness; do not silently invert or reinterpret them.
+
+## Environment and verification
+
+- Branch at handoff: `laya`. Check Git status for the current commit and pending
+  changes; the initial handoff preceded the session commit. Preserve existing
+  work. Do not reset, discard, or commit changes unless the user's task calls
+  for that action.
+- Use `.venv-laya/bin/python` for the tested Laya/tracking environment, Python
+  3.12. The separate `.venv` uses Python 3.14; do not mix their dependencies.
+- The current runtime is Laya 0.4.13 with PyTorch/MPS on the user's M4 MacBook.
+  MLX is not installed in this environment. Keep the PyTorch environment
+  available for comparisons if an MLX migration is later requested.
+- The tested combined environment is recorded in `requirements-dev.lock`.
+  `requirements-laya.lock` predates MLflow installation and has dependency
+  differences; use the combined lock when tracking is needed.
+- No fine-tuning has been performed. Cached model weights, payload, and run
+  artifacts live outside Git. Avoid loading the roughly 23.4 GB trace data for
+  routine inspection; the scoring path does not need it.
+- Usual lightweight check, when relevant to authorized code changes:
+
+  ```bash
+  .venv-laya/bin/python -m unittest discover -s tests -p 'test_*.py'
+  git diff --check
+  ```
+
+  The latest recorded full test execution passed 105 tests. Documentation-only
+  work does not require new model inference or evaluation runs.
+
+## Evaluation and experiment integrity
+
+- A subject is the model plus harness/configuration. `n_pairs` counts
+  subject–benchmark combinations; `n_eval_inputs` counts scored subject–item
+  records; `forward_items` counts actual Laya inference inputs after caching.
+  Do not equate those counts or treat repeated budgets as new questions.
+- Brier ALC is lower-is-better; always returning 0.5 gives exactly 0.25.
+  Preserve the 50/50 item split, trial grouping, acquisition exclusion, nested
+  budgets 0/1/3/7/15/31, and equal weighting of subject–benchmark pairs.
+- Use identical seeds, dataset/checkpoint revisions, and sample manifests for
+  direct prompt/backend comparisons. The `sample_10k` suite generates a fresh
+  seed unless `--seed NUMBER` is supplied; the smaller existing suites are fixed
+  by default. Do not launch the large suite merely because it exists.
+- Prior/text training in `scripts/run_eval.py` excludes the entire evaluation
+  suite and keys caches by training selection and corpus manifest. Preserve
+  that boundary. Lower-level cache helpers and `SubjectPrior` alone do not
+  guarantee holdouts if called with contaminated data.
+- Log exact prompts, actual backend/device/precision, package and checkpoint
+  versions, seed/sample IDs, truncation, and source/config state for new work.
+  Do not overwrite historical metrics to make a changed experiment appear
+  equivalent to an older run.
+- The runner currently saves final predictions/scores only after a predictor
+  completes. Running progress counters are **not** prediction checkpoints.
+  Graceful interruption, resumable checkpoints, and partial-score finalization
+  are outstanding work, not implemented features. Never promise them as present.
+- Local input conformity does not establish Codabench packaging/runtime
+  compatibility. Hosted execution has not been verified.
+
+<!-- CODEGRAPH_START -->
+## CodeGraph
+
+In repositories indexed by CodeGraph (a `.codegraph/` directory exists at the
+repo root), reach for it BEFORE grep/find or reading files when you need to
+understand or locate code:
+
+- **MCP tool** (when available): `codegraph_explore` answers most code questions
+  in one call: relevant symbols' verbatim source and call paths. Name a file or
+  symbol to read its current line-numbered source.
+- **Shell**: `codegraph explore "<symbol names or question>"` prints the same
+  output.
+
+If there is no `.codegraph/` directory, skip CodeGraph entirely. Indexing is the
+user's decision. There was no `.codegraph/` directory at this handoff.
+<!-- CODEGRAPH_END -->

@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "benchmark": "bbq",
+  "review_status": "reviewed",
+  "outcome_meanings": {
+    "zero": "The parsed choice differs from the reference option.",
+    "one": "The parsed choice matches the reference option."
+  },
+  "question": {
+    "type": "noul",
+    "instructions": "Will the target system's parsed choice match the reference option for this question on a single attempt?",
+    "criteria": {
+      "true": "The system's decoded choice matches the reference option under the benchmark's recorded answer-decoding rules.",
+      "false": "The system's decoded choice differs from the reference option under those rules."
+    }
+  },
+  "evidence": {
+    "dataset_revision": "54074453da7b9911be0f48e4c560be547bc84d21",
+    "benchmark_metadata": "payload/data/bbq/formatted_tables/benchmarks.parquet",
+    "item_metadata": "payload/data/bbq/formatted_tables/items.parquet",
+    "review_notes": "Reviewed response_scale and sampled grading_criterion/verifier. The scoring target is decoded-option matching, not a general social-bias score. Unmatched predictions are kept ungraded."
+  },
+  "limitations": [
+    "Unmatched predictions have unknown grades rather than automatically scoring 0.",
+    "Ambiguous and disambiguated questions share the same decoded-reference matching target."
+  ]
+}

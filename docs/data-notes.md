@@ -16,11 +16,18 @@ python baseline/tools/prepare_data.py --out payload --no-embeddings
   `response_type == "binary"` and `granularity == "item"`.
 - 304 parquet files, 24.22 GB, of which 23.4 GB is `traces.parquet` and 17 GB of
   that is `alignment_faking` alone. The tables used for training and scoring
-  total under 1 GB. Nothing in this repository reads traces.
+  total under 1 GB. Routine scoring and EDA do not load trace content; the
+  outcome audit inspected selected archived native fields for semantic checks.
 - Roughly 1.36M items and 16.4M responses. The largest benchmarks by response
   count are bridging_gap, alignment_faking, babilong, afrieval, and cruxeval.
-- 6,895 subject-benchmark pairs have at least 80 distinct items, which is the
-  rule that makes a pair scoreable.
+- 6,870 subject-benchmark pairs have at least 80 distinct items with observed
+  binary outcomes. Counting items whose outcomes are missing gives 6,895;
+  those unknown outcomes cannot be scored by the local harness.
+
+The full local audit is reproducible with `scripts/eda.py`. See
+`runs/eda/report.html` for its report and `runs/eda/` for CSV statistics,
+schemas, examples, and plots. The audit found that binary outcomes do not
+universally mean correctness: consult each benchmark's `response_scale`.
 
 Per-table schema:
 
@@ -30,12 +37,13 @@ Per-table schema:
 | `items.parquet` | item_id, content, item_features |
 | `response.parquet` | subject_id, item_id, response, trial, interactors |
 
-`traces.parquet` is downloaded but unused.
+`traces.parquet` is not used by predictors. See
+[outcome-semantics.md](outcome-semantics.md) for the selective native-record audit.
 
 ## Two data quirks that shape the code
 
-`normalized_name` is empty for many subjects, so `schema.subject_record` falls
-back to `display_name`. The same system is also named differently across
+`normalized_name` is empty for many subjects. The competition-shaped input
+keeps it empty; `display_name` is not used to fill it. The same system is also named differently across
 benchmarks (`CMMLU / gemma3_27b_it`, `UnifiedQA-T5-11B (ARC prompt)`), so
 `canonical_identity` reduces names before any cross-benchmark lookup. Even after
 that reduction most systems appear in a single benchmark, which limits how much

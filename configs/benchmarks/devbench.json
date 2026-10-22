@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "benchmark": "devbench",
+  "review_status": "reviewed",
+  "outcome_meanings": {
+    "zero": "The target did not strictly outrank every distractor, including ties.",
+    "one": "The target strictly outranked every distractor."
+  },
+  "question": {
+    "type": "noul",
+    "instructions": "Will the target system assign the intended target a strictly higher choice score than every distractor for this item?",
+    "criteria": {
+      "true": "The intended target receives a strictly greater score than every distractor under the original forced-choice comparison.",
+      "false": "At least one distractor receives an equal or greater score than the intended target; ties do not count as success."
+    }
+  },
+  "evidence": {
+    "dataset_revision": "54074453da7b9911be0f48e4c560be547bc84d21",
+    "benchmark_metadata": "payload/data/devbench/formatted_tables/benchmarks.parquet",
+    "item_metadata": "payload/data/devbench/formatted_tables/items.parquet",
+    "review_notes": "Reviewed response_scale and all three distinct verifier variants: lex-lwl, lex-viz_vocab, and gram-trog. They share the strict target-versus-all-distractors rule. This is a ranking event rather than generic generated-answer matching."
+  },
+  "limitations": [
+    "Many items require images; the current text-only adapter receives image references without the image bytes.",
+    "The stored observations are derived from released comparison scores rather than a reconstructed full historical API transcript."
+  ]
+}

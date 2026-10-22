@@ -7,12 +7,14 @@ evaluation pools, so the harness builds the same unit here.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Iterator
 
 import pandas as pd
+import numpy as np
 
 from .schema import BenchTables, clean, item_record, subject_record
+from .split import stable_seed
 
 
 @dataclass(frozen=True)
@@ -72,15 +74,50 @@ def choose_pairs(
     *,
     max_subjects: int,
     min_items: int = 80,
+    randomize: bool = False,
+    seed: int = 0,
 ) -> list[Pair]:
     """Pick a deterministic, reproducible subset of a benchmark's pairs.
 
     Subjects are sorted by id so the same benchmark always yields the same
     pairs regardless of table ordering.
     """
-    pairs = list(iter_pairs(tables, min_items=min_items))
-    pairs.sort(key=lambda pair: pair.subject_id)
-    return pairs[:max_subjects]
+    counts = tables.responses.groupby("subject_id")["item_id"].nunique()
+    eligible = sorted(counts[(counts >= min_items) & counts.index.isin(tables.subjects.index)].index, key=str)
+    if randomize:
+        rng = np.random.default_rng(stable_seed(seed, tables.benchmark, "subject-selection"))
+        rng.shuffle(eligible)
+    selected = eligible[:max_subjects]
+    # Select IDs before constructing Pair objects, avoiding copies for every
+    # eligible subject when a benchmark contains hundreds of systems.
+    subset = replace(tables, responses=tables.responses[tables.responses.subject_id.isin(selected)])
+    pairs = {pair.subject_id: pair for pair in iter_pairs(subset, min_items=min_items)}
+    return [pairs[str(subject_id)] for subject_id in selected]
 
 
-__all__ = ["Pair", "iter_pairs", "choose_pairs", "clean"]
+def balanced_pairs(pairs: list[Pair], total: int, *, seed: int) -> list[Pair]:
+    """Sample without replacement across benchmarks, without using outcomes.
+
+    Cycle through benchmarks in shuffled order. When a benchmark has fewer
+    subjects, redistribute its remaining allocation across other benchmarks.
+    """
+    if len(pairs) < total:
+        raise ValueError(f"requested {total} pairs but only {len(pairs)} eligible candidates were loaded")
+    groups = {}
+    for pair in pairs:
+        groups.setdefault(pair.benchmark, []).append(pair)
+    rng = np.random.default_rng(stable_seed(seed, "benchmark-balanced-pairs"))
+    for group in groups.values():
+        rng.shuffle(group)
+    selected = []
+    while len(selected) < total:
+        active = sorted(name for name, group in groups.items() if group)
+        rng.shuffle(active)
+        for name in active:
+            selected.append(groups[name].pop())
+            if len(selected) == total:
+                break
+    return selected
+
+
+__all__ = ["Pair", "iter_pairs", "choose_pairs", "balanced_pairs", "clean"]
