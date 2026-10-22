@@ -74,6 +74,32 @@ usual PyTorch device; `mps` maps to MLX GPU too. `cpu` is selectable in both;
 `cuda` is valid only with PyTorch. MLX requires an Apple Silicon Mac and is not
 an Apple Neural Engine backend.
 
+## Context limit follows the checkpoint
+
+`--laya-max-len` is optional. Omitting it uses the length each checkpoint
+records in its own `rl_agent_config.json`:
+
+| Checkpoint | Trained `max_len` | `head_max_len` | Encoder ceiling |
+| --- | --- | --- | --- |
+| English | 512 | 192 | 8192 |
+| Multilingual | 1024 | 256 | 8192 |
+
+Before this change both CLI and config defaulted to 512, so multilingual runs
+truncated states below the length that checkpoint was fine-tuned at. The
+encoder accepts up to 8192, but inference far past the trained length is not
+the setting the checkpoint was optimized for; 2048 is the largest ceiling worth
+testing deliberately.
+
+Truncation is concentrated, not spread across the suite. Measured on the
+`sample_1k` evaluation split (1,000 distinct zero-shot states, seed 20261021)
+with `scripts/measure_tokens.py`: 192 states (19.2%) exceed 512 tokens, and
+editbench (89/100, median 1556) plus helm_afr (100/100, median 804) account for
+191 of them. devbench, bbq, cmmlu, ai2d_test, and cruxeval never or almost
+never truncate at 512. Suite median is 296 tokens. Because the harness pads to
+the ceiling, cost is roughly linear in `max_len`; see
+[the runner](laya.md#measured-token-distribution) for the table and the
+reproduction command.
+
 ## Same original weights and explicit precision
 
 Both backends load the **original** `convaiinnovations/laya` checkpoint, pinned
@@ -95,7 +121,7 @@ by default to `7b928d828b7b0e022f929d9bd2e44165aa270148`:
 
 ## Validation on the user's M4
 
-All **116 shared unit tests pass in both environments**. Real smoke evaluations
+All **119 shared unit tests pass in both environments**. Real smoke evaluations
 completed for PyTorch English, MLX English, and MLX multilingual. No large
 evaluation was launched for this integration.
 

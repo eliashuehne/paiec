@@ -59,6 +59,22 @@ class LayaTests(unittest.TestCase):
         self.assertEqual(router.requests[0]["model"], "multilingual")
         self.assertEqual(router.requests[0]["max_len"], 1024)
 
+    def test_max_len_defaults_to_each_checkpoints_trained_length(self):
+        for model, trained in (("english", 512), ("multilingual", 1024)):
+            with self.subTest(model=model):
+                router = FakeRouter()
+                predictor = LayaPredictor(router=router, model=model)
+                self.assertEqual(predictor.max_len, trained)
+                predictor(SUBJECT, ITEM, [])
+                self.assertEqual(router.requests[0]["max_len"], trained)
+
+    def test_explicit_max_len_overrides_the_checkpoint_default(self):
+        router = FakeRouter()
+        predictor = LayaPredictor(router=router, model="multilingual", max_len=2048)
+        self.assertEqual(predictor.max_len, 2048)
+        predictor(SUBJECT, ITEM, [])
+        self.assertEqual(router.requests[0]["max_len"], 2048)
+
     def test_invalid_probabilities_fail_instead_of_silently_becoming_scores(self):
         for value in (float("nan"), float("inf"), -0.1, 1.1):
             with self.subTest(value=value), self.assertRaises(ValueError):

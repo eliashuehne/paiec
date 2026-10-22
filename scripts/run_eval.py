@@ -178,7 +178,9 @@ def main() -> int:
     ap.add_argument("--laya-dtype", choices=["auto", "float16", "float32"], default="auto",
                     help="MLX precision (auto=float16); torch requires auto and retains upstream precision policy")
     ap.add_argument("--laya-device", choices=["auto", "mps", "cpu", "cuda"], default="auto")
-    ap.add_argument("--laya-max-len", type=int, default=512)
+    ap.add_argument("--laya-max-len", type=int, default=None,
+                    help="token ceiling; defaults to the checkpoint's own trained length "
+                         "(english 512, multilingual 1024)")
     ap.add_argument("--laya-batch-size", type=int, default=1)
     ap.add_argument("--laya-use-labels", action="store_true", help="include revealed examples in Laya's input")
     ap.add_argument("--laya-revision", default=DEFAULT_CHECKPOINT_REVISION, help="pinned upstream checkpoint revision")
@@ -233,7 +235,9 @@ def main() -> int:
         if name == "laya":
             params.update({f"laya_{key}": value for key, value in settings.laya.model_dump().items()
                            if value is not None and key != "revision"})
-            title += f" / {args.laya_backend} / {args.laya_dtype} / {args.laya_model} / {args.laya_max_len} / {'with labels' if args.laya_use_labels else 'zero-shot'}"
+            # settings.laya.max_len is already resolved, so an omitted flag still
+            # labels the run with the concrete ceiling it actually used.
+            title += f" / {args.laya_backend} / {args.laya_dtype} / {args.laya_model} / {settings.laya.max_len} / {'with labels' if args.laya_use_labels else 'zero-shot'}"
             from paiec.laya_predictor import PROMPT_VERSION
             params["laya_prompt_version"] = PROMPT_VERSION
             title += f" / {PROMPT_VERSION}"
@@ -340,7 +344,8 @@ def main() -> int:
         prompt_version = metadata["predictors"]["laya"]["prompt_version"]
         runtime = metadata["predictors"]["laya"]["runtime"]
         dtype = runtime["compute_dtype"].removeprefix("torch.")
-        default_out /= f"laya_{args.laya_backend}_{dtype}_{INPUT_CONTRACT}_{args.laya_model}_{args.laya_max_len}_{mode}_{prompt_version}"
+        default_out /= (f"laya_{args.laya_backend}_{dtype}_{INPUT_CONTRACT}_"
+                        f"{args.laya_model}_{settings.laya.max_len}_{mode}_{prompt_version}")
     if suite["pair_selection"] == "random":
         default_out /= f"seed_{suite['seed']}"
     out = Path(args.out) if args.out else default_out

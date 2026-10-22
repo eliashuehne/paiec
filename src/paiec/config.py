@@ -6,6 +6,12 @@ from pydantic import BaseModel, ConfigDict, Field, FiniteFloat, StringConstraint
 
 PredictorName = Literal["constant", "empirical_mean", "subject_prior", "shrunk_mean", "text_ridge", "laya"]
 
+# Each checkpoint was fine-tuned at a fixed sequence length recorded in its own
+# `rl_agent_config.json`. Reading the model's own config is the honest default:
+# a shared 512 would truncate the multilingual checkpoint below what it was
+# trained on. See docs/laya-backends.md for the measured token distribution.
+TRAINED_MAX_LEN = {"english": 512, "multilingual": 1024}
+
 
 class LayaQuestion(BaseModel):
     """The shared yes/no question. Laya supplies its probability directly."""
@@ -43,7 +49,7 @@ class LayaConfig(BaseModel):
     dtype: Literal["auto", "float16", "float32"] = "auto"
     model: Literal["english", "multilingual"] = "english"
     device: Literal["auto", "mps", "cpu", "cuda"] = "auto"
-    max_len: int = Field(default=512, ge=1, le=8192)
+    max_len: int | None = Field(default=None, ge=1, le=8192)
     batch_size: int = Field(default=1, ge=1)
     use_labels: bool = False
     revision: str | None = None
@@ -54,6 +60,10 @@ class LayaConfig(BaseModel):
             raise ValueError("MLX does not support CUDA")
         if self.backend == "torch" and self.dtype != "auto":
             raise ValueError("Normal Laya manages precision automatically; use dtype=auto")
+        if self.max_len is None:
+            # Resolve here so every downstream consumer (title, output folder,
+            # tracked params, requests) sees one concrete value.
+            self.max_len = TRAINED_MAX_LEN[self.model]
         return self
 
 

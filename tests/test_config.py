@@ -33,8 +33,13 @@ class ConfigTests(unittest.TestCase):
                 EvaluationConfig.model_validate(settings)
 
     def test_invalid_model_settings_are_rejected(self):
-        for values in ({"max_len": 8193}, {"batch_size": 0}, {"model": "unknown"},
+        for values in ({"max_len": 8193}, {"max_len": 0}, {"batch_size": 0}, {"model": "unknown"},
                        {"backend": "unknown"}, {"backend": "mlx", "device": "cuda"},
                        {"backend": "torch", "dtype": "float16"}):
             with self.subTest(values=values), self.assertRaises(ValidationError):
                 LayaConfig.model_validate(values)
+
+    def test_omitted_max_len_resolves_to_the_checkpoints_trained_length(self):
+        self.assertEqual(LayaConfig().max_len, 512)
+        self.assertEqual(LayaConfig(model="multilingual").max_len, 1024)
+        self.assertEqual(LayaConfig(model="multilingual", max_len=2048).max_len, 2048)

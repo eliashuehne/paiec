@@ -50,12 +50,14 @@ class LayaPredictor:
     prompt_version = PROMPT_VERSION
 
     def __init__(
-        self, *, model: str = "english", device: str = "auto", max_len: int = 512,
+        self, *, model: str = "english", device: str = "auto", max_len: int | None = None,
         batch_size: int = 1, use_labels: bool = False, revision: str | None = None,
         router=None, backend: str = "mlx", dtype: str = "auto",
     ):
-        LayaConfig(model=model, device=device, max_len=max_len, batch_size=batch_size,
-                   use_labels=use_labels, revision=revision, backend=backend, dtype=dtype)
+        settings = LayaConfig(model=model, device=device, max_len=max_len, batch_size=batch_size,
+                              use_labels=use_labels, revision=revision, backend=backend, dtype=dtype)
+        # LayaConfig resolves an omitted max_len to the checkpoint's trained length.
+        max_len = settings.max_len
         self.questions = load_questions()
         if model not in {"english", "multilingual"}:
             raise ValueError("model must be english or multilingual")

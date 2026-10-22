@@ -109,17 +109,59 @@ while this adapter reads stored text only. Inspect per-benchmark results and
 truncation before interpreting an aggregate score as model quality.
 
 The `default` suite has 32 pairs across eight benchmarks and up to 120 evaluation
-items per pair. Run both checkpoints at the same context budget:
+items per pair:
 
 ```bash
-.venv-laya-mlx/bin/python scripts/run_eval.py --suite default --predictor constant empirical_mean laya --laya-model english --laya-max-len 512
-.venv-laya-mlx/bin/python scripts/run_eval.py --suite default --predictor constant empirical_mean laya --laya-model multilingual --laya-max-len 512
+.venv-laya-mlx/bin/python scripts/run_eval.py --suite default --predictor constant empirical_mean laya --laya-model english
+.venv-laya-mlx/bin/python scripts/run_eval.py --suite default --predictor constant empirical_mean laya --laya-model multilingual
 ```
 
-To test longer inputs, repeat with `--laya-max-len 2048`. A larger limit can
-increase runtime and memory. Inputs exceeding the limit are truncated by
-Laya; `run.json` records the number of truncated forward inputs and dropped
-state tokens. A bigger budget does not guarantee better predictions.
+Omitting `--laya-max-len` uses each checkpoint's own trained length, read from
+its `rl_agent_config.json`: **512 for English, 1024 for multilingual**. A shared
+512 default truncated multilingual states below the length that checkpoint was
+fine-tuned at, so the flag is now optional and the resolved ceiling appears in
+the run title, tracked parameters, and output folder.
+
+Set `--laya-max-len` explicitly only for a deliberate comparison. A larger
+limit can increase runtime and memory: the harness pads each item to the
+ceiling, so cost is roughly linear in `max_len`. Inputs exceeding the limit are
+truncated by Laya; `run.json` records the number of truncated forward inputs
+and dropped state tokens. A bigger budget does not guarantee better
+predictions, and going far past the trained length moves inference outside the
+length the checkpoint was optimized for.
+
+### Measured token distribution
+
+Character counts mislead here; the state is tokenized as JSON. Rebuild the
+exact zero-shot states for a suite's evaluation split with:
+
+```bash
+.venv-laya-mlx/bin/python scripts/measure_tokens.py --config runs/configs/sample_1k.json --suite sample_1k --seed 20261021 --json runs/token_distribution_sample_1k.json
+```
+
+This loads the pinned tokenizer, not model weights. On the `sample_1k` suite
+(1,000 scored states, seed 20261021) the result was:
+
+| Benchmark | Items | Median tokens | Max | Over 512 |
+| --- | --- | --- | --- | --- |
+| editbench | 100 | 1556 | 11443 | 89 |
+| helm_afr | 100 | 804 | 3562 | 100 |
+| cruxeval | 100 | 448 | 515 | 2 |
+| afrimedqa | 100 | 283 | 536 | 1 |
+| cmmlu | 200 | 308 | 509 | 0 |
+| devbench | 100 | 286 | 313 | 0 |
+| bbq | 100 | 204 | 272 | 0 |
+| ai2d_test | 200 | 288 | 337 | 0 |
+| **Suite** | **1000** | **296** | **11443** | **192 (19.2%)** |
+
+Truncation at 512 tokens is concentrated in two benchmarks, editbench and
+helm_afr. Half the suite never truncates at all. Shares over larger ceilings:
+1024 → 9.6%, 2048 → 4.1%, 4096 → 1.8%, 8192 → 0.8%.
+
+The truncated-forward counter in `run.json` is not this number. It counts
+forward *records*, so a state shared across label budgets is counted once per
+budget; the `sample_1k` run reported 221 truncated forwards against 192
+distinct over-length states.
 
 Batch size defaults to one for conservative memory use. Try
 `--laya-batch-size 2` for batching. Progress is printed for each pair.
@@ -179,8 +221,8 @@ commands above verify real checkpoint inference on the downloaded payload.
 The latest backend-integration test runs are recorded in `runs/mlx_tests.log`
 and `runs/torch_tests.log`. The earlier sampling implementation passed 105
 tests; the current suite adds runtime-interface checks, including the MLX
-memory-limit setup order and the trim hook. It now passes 116 tests in both
-environments.
+memory-limit setup order and the trim hook, plus the per-checkpoint context
+default. It now passes 119 tests in both environments.
 Before MLX integration, `task_correctness_v1` English MPS smoke runs completed
 with and without revealed examples at a 512-token limit. The zero-shot run
 processed 16 inputs without truncation; the example-enabled run processed 96
