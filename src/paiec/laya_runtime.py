@@ -1,13 +1,14 @@
 """Interchangeable inference engines behind the shared Laya predictor.
 
 Importing this module does not import torch or MLX. Both engines load the same
-pinned upstream files, not a separately fine-tuned or converted Hub model.
+pinned upstream files by default. Local training artifacts require an explicit path.
 """
 
 from __future__ import annotations
 
 import gc
 import hashlib
+import json
 from importlib.metadata import version
 import os
 from pathlib import Path
@@ -73,6 +74,30 @@ def checkpoint_files(model: str, revision: str) -> tuple[Path, dict]:
                         "checkpoint_sha256": hashes}
 
 
+def local_checkpoint_files(path: str, model: str) -> tuple[Path, dict]:
+    """Explicit project training artifacts; never replace the pinned default."""
+    checkpoint = Path(path).expanduser().resolve()
+    manifest = json.loads((checkpoint / "paiec_training.json").read_text())
+    if manifest.get("model") != model:
+        raise ValueError("Local checkpoint model differs from requested model")
+    hashes = {}
+    for name, expected in manifest["artifact_sha256"].items():
+        relative = Path(name)
+        if relative.is_absolute() or ".." in relative.parts:
+            raise ValueError("Invalid checkpoint artifact path")
+        with (checkpoint / relative).open("rb") as handle:
+            hashes[name] = hashlib.file_digest(handle, "sha256").hexdigest()
+        if hashes[name] != expected:
+            raise ValueError(f"Local checkpoint hash mismatch: {name}")
+    required = {"model.safetensors", "rl_agent_config.json", "encoder/config.json", "tokenizer/tokenizer.json"}
+    if not required <= hashes.keys():
+        raise ValueError("Incomplete local checkpoint manifest")
+    identity = hashlib.sha256(json.dumps(hashes, sort_keys=True).encode()).hexdigest()
+    return checkpoint, {"checkpoint_repository": "local", "checkpoint_revision": "local-" + identity,
+                        "checkpoint_path": str(checkpoint), "checkpoint_sha256": hashes,
+                        "training_provenance": manifest}
+
+
 class AgentRuntime:
     """Normalize the common Agent API to the request-list interface we use."""
 
@@ -136,7 +161,7 @@ class AgentRuntime:
 
 
 def create_runtime(*, backend: str, model: str, device: str, dtype: str,
-                   revision: str | None, batch_size: int) -> LayaRuntime:
+                   revision: str | None, batch_size: int, checkpoint_path: str | None = None) -> LayaRuntime:
     if backend not in {"torch", "mlx"}:
         raise ValueError("backend must be torch or mlx")
     if dtype not in {"auto", "float16", "float32"}:
@@ -160,7 +185,8 @@ def create_runtime(*, backend: str, model: str, device: str, dtype: str,
         mx.set_memory_limit(memory_limit)
         resolved_device = "gpu" if device in {"auto", "mps"} else "cpu"
         resolved_dtype = "float16" if dtype == "auto" else dtype
-        checkpoint, source = checkpoint_files(model, revision or DEFAULT_CHECKPOINT_REVISION)
+        checkpoint, source = (local_checkpoint_files(checkpoint_path, model) if checkpoint_path else
+                              checkpoint_files(model, revision or DEFAULT_CHECKPOINT_REVISION))
         agent = laya_mlx.load(str(checkpoint), device=resolved_device, dtype=resolved_dtype,
                               batch_size=batch_size, local_files_only=True)
         precision = {"precision_policy": "explicit", "weight_dtype": resolved_dtype,
@@ -177,7 +203,8 @@ def create_runtime(*, backend: str, model: str, device: str, dtype: str,
         if device == "auto":
             resolved_device = "mps" if torch.backends.mps.is_available() else (
                 "cuda" if torch.cuda.is_available() else "cpu")
-        checkpoint, source = checkpoint_files(model, revision or DEFAULT_CHECKPOINT_REVISION)
+        checkpoint, source = (local_checkpoint_files(checkpoint_path, model) if checkpoint_path else
+                              checkpoint_files(model, revision or DEFAULT_CHECKPOINT_REVISION))
         agent = laya.load(str(checkpoint), device=resolved_device)
         precision = {"precision_policy": "upstream_auto", "compute_dtype": "upstream_auto",
                      "autocast_dtype": str(agent.dtype),

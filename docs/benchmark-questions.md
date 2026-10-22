@@ -84,6 +84,31 @@ The pretrained checkpoint is unchanged. The same shared predictor supports
 `--laya-backend mlx` (default, `.venv-laya-mlx`) and `--laya-backend torch`
 (reference, `.venv-laya`). See [laya-backends.md](laya-backends.md).
 
+## Opt-in input-design experiments
+
+On 2026-10-22 the user authorized testing state formatting and short question
+variants, including a system-description ablation. These experiments are run
+separately by `scripts/run_input_experiments.py`, with definitions in
+`configs/experiments/input_design.json`. They do not change the default question
+or the ordinary evaluation CLI.
+
+The shared predictor accepts a validated experimental question only with a
+distinct prompt version. `state_format="text_v1"` renders projected fields as
+readable text and expands nested JSON without adding information.
+`omit_system=True` is a diagnostic ablation, not a production recommendation;
+evidence matching still uses the original subject. Both options are explicit
+and logged by the experiment script. The original JSON renderer remains the
+default. Anonymous IDs and unavailable metadata stay out of every rendering.
+
+The `audit` phase saves exact retained token sequences and decoded states without
+loading weights; `prompts` compares the baseline with three wordings;
+`states --question NAME` holds a selected question fixed while comparing JSON,
+readable text, and text without system details. `evidence` compares JSON/text
+with revealed examples on a smaller matched sample. `confirm` uses 120 items
+per pair instead of the 20-item development screen. Every phase requires a new
+output directory to protect historical artifacts. See
+[experiment-log.md](experiment-log.md) for findings and run IDs.
+
 ## Run a comparison
 
 ```bash
@@ -124,3 +149,80 @@ that seed and complete acquisition/evaluation item IDs in `sample_manifest.csv`.
 Within a command, every predictor uses exactly the same sample. Pass the saved
 `--seed NUMBER` for controlled prompt/model comparisons. See
 [laya.md](laya.md) for sampling, inference-count, and text-only limitations.
+
+## Recorded system context: `context_v1`
+
+Implemented after the original-table audit in
+[input-context-audit.md](input-context-audit.md). Use
+`--laya-state-format context_v1` with `scripts/run_eval.py`, or
+`LayaPredictor(state_format="context_v1")`. Both native backends share it.
+JSON remains the default for existing checkpoints and historical comparisons.
+The correctness question and published field projection are unchanged.
+
+The renderer keeps the supplied canonical model/provider/harness/version/effort
+fields. It groups settings from `subject_features_extra` into recorded model
+identifiers/checkpoints, harness/agent settings, reasoning/generation settings,
+prompting/few-shot settings, and other recorded settings. These are descriptive
+groups, not additional facts or fallbacks for missing canonical fields. Dates
+remain in the system block; task content/features/tools follow. Task text is
+literal, including code, JSON strings, encoded strings and answer options.
+
+A conservative key=value parser handles quoted strings and nested JSON. It
+retains duplicate keys, empty values and unfamiliar settings; malformed input
+falls back to the complete original literal. Explicit configuration fields such
+as `agent_configuration` support one pass of percent decoding when the result
+is valid JSON. The rendering labels this as URL-decoded JSON. Plus signs and
+leaf strings stay literal. Duplicate JSON keys and invalid configurations fall
+back to their original value. No arbitrary task text is URL-decoded or executed.
+
+Example from the real AdaptiveStep record:
+
+```text
+Target AI system
+harness: ASPRM
+subject_features_extra (recorded settings):
+  Recorded model identifiers and checkpoints:
+    model_identifier: MetaMath-Mistral
+
+Target task
+item_content: Simplify $(-k + 4) + (-2 + 3k)$.
+item_features: dataset=math500;prompt_origin=released_question
+```
+
+Evaluation configs, MLflow parameters/run names, actual input-example artifacts,
+and default output folders distinguish the format. Input-design audit/state/
+evidence comparisons now include `context_v1`. No new inference or quality
+comparison has been run for it; the existing smoke checkpoint was trained on
+JSON. Use identical model/sample/precision settings for a direct comparison.
+
+### Versioned training-input preview and token audit
+
+```bash
+.venv-laya-mlx/bin/python scripts/preview_context_inputs.py \
+  --source runs/head_finetuning/data_v2/training.jsonl \
+  --out runs/NEW_CONTEXT_EXPORT
+```
+
+This writes a separate `inputs_context_v1.jsonl` with the same row order,
+questions and expected labels, plus source/export hashes, per-row token audits,
+summary and representative text examples. It refuses an existing output folder.
+It uses only the pinned tokenizer; it does not load weights, train, score, or
+read confirmation data. Original provenance row ordering can identify records,
+but original state/effective-input hashes and truncation flags describe JSON
+and must not be reused for the new format. This is an input export, not a full
+pilot training manifest or resumable training artifact.
+
+Saved previews:
+
+| Source | Format | Rows | Truncated at 512 | Complete tasks | Median state tokens |
+| --- | --- | ---: | ---: | ---: | ---: |
+| 256-row smoke | JSON | 256 | 0 | 256 | 291 |
+| 256-row smoke | context_v1 | 256 | 0 | 256 | 251 |
+| Full training | JSON | 5,000 | 2,711 | 2,289 | 763.5 |
+| Full training | context_v1 | 5,000 | 2,687 | 2,313 | 722.5 |
+
+Artifacts: `runs/context_v1_smoke_preview/` and
+`runs/context_v1_training_preview/`. All system blocks fit in these checks.
+This is a modest visibility improvement; 53.74% of the full training inputs
+still truncate. It does not establish improved Brier ALC. No original frozen
+exports, checkpoints, or previous scores were modified.

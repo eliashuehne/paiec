@@ -1,0 +1,438 @@
+{
+  "dataset_revision": "54074453da7b9911be0f48e4c560be547bc84d21",
+  "seed": 20261022,
+  "training_rows": 5000,
+  "calibration_rows": 1000,
+  "subjects_per_benchmark": 4,
+  "min_items": 80,
+  "acquisition_items": 40,
+  "evaluation_items": 120,
+  "reviews": {
+    "abstract_reason": {
+      "family": "abstract_reason",
+      "status": "eligible",
+      "reason": "Correct/solved flag with recorded text demonstrations; preserve historical parser verdicts; flag severe truncation.",
+      "domain": "reasoning",
+      "has_english": true
+    },
+    "adaptivestep": {
+      "family": "gsm8k_math",
+      "status": "eligible",
+      "reason": "GSM8K/MATH-500 answer-check correctness; shared underlying tasks kept in one family. Drop missing binary outcomes.",
+      "domain": "reasoning",
+      "has_english": true
+    },
+    "advprompter": {
+      "family": "advprompter",
+      "status": "excluded",
+      "reason": "Native attack-success event is not target-answer correctness; do not invert raw labels.",
+      "domain": "other",
+      "has_english": true
+    },
+    "aegis": {
+      "family": "aegis",
+      "status": "excluded",
+      "reason": "Native response safety judgment is not general task correctness.",
+      "domain": "other",
+      "has_english": true
+    },
+    "afrieval": {
+      "family": "masakhane_ner",
+      "status": "eligible",
+      "reason": "Sentence-level exact BIO-tag correctness; tokenized text inputs are supplied. All MasakhaNER variants stay together.",
+      "domain": "structured",
+      "has_english": false
+    },
+    "afrimedqa": {
+      "family": "afrimedqa",
+      "status": "monitoring",
+      "reason": "Previously used eight-benchmark monitoring suite; excluded from every fitting/selection role.",
+      "domain": "other",
+      "has_english": true
+    },
+    "agentic_review_perturbation": {
+      "family": "agentic_review_perturbation",
+      "status": "deferred",
+      "reason": "Per-error detection depends on unavailable error definition and extremely long paper input; not the initial correctness pilot.",
+      "domain": "other",
+      "has_english": true
+    },
+    "agi_elo": {
+      "family": "mmlu_winogrande",
+      "status": "monitoring_related",
+      "reason": "Metadata identifies MMLU and/or Winogrande source overlap with HELM-AFR; reserve the entire source family.",
+      "domain": "other",
+      "has_english": true
+    },
+    "ai2d_test": {
+      "family": "ai2d_test",
+      "status": "monitoring",
+      "reason": "Previously used eight-benchmark monitoring suite; excluded from every fitting/selection role.",
+      "domain": "other",
+      "has_english": true
+    },
+    "aider": {
+      "family": "aider",
+      "status": "deferred",
+      "reason": "No subject has 80 distinct linked binary-observed items in the reviewed EDA; insufficient competition-style pair coverage.",
+      "domain": "other",
+      "has_english": true
+    },
+    "algotune": {
+      "family": "algotune",
+      "status": "deferred",
+      "reason": "Binary speedup threshold needs a separate task-success semantics review.",
+      "domain": "other",
+      "has_english": true
+    },
+    "alignment_faking": {
+      "family": "alignment_faking",
+      "status": "excluded",
+      "reason": "Detected behavior/decision/factuality segment or mixed event is not an established universal task-correctness target.",
+      "domain": "other",
+      "has_english": true
+    },
+    "alpha_sql": {
+      "family": "bird",
+      "status": "deferred",
+      "reason": "BIRD source overlaps bird_sql, but SQL database assets/context need further input audit.",
+      "domain": "other",
+      "has_english": true
+    },
+    "appworld": {
+      "family": "appworld",
+      "status": "deferred",
+      "reason": "Task outcome may be success, but environment, asset or evidence completeness needs further audit.",
+      "domain": "other",
+      "has_english": true
+    },
+    "auditing_sabotage_bench": {
+      "family": "auditing_sabotage_bench",
+      "status": "deferred",
+      "reason": "No subject has 80 distinct linked binary-observed items in the reviewed EDA; insufficient competition-style pair coverage.",
+      "domain": "other",
+      "has_english": true
+    },
+    "averimatec": {
+      "family": "averimatec",
+      "status": "deferred",
+      "reason": "Required image/audio/video/time-series or generated-image content is not provided to the text-only state.",
+      "domain": "other",
+      "has_english": true
+    },
+    "babilong": {
+      "family": "babilong",
+      "status": "deferred",
+      "reason": "Long-passage asset/input reconstruction needs a separate context audit for a 512-token pilot.",
+      "domain": "other",
+      "has_english": true
+    },
+    "bbq": {
+      "family": "bbq",
+      "status": "monitoring",
+      "reason": "Previously used eight-benchmark monitoring suite; excluded from every fitting/selection role.",
+      "domain": "other",
+      "has_english": true
+    },
+    "beavertails": {
+      "family": "beavertails",
+      "status": "excluded",
+      "reason": "Native response safety judgment is not general task correctness.",
+      "domain": "other",
+      "has_english": true
+    },
+    "benger": {
+      "family": "benger",
+      "status": "eligible",
+      "reason": "Legal decision/case-solution correctness; admit only items marked input_scope=recorded_prompt, not published-task-only inputs.",
+      "domain": "knowledge",
+      "has_english": false,
+      "required_feature": "input_scope=recorded_prompt"
+    },
+    "bertaqa": {
+      "family": "bertaqa",
+      "status": "eligible",
+      "reason": "Exact option correctness; English/Basque translations and shot variants stay together.",
+      "domain": "knowledge",
+      "has_english": true
+    },
+    "bird_sql": {
+      "family": "bird",
+      "status": "eligible",
+      "reason": "Released SQL execution-match correctness; question/evidence/database schema are present in item text. No database assets enter state.",
+      "domain": "structured",
+      "has_english": true
+    },
+    "brace": {
+      "family": "brace",
+      "status": "deferred",
+      "reason": "Required image/audio/video/time-series or generated-image content is not provided to the text-only state.",
+      "domain": "other",
+      "has_english": true
+    },
+    "braveguard": {
+      "family": "braveguard",
+      "status": "excluded",
+      "reason": "Detected behavior/decision/factuality segment or mixed event is not an established universal task-correctness target.",
+      "domain": "other",
+      "has_english": true
+    },
+    "bridging_gap": {
+      "family": "mmlu_winogrande",
+      "status": "monitoring_related",
+      "reason": "Metadata identifies MMLU and/or Winogrande source overlap with HELM-AFR; reserve the entire source family.",
+      "domain": "other",
+      "has_english": true
+    },
+    "causal_axioms": {
+      "family": "causal_axioms",
+      "status": "eligible",
+      "reason": "Released answer correctness with standalone text tasks; keep each benchmark intervention family together.",
+      "domain": "reasoning",
+      "has_english": true
+    },
+    "cellverse": {
+      "family": "cellverse",
+      "status": "eligible",
+      "reason": "Exact cell-type correctness; verbalized genes/candidate types are present in text. Flag truncation.",
+      "domain": "structured",
+      "has_english": true
+    },
+    "ceval": {
+      "family": "ceval",
+      "status": "eligible",
+      "reason": "Recorded option equality under released scoring reference. Keep native grades and all categories/variants together.",
+      "domain": "knowledge",
+      "has_english": false
+    },
+    "chartmuseum": {
+      "family": "chartmuseum",
+      "status": "deferred",
+      "reason": "Required image/audio/video/time-series or generated-image content is not provided to the text-only state.",
+      "domain": "other",
+      "has_english": true
+    },
+    "chi_bench": {
+      "family": "chi_bench",
+      "status": "deferred",
+      "reason": "No subject has 80 distinct linked binary-observed items in the reviewed EDA; insufficient competition-style pair coverage.",
+      "domain": "other",
+      "has_english": true
+    },
+    "clasheval": {
+      "family": "clasheval",
+      "status": "eligible",
+      "reason": "Released answer correctness under context perturbations; full recorded context supplied. Flag truncation.",
+      "domain": "knowledge",
+      "has_english": true
+    },
+    "cmmlu": {
+      "family": "cmmlu",
+      "status": "monitoring",
+      "reason": "Previously used eight-benchmark monitoring suite; excluded from every fitting/selection role.",
+      "domain": "other",
+      "has_english": true
+    },
+    "confagents": {
+      "family": "confagents",
+      "status": "deferred",
+      "reason": "No subject has 80 distinct linked binary-observed items in the reviewed EDA; insufficient competition-style pair coverage.",
+      "domain": "other",
+      "has_english": true
+    },
+    "critic_discernment_game": {
+      "family": "gsm8k_math",
+      "status": "eligible",
+      "reason": "GSM8K/MATH-500 answer-check correctness; shared underlying tasks kept in one family. Drop missing binary outcomes.",
+      "domain": "reasoning",
+      "has_english": true
+    },
+    "crow": {
+      "family": "crow",
+      "status": "excluded",
+      "reason": "Native attack-success event is not target-answer correctness; do not invert raw labels.",
+      "domain": "other",
+      "has_english": true
+    },
+    "cruxeval": {
+      "family": "cruxeval",
+      "status": "monitoring",
+      "reason": "Previously used eight-benchmark monitoring suite; excluded from every fitting/selection role.",
+      "domain": "other",
+      "has_english": true
+    },
+    "dave": {
+      "family": "dave",
+      "status": "deferred",
+      "reason": "Required image/audio/video/time-series or generated-image content is not provided to the text-only state.",
+      "domain": "other",
+      "has_english": true
+    },
+    "dbpa": {
+      "family": "dbpa",
+      "status": "excluded",
+      "reason": "Detected behavior/decision/factuality segment or mixed event is not an established universal task-correctness target.",
+      "domain": "other",
+      "has_english": true
+    },
+    "devbench": {
+      "family": "devbench",
+      "status": "monitoring",
+      "reason": "Previously used eight-benchmark monitoring suite; excluded from every fitting/selection role.",
+      "domain": "other",
+      "has_english": true
+    },
+    "disco": {
+      "family": "disco",
+      "status": "deferred",
+      "reason": "Deferred: target/input suitability not established for the initial text-only correctness pilot."
+    },
+    "editbench": {
+      "family": "editbench",
+      "status": "monitoring",
+      "reason": "Previously used eight-benchmark monitoring suite; excluded from every fitting/selection role.",
+      "domain": "other",
+      "has_english": true
+    },
+    "edu_circuit_hw": {
+      "family": "edu_circuit_hw",
+      "status": "deferred",
+      "reason": "Required image/audio/video/time-series or generated-image content is not provided to the text-only state.",
+      "domain": "other",
+      "has_english": true
+    },
+    "egoschema": {
+      "family": "egoschema",
+      "status": "deferred",
+      "reason": "Released caption-fed stage retains templates but omits intermediate/history inputs; long-context completeness needs further review.",
+      "domain": "other",
+      "has_english": true
+    },
+    "ehrflowbench": {
+      "family": "ehrflowbench",
+      "status": "deferred",
+      "reason": "No subject has 80 distinct linked binary-observed items in the reviewed EDA; insufficient competition-style pair coverage.",
+      "domain": "other",
+      "has_english": true
+    },
+    "elicitation_game": {
+      "family": "elicitation_game",
+      "status": "deferred",
+      "reason": "Item features explicitly state that per-attempt intervention context is not fully recorded.",
+      "domain": "other",
+      "has_english": true
+    },
+    "emoji_attack": {
+      "family": "emoji_attack",
+      "status": "excluded",
+      "reason": "Native attack-success event is not target-answer correctness; do not invert raw labels.",
+      "domain": "other",
+      "has_english": true
+    },
+    "engdesign": {
+      "family": "engdesign",
+      "status": "deferred",
+      "reason": "Task outcome may be success, but environment, asset or evidence completeness needs further audit.",
+      "domain": "other",
+      "has_english": true
+    },
+    "enginemt_qa": {
+      "family": "enginemt_qa",
+      "status": "deferred",
+      "reason": "Required image/audio/video/time-series or generated-image content is not provided to the text-only state.",
+      "domain": "other",
+      "has_english": true
+    },
+    "erbench": {
+      "family": "erbench",
+      "status": "eligible",
+      "reason": "Released answer correctness with text-only questions; retain source grade semantics.",
+      "domain": "knowledge",
+      "has_english": true
+    },
+    "evouna": {
+      "family": "evouna",
+      "status": "eligible",
+      "reason": "Released answer correctness with text-only questions; retain source grade semantics.",
+      "domain": "knowledge",
+      "has_english": true
+    },
+    "exploitgym": {
+      "family": "exploitgym",
+      "status": "deferred",
+      "reason": "Task outcome may be success, but environment, asset or evidence completeness needs further audit.",
+      "domain": "other",
+      "has_english": true
+    },
+    "faithcot": {
+      "family": "faithcot",
+      "status": "excluded",
+      "reason": "Detected behavior/decision/factuality segment or mixed event is not an established universal task-correctness target.",
+      "domain": "other",
+      "has_english": true
+    },
+    "felm": {
+      "family": "felm",
+      "status": "excluded",
+      "reason": "Detected behavior/decision/factuality segment or mixed event is not an established universal task-correctness target.",
+      "domain": "other",
+      "has_english": true
+    },
+    "fewshot_ttt_bbh": {
+      "family": "fewshot_ttt_bbh",
+      "status": "eligible",
+      "reason": "Released answer correctness with standalone text tasks; keep each benchmark intervention family together.",
+      "domain": "reasoning",
+      "has_english": true
+    },
+    "financebench": {
+      "family": "financebench",
+      "status": "deferred",
+      "reason": "Task outcome may be success, but environment, asset or evidence completeness needs further audit.",
+      "domain": "other",
+      "has_english": true
+    },
+    "finegrain_t2i": {
+      "family": "finegrain_t2i",
+      "status": "deferred",
+      "reason": "Required image/audio/video/time-series or generated-image content is not provided to the text-only state.",
+      "domain": "other",
+      "has_english": true
+    },
+    "haiid": {
+      "family": "haiid",
+      "status": "excluded",
+      "reason": "Mixed human-advice observations and missing image inputs are outside this pilot.",
+      "domain": "other",
+      "has_english": true
+    },
+    "hallusionbench": {
+      "family": "hallusionbench",
+      "status": "deferred",
+      "reason": "Required image/audio/video/time-series or generated-image content is not provided to the text-only state.",
+      "domain": "other",
+      "has_english": true
+    },
+    "harmbench": {
+      "family": "harmbench",
+      "status": "excluded",
+      "reason": "Native attack-success event is not target-answer correctness; do not invert raw labels.",
+      "domain": "other",
+      "has_english": true
+    },
+    "healthadminbench": {
+      "family": "healthadminbench",
+      "status": "deferred",
+      "reason": "Task outcome may be success, but environment, asset or evidence completeness needs further audit.",
+      "domain": "other",
+      "has_english": true
+    },
+    "helm_afr": {
+      "family": "mmlu_winogrande",
+      "status": "monitoring",
+      "reason": "Historical monitoring; clinical MMLU/Winogrande source overlap with AGI-Elo/Bridging Gap.",
+      "domain": "other",
+      "has_english": true
+    }
+  }
+}

@@ -9,6 +9,13 @@ This repository holds the offline scoring harness and the reference predictors
 that any new method has to beat. The competition code itself is in `baseline/`,
 pulled in as a submodule at a pinned commit.
 
+## Running locally or on Modal
+
+Use `scripts/run_job.py` with `local-mlx`, `local-torch`, or `modal-l4`.
+Start with `--dry-run` to inspect inputs and commands without allocating a GPU.
+See [docs/modal.md](docs/modal.md) for setup, supported jobs, tracking and current
+qualification limits. Runtime selection and job placement are separate layers.
+
 ## Current status
 
 Read [docs/laya-backends.md](docs/laya-backends.md) for the current selectable
@@ -37,7 +44,9 @@ src/paiec/           harness library
   predictors.py      constant, empirical mean, subject prior, shrunk mean
   stats.py           cross-benchmark subject counts
   textmodel.py       hashed-text ridge control
-  laya_predictor.py  pretrained English/multilingual Laya adapter
+  laya_predictor.py  shared target-system prediction and state rendering
+  laya_runtime.py    native PyTorch / MLX engines
+  execution/         typed local / Modal job planning and transport
   compare.py         paired run comparison from logged predictions
 scripts/run_eval.py  command line runner
 scripts/compare_runs.py  compare completed runs with uncertainty

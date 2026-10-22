@@ -7,10 +7,25 @@ validation, and `docs/project-status.md` for the earlier handoff, important
 findings, saved results, and interrupted-run history. Then read the documentation relevant to the task:
 
 - `docs/benchmark-questions.md`: exact predictor fields and current Laya input.
+- `docs/input-context-audit.md`: original field coverage, preserved attributes,
+  missing-identity limitations and extra-settings decoding. `context_v1` is now
+  available explicitly; JSON stays the default for the existing checkpoint.
+- `docs/experiment-log.md`: latest reviewed runs, limitations, and proposed
+  experiments before fine-tuning; keep attempted work and untried ideas distinct.
+- `docs/decision-head-finetuning-plan.md`: planned head-only training, data roles,
+  checkpoint integration, and decision gates. A 10-update training smoke check
+  has run; see `docs/head-training-smoke.md` for its scope and validation.
+- `docs/head-development-results.md`: first frozen-development Brier ALC and
+  raw/calibrated controls; confirmation is still untouched.
+- `docs/head-data-split.md`: frozen pilot families and exports, preparation
+  checks and truncation limits; use `configs/head_finetuning/frozen_split_v1.json`.
 - `docs/laya.md`: environment, sampling, context limits, and historical results.
 - `docs/mlflow.md`: tracking, artifacts, and interrupted-run limitations.
 - `docs/outcome-semantics.md`: native binary labels are not always correctness.
 - `docs/data-notes.md`: dataset provenance, tables, and EDA.
+
+- `docs/modal.md`: execution profiles, authenticated client, cloud data/tracking
+  layout and remaining GPU qualification. No paid job has been run.
 
 ## Current user decisions
 
@@ -65,8 +80,9 @@ findings, saved results, and interrupted-run history. Then read the documentatio
   PyTorch/tracking reference is recorded in `requirements-dev.lock`.
   `requirements-laya.lock` predates MLflow installation and has dependency
   differences; use the combined lock when tracking is needed.
-- No fine-tuning has been performed. Cached model weights, payload, and run
-  artifacts live outside Git. Avoid loading the roughly 23.4 GB trace data for
+- A bounded 256-row, 10-update head-only training smoke check has run.
+  This is machinery validation, not a model-quality result or a full pilot.
+  Cached model weights, payload, and run artifacts live outside Git. Avoid loading the roughly 23.4 GB trace data for
   routine inspection; the scoring path does not need it.
 - Usual lightweight check, when relevant to authorized code changes:
 
@@ -95,8 +111,11 @@ findings, saved results, and interrupted-run history. Then read the documentatio
   suite and keys caches by training selection and corpus manifest. Preserve
   that boundary. Lower-level cache helpers and `SubjectPrior` alone do not
   guarantee holdouts if called with contaminated data.
+- Local trained artifacts require explicit `checkpoint_path` /
+  `--laya-checkpoint`, with verified `paiec_training.json` hashes. The default
+  remains the original pinned checkpoint. Smoke checkpoints are uncalibrated.
 - `src/paiec/laya_runtime.py` owns backend loading; `LayaPredictor` owns the
-  shared state/question/cache. Preserve this separation. Both engines load the
+  shared state/question/cache. Preserve this separation. Both engines default to the
   same original pinned upstream weights; never substitute community checkpoint
   weights silently. Native libraries are imported only for the selected backend.
 - MLX defaults to FP16; FP32 is available for closer probability fidelity.

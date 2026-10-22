@@ -165,6 +165,10 @@ class ExperimentTracker:
             run.params(params)
             run.json(config, "config.json")
             run.json({"python": sys.version, "packages": package_versions(), "git": context}, "reproducibility/environment.json")
+            execution = os.environ.get("PAIEC_EXECUTION_METADATA")
+            if execution:
+                run.json(json.loads(execution), "reproducibility/execution.json")
+                self.client.set_tag(run.run_id, "executor", json.loads(execution)["executor"])
             log_source(self.client, run.run_id, self.root)
             print(f"  MLflow run: {run.run_id}", flush=True)
             yield run

@@ -1,0 +1,103 @@
+{
+  "split_id": "head_family_split_v1",
+  "status": "prepared_not_trained",
+  "dataset_revision": "54074453da7b9911be0f48e4c560be547bc84d21",
+  "seed": 20261022,
+  "source_config": "configs/head_finetuning/data_split_v1.json",
+  "source_config_sha256": "78f891770a40c0c5e911b0020d0bb1f09ec12a473f22d9fd0251c384e6df90f5",
+  "roles": {
+    "training": [
+      "abstract_reason",
+      "adaptivestep",
+      "benger",
+      "bird_sql",
+      "cellverse",
+      "clasheval",
+      "critic_discernment_game",
+      "fewshot_ttt_bbh"
+    ],
+    "development": [
+      "ceval",
+      "erbench"
+    ],
+    "calibration": [
+      "afrieval",
+      "causal_axioms"
+    ],
+    "confirmation": [
+      "bertaqa",
+      "evouna"
+    ]
+  },
+  "family_roles": {
+    "clasheval": "training",
+    "gsm8k_math": "training",
+    "abstract_reason": "training",
+    "benger": "training",
+    "bird": "training",
+    "fewshot_ttt_bbh": "training",
+    "cellverse": "training",
+    "erbench": "development",
+    "ceval": "development",
+    "causal_axioms": "calibration",
+    "masakhane_ner": "calibration",
+    "evouna": "confirmation",
+    "bertaqa": "confirmation"
+  },
+  "historical_monitoring": [
+    "afrimedqa",
+    "ai2d_test",
+    "bbq",
+    "cmmlu",
+    "cruxeval",
+    "devbench",
+    "editbench",
+    "helm_afr"
+  ],
+  "monitoring_related": [
+    "agi_elo",
+    "bridging_gap"
+  ],
+  "allocation": {
+    "counts": {
+      "training": 7,
+      "development": 2,
+      "calibration": 2,
+      "confirmation": 2
+    },
+    "permutation_attempt": 5
+  },
+  "artifact_directory": "runs/head_finetuning/data_v2",
+  "artifact_fingerprints": {
+    "resolved_config.json": "80ec0664ae51ef19e7feac45dbddbad14ed8c052afff0229e2a6f734e8f312a2",
+    "family_roles.json": "d03c3ebfd7dddcdd1d6428e2498fa26d16e526910405f54cb3f0e386edbf8ebb",
+    "source_file_hashes.json": "0eb786dc469e8c0ace17b3708eee61c3db2383c54148cac1db8f8457ac4ddc1f",
+    "evaluation_manifest.csv": "9c4274d0cac9f7493e009cede273406393ddb383465a321d8bf598ba2460f982",
+    "provenance.parquet": "ca646085f13fa75fd9fd9f7e1851528bcfd428485e2dee3639b14852632dcbd9",
+    "training.jsonl": "3501373176aefdb0ee70e6eb59dadf8971c4a42d44b46859507c7ae3ec98ed4f",
+    "development.jsonl": "605a0723397a42de627562cf7ea05234b5600ce00682e88f9f337db4f1fbf335",
+    "calibration.jsonl": "327f3bc12a79f826ac624f1b9fe376576550b49067ed6e7e37e70271f119752a",
+    "confirmation_inputs.jsonl": "42c5945a434226be068eaf7a935a2c9922f15e7c8634561566dcd51368287224",
+    "validation.json": "27f00436766f4742c2bf9731045c901795f5d51c768fb9050b84130665f1aa44"
+  },
+  "input": {
+    "state_format": "json",
+    "prompt_version": "task_correctness_v1",
+    "max_len": 512,
+    "head_max_len": 192,
+    "use_labels": false,
+    "checkpoint_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148",
+    "question_definition": {
+      "correct": {
+        "type": "noul",
+        "instructions": "Will the target AI system, using the supplied settings, solve this task correctly on a single attempt?"
+      }
+    },
+    "question_sha256": "9dff6b7c49f9384d9e874b4bb0cf2a07bf9c1e4afbebe7e6bebae340475bbf45"
+  },
+  "training_responses": 5000,
+  "calibration_responses": 1000,
+  "development_subject_items": 960,
+  "confirmation_subject_items": 960,
+  "confirmation_labels_exported": false
+}

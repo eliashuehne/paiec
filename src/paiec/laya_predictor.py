@@ -27,7 +27,10 @@ def load_questions() -> dict:
     return {"correct": question}
 
 
-def build_state(subject: dict, item: dict, labeled: list, *, use_labels: bool = False) -> str:
+def build_state(subject: dict, item: dict, labeled: list, *, use_labels: bool = False,
+                state_format: str = "json", omit_system: bool = False) -> str:
+    if state_format not in {"json", "text_v1", "context_v1"}:
+        raise ValueError("Unknown state format")
     subject, item = competition_input(subject, item)
     def task_fields(record):
         return {key: value for key, value in record.items() if key != "benchmark_id" and value}
@@ -42,6 +45,15 @@ def build_state(subject: dict, item: dict, labeled: list, *, use_labels: bool = 
         ]
         if examples:
             state["revealed_examples"] = examples
+    # Match evidence with the original system before applying the ablation.
+    if omit_system:
+        state["target_system"] = {}
+    if state_format == "context_v1":
+        from .state_rendering import render_context
+        return render_context(state)
+    if state_format == "text_v1":
+        from .state_rendering import render_text
+        return render_text(state)
     return json.dumps(state, ensure_ascii=False, indent=2)
 
 
@@ -53,12 +65,23 @@ class LayaPredictor:
         self, *, model: str = "english", device: str = "auto", max_len: int | None = None,
         batch_size: int = 1, use_labels: bool = False, revision: str | None = None,
         router=None, backend: str = "mlx", dtype: str = "auto",
+        question: dict | None = None, prompt_version: str | None = None,
+        state_format: str = "json", omit_system: bool = False, checkpoint_path: str | None = None,
     ):
         settings = LayaConfig(model=model, device=device, max_len=max_len, batch_size=batch_size,
-                              use_labels=use_labels, revision=revision, backend=backend, dtype=dtype)
+                              use_labels=use_labels, revision=revision, backend=backend, dtype=dtype, checkpoint_path=checkpoint_path,
+                              state_format=state_format)
         # LayaConfig resolves an omitted max_len to the checkpoint's trained length.
         max_len = settings.max_len
-        self.questions = load_questions()
+        if question is not None and (not prompt_version or prompt_version == PROMPT_VERSION):
+            raise ValueError("Custom questions require a distinct prompt_version")
+        if state_format not in {"json", "text_v1", "context_v1"}:
+            raise ValueError("Unknown state format")
+        self.questions = ({"correct": LayaQuestion.model_validate(question).model_dump()}
+                          if question is not None else load_questions())
+        self.prompt_version = prompt_version or PROMPT_VERSION
+        self.state_format = state_format
+        self.omit_system = omit_system
         if model not in {"english", "multilingual"}:
             raise ValueError("model must be english or multilingual")
         if not 1 <= max_len <= 8192 or batch_size < 1:
@@ -67,7 +90,8 @@ class LayaPredictor:
             raise ValueError("backend must be torch or mlx")
         if router is None:
             router = create_runtime(backend=backend, model=model, device=device,
-                                    dtype=dtype, revision=revision, batch_size=batch_size)
+                                    dtype=dtype, revision=revision, batch_size=batch_size,
+                                    **({"checkpoint_path": checkpoint_path} if checkpoint_path else {}))
         self.router = router
         self.runtime_metadata = getattr(router, "metadata", {
             "backend": backend, "device": device, "checkpoint_revision": revision or DEFAULT_CHECKPOINT_REVISION,
@@ -110,7 +134,7 @@ class LayaPredictor:
         return self.predict_many(subject, [item], labeled)[0]
 
     def predict_many(self, subject: dict, items: list[dict], labeled: list) -> list[float]:
-        states = [build_state(subject, item, labeled, use_labels=self.use_labels) for item in items]
+        states = [self.render_state(subject, item, labeled) for item in items]
         questions = [self.questions] * len(items)
         keys = [hashlib.sha256(json.dumps([state, question], sort_keys=True, ensure_ascii=False).encode()).hexdigest()
                 for state, question in zip(states, questions)]
@@ -142,3 +166,7 @@ class LayaPredictor:
         while len(self._cache) > 4096:
             self._cache.popitem(last=False)
         return values
+
+    def render_state(self, subject: dict, item: dict, labeled: list) -> str:
+        return build_state(subject, item, labeled, use_labels=self.use_labels,
+                           state_format=self.state_format, omit_system=self.omit_system)

@@ -64,7 +64,8 @@ def predictor_instance(name, args, data_root, suite, cache):
         model=args.laya_model, device=args.laya_device,
         max_len=args.laya_max_len, batch_size=args.laya_batch_size,
         use_labels=args.laya_use_labels, revision=args.laya_revision,
-        backend=args.laya_backend, dtype=args.laya_dtype,
+        backend=args.laya_backend, dtype=args.laya_dtype, checkpoint_path=args.laya_checkpoint,
+        state_format=args.laya_state_format,
     )
     print(f"  Laya {predictor.backend}/{predictor.model}, {predictor.device}, max_len={predictor.max_len}, "
           f"revealed examples={predictor.use_labels}, prompt={predictor.prompt_version}", flush=True)
@@ -182,8 +183,10 @@ def main() -> int:
                     help="token ceiling; defaults to the checkpoint's own trained length "
                          "(english 512, multilingual 1024)")
     ap.add_argument("--laya-batch-size", type=int, default=1)
+    ap.add_argument("--laya-state-format", choices=["json", "text_v1", "context_v1"], default="json")
     ap.add_argument("--laya-use-labels", action="store_true", help="include revealed examples in Laya's input")
     ap.add_argument("--laya-revision", default=DEFAULT_CHECKPOINT_REVISION, help="pinned upstream checkpoint revision")
+    ap.add_argument("--laya-checkpoint", default=None, help="explicit local PAIEC trained checkpoint directory")
     ap.add_argument("--no-tracking", action="store_true", help="disable MLflow logging")
     ap.add_argument("--experiment", default="PAIEC", help="MLflow experiment name")
     ap.add_argument("--tracking-uri", default=None, help="override the project-local SQLite store")
@@ -196,7 +199,8 @@ def main() -> int:
     settings = EvaluationConfig(
         suite=SuiteConfig.model_validate(suite), predictors=args.predictor, prior_weight=args.k,
         laya=LayaConfig(model=args.laya_model, device=args.laya_device,
-                        backend=args.laya_backend, dtype=args.laya_dtype,
+                        backend=args.laya_backend, dtype=args.laya_dtype, checkpoint_path=args.laya_checkpoint,
+                        state_format=args.laya_state_format,
                         max_len=args.laya_max_len, batch_size=args.laya_batch_size,
                         use_labels=args.laya_use_labels, revision=args.laya_revision),
     )
@@ -240,7 +244,12 @@ def main() -> int:
             title += f" / {args.laya_backend} / {args.laya_dtype} / {args.laya_model} / {settings.laya.max_len} / {'with labels' if args.laya_use_labels else 'zero-shot'}"
             from paiec.laya_predictor import PROMPT_VERSION
             params["laya_prompt_version"] = PROMPT_VERSION
-            title += f" / {PROMPT_VERSION}"
+            title += f" / {PROMPT_VERSION} / {args.laya_state_format}"
+            if args.laya_checkpoint:
+                from paiec.laya_runtime import local_checkpoint_files
+                _, identity = local_checkpoint_files(args.laya_checkpoint, args.laya_model)
+                title += " / " + identity["checkpoint_revision"][:18]
+                params["trained_checkpoint_identity"] = identity["checkpoint_revision"]
         with tracker.run(title, settings.model_dump(), params, {}) as tracked:
             if tracked:
                 tracked.json(manifest, "reproducibility/corpus_manifest.json")
@@ -255,7 +264,6 @@ def main() -> int:
                     tracked.client.set_tag(tracked.run_id, "known_limitations", "Public-data local evaluation; see docs/outcome-semantics.md")
             predictor = predictor_instance(name, args, data_root, suite, cache)
             if tracked and name == "laya":
-                from paiec.laya_predictor import build_state
                 effective_questions = predictor.questions
                 question_hash = hashlib.sha256(json.dumps(effective_questions, sort_keys=True).encode()).hexdigest()
                 tracked.json(effective_questions, "question_definition.json")
@@ -263,7 +271,7 @@ def main() -> int:
                 tracked.json([
                     {"benchmark": example["benchmark"], "subject_id": example["subject_id"],
                      "item_id": example["item_id"], "budget": 0,
-                     "state": build_state(example["subject"], example["item"], [], use_labels=args.laya_use_labels),
+                     "state": predictor.render_state(example["subject"], example["item"], []),
                      "questions": effective_questions}
                     for example in input_examples(pairs, suite)
                 ], "laya_input_examples.json")
@@ -313,7 +321,7 @@ def main() -> int:
                     truncated_items=predictor.truncated_items, state_tokens_dropped=predictor.state_tokens_dropped,
                     backend=predictor.backend, runtime=predictor.runtime_metadata,
                     packages=predictor.runtime_metadata["packages"],
-                    prompt_version=predictor.prompt_version,
+                    prompt_version=predictor.prompt_version, state_format=predictor.state_format,
                 )
                 effective_questions = predictor.questions
                 detail["input_contract"] = INPUT_CONTRACT
@@ -350,6 +358,10 @@ def main() -> int:
         dtype = runtime["compute_dtype"].removeprefix("torch.")
         default_out /= (f"laya_{args.laya_backend}_{dtype}_{INPUT_CONTRACT}_"
                         f"{args.laya_model}_{settings.laya.max_len}_{mode}_{prompt_version}")
+    if "laya" in results and args.laya_state_format != "json":
+        default_out /= args.laya_state_format
+    if "laya" in results and args.laya_checkpoint:
+        default_out /= metadata["predictors"]["laya"]["runtime"]["checkpoint_revision"]
     if suite["pair_selection"] == "random":
         default_out /= f"seed_{suite['seed']}"
     out = Path(args.out) if args.out else default_out

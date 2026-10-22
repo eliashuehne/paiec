@@ -1,0 +1,15 @@
+{
+  "screen": {
+    "benchmarks": ["bbq", "editbench", "devbench", "cmmlu", "afrimedqa", "cruxeval", "ai2d_test", "helm_afr"],
+    "pairs_per_benchmark": 4,
+    "evaluation_items": 20,
+    "acquisition_items": 40,
+    "min_items": 80,
+    "seed": 0
+  },
+  "questions": {
+    "short_v1": {"type": "noul", "instructions": "Will the target AI system answer the supplied task correctly?"},
+    "first_attempt_v1": {"type": "noul", "instructions": "Will the AI system described above successfully complete the supplied task on its first attempt?"},
+    "model_settings_v1": {"type": "noul", "instructions": "Given this AI system’s model and settings, will its response to the supplied task be correct?"}
+  }
+}

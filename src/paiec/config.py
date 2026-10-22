@@ -51,8 +51,10 @@ class LayaConfig(BaseModel):
     device: Literal["auto", "mps", "cpu", "cuda"] = "auto"
     max_len: int | None = Field(default=None, ge=1, le=8192)
     batch_size: int = Field(default=1, ge=1)
+    state_format: Literal["json", "text_v1", "context_v1"] = "json"
     use_labels: bool = False
     revision: str | None = None
+    checkpoint_path: str | None = None
 
     @model_validator(mode="after")
     def compatible_runtime(self):
