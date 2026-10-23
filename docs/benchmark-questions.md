@@ -1,5 +1,11 @@
 # Competition inputs and Laya questions
 
+For the subsequent versioned task-preserving input builder, numeric evidence
+update and prepared one-epoch recipe, see
+[task-feature-pipeline.md](task-feature-pipeline.md). The original formats and
+checkpoint contracts described below remain reproducible; select `task_v2`
+explicitly for a new-input experiment. The correctness question is unchanged.
+
 The evaluation runner enforces the published
 [competition predictor interface](https://aims.stanford.edu/competition#competition).
 Every predictor receives only these fields, all as strings; missing values are
@@ -151,6 +157,12 @@ Within a command, every predictor uses exactly the same sample. Pass the saved
 [laya.md](laya.md) for sampling, inference-count, and text-only limitations.
 
 ## Recorded system context: `context_v1`
+
+The subsequent opt-in `enriched_v1` research experiment extends this same text
+with selected documented profile facts when they fit without displacing any
+original text. See [enriched-head-pilot.md](enriched-head-pilot.md). Its saved
+checkpoints restore the pinned input contract automatically. Default upstream
+prediction remains JSON, and the recorded-only format below is unchanged.
 
 Implemented after the original-table audit in
 [input-context-audit.md](input-context-audit.md). Use

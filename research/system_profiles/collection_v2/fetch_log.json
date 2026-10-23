@@ -1,0 +1,29 @@
+{
+  "attempts_failed": [
+    {
+      "repo": "databricks/dbrx-instruct",
+      "error": "HTTP Error 401: Unauthorized"
+    },
+    {
+      "url": "https://huggingface.co/meta-llama/Llama-2-70b-chat-hf/resolve/e9149a12809580e8602995856f8098ce973d1080/config.json",
+      "error": "HTTP Error 401: Unauthorized"
+    },
+    {
+      "repo": "databricks/dbrx-instruct",
+      "error": "HTTP Error 401: Unauthorized"
+    },
+    {
+      "repo": "databricks/dbrx github",
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "url": "https://developers.openai.com/api/docs/models/gpt-3.5-turbo-16k.md",
+      "error": "HTTP Error 404: Not Found"
+    },
+    {
+      "url": "https://huggingface.co/meta-llama/CodeLlama-70b-Instruct-hf/resolve/2826050dce6c8271bb9f667083b64e8254bd374f/config.json",
+      "error": "HTTP Error 401: Unauthorized"
+    }
+  ],
+  "new_snapshots": 27
+}

@@ -1,5 +1,36 @@
 # Audit: which system and task context can Laya receive?
 
+## Clarification: identity availability versus enrichment coverage
+
+Rechecked 2026-10-22 after the user asked whether every record should identify
+both the LLM and harness. All **32 selected system profiles** match their
+original subject-table permitted fields exactly; the exporter is not dropping
+recorded identities. The published interface has the keys in every dictionary,
+but allows empty values. A present key does not guarantee an established value.
+
+| Source information in frozen pilot exports | Training (5,000 rows) | Development (963 rows) |
+| --- | ---: | ---: |
+| Nonempty harness name | 3,958 (79.2%) | 963 (100%) |
+| Nonempty canonical model name | 4,583 (91.7%) | 120 (12.5%) |
+| Canonical name **or** recorded model/base/checkpoint identifier in extras | 5,000 (100%) | 603 (62.6%) |
+
+The last row counts recorded identifier strings, including incomplete/private
+aliases. It does **not** establish an exact model/version or a safe external
+profile match. Three selected C-Eval systems (360 development rows) have neither
+a canonical model name nor a usable identifier in supplied extras. Their
+source-table display names are outside the published predictor interface.
+
+The earlier **28.6% training / 12.5% development** figures count rendered
+**additional model-property blocks**, not model-name availability. Such a block
+requires a resolved documented fact in the selected research catalog and spare
+input capacity. Missing blocks can reflect unresolved identity, catalog/fact
+coverage or token limits; they do not necessarily mean a missing model name.
+An available harness name likewise does not imply known enabled tools or limits.
+
+These counts are response-row weighted for the frozen pilot. The whole-corpus
+subject-row percentages below use a different denominator and must not be
+substituted for this sample's coverage.
+
 2026-10-22. The user requested inspection of the original data behind our
 training states, with particular attention to model identity, harness details,
 and reasoning effort. This is a data/input audit, not a new prompt experiment

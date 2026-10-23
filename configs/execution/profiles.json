@@ -1,5 +1,6 @@
 {
   "local-mlx": {"executor":"local","backend":"mlx","device":"mps","python":".venv-laya-mlx/bin/python"},
   "local-torch": {"executor":"local","backend":"torch","device":"mps","python":".venv-laya/bin/python"},
-  "modal-l4": {"executor":"modal","backend":"torch","device":"cuda","gpu":"L4","timeout":900}
+  "modal-l4": {"executor":"modal","backend":"torch","device":"cuda","gpu":"L4","timeout":900},
+  "modal-l4-pilot": {"executor":"modal","backend":"torch","device":"cuda","gpu":"L4","timeout":14400}
 }

@@ -12,15 +12,18 @@ A runtime and an execution location are separate choices:
 | Profile | Location | Runtime | Supported jobs |
 | --- | --- | --- | --- |
 | `local-mlx` | Apple Silicon Mac | MLX, FP32 in this launcher | Evaluation |
-| `local-torch` | Mac | PyTorch/MPS, upstream automatic inference precision | Evaluation; head smoke training |
-| `modal-l4` | Modal NVIDIA L4 | PyTorch/CUDA, upstream automatic inference precision | Evaluation; head smoke training |
+| `local-torch` | Mac | PyTorch/MPS, upstream automatic inference precision | Evaluation; head smoke and pilot training |
+| `modal-l4` | Modal NVIDIA L4 | PyTorch/CUDA, upstream automatic inference precision | Evaluation; head smoke training (900 seconds) |
+| `modal-l4-pilot` | Modal NVIDIA L4 | PyTorch/CUDA, FP32 pilot training | Head pilot (four-hour timeout) |
 
 MLX is Apple-specific and is not an NVIDIA training backend. Head training uses
 FP32 on either MPS or CUDA. CUDA performance, inference precision differences,
 probability fidelity, and model quality still need measurement on real cloud
-hardware. The existing **bounded 256-row/10-update** smoke trainer is supported;
-a full pilot, encoder adaptation, and resumable training are not implemented
-by this integration. It does not silently expand the training budget.
+hardware. The **bounded 256-row/10-update** smoke trainer and prepared
+**5,000-row/four-epoch** head pilot are supported. The user requested preparing
+the enriched pilot first; see [modal-head-pilot.md](modal-head-pilot.md).
+Encoder adaptation and optimizer resumption are not implemented. The first enriched L4 pilot is now running; see its live receipt/log in
+`docs/modal-head-pilot.md`. The pilot task does not silently start the baseline variant.
 
 ```
 src/paiec/
@@ -90,11 +93,19 @@ policies differ, so the profiles do not promise identical predictions.
 Jobs execute as whole batches, rather than one remote call per question. Modal
 runs an ephemeral app named `paiec-laya`, with one worker, no automatic retries,
 2 CPU cores, 16 GiB memory and the selected GPU. The default timeout is 900
-seconds. Validated profiles can change GPU and timeout (60–3,600 seconds).
+seconds; `modal-l4-pilot` explicitly uses 14,400 seconds. Validated profiles can
+change GPU and timeout (60 seconds–24 hours).
 A timeout is a runtime bound, not a dollar spending limit. GPU, CPU, memory and
 storage are separately billable; do not assume a particular credit balance.
 
-Input inventories are explicit:
+The pilot uploads a verified 20-file inventory (75,980,393 bytes; roughly
+20.6 MB compressed): paired prepared artifacts, bundled research profiles, and
+original training/development JSONL for parity checks. Calibration and
+confirmation label exports and payload tables are excluded. Baseline artifacts
+are needed for complete manifest verification even for an enriched-only job;
+only the selected variant trains.
+
+Other input inventories are explicit:
 
 - Evaluation uploads only the requested suite's subject/item/response tables
   and corpus manifest. The current launcher evaluates Laya, not cross-benchmark
@@ -122,8 +133,11 @@ Small result archives are downloaded automatically. Remote MLflow runs are
 re-logged into the existing local store under **PAIEC Modal**, with the remote
 run IDs attached. This avoids copying a cloud SQLite database whose artifact
 paths refer to another machine. Model weights stay on the cloud volume and are
-excluded from routine result downloads; use the checkpoint location recorded in
-`modal_receipt.json` to download them explicitly through Modal's volume CLI.
+excluded from routine result downloads, including pilot best/latest and
+decision-only weights. Use `checkpoint_directories` in `modal_receipt.json` or
+`status.json` to download them explicitly through Modal's volume CLI. Training
+metric steps/timestamps survive local MLflow import; worker output is mirrored
+into Modal logs.
 A downloaded checkpoint can then use the ordinary `--checkpoint` path and hash
 verification.
 
@@ -137,8 +151,10 @@ prints the job ID. To recover a completed job into a new local folder:
 
 This downloads results and imports tracking without allocating a GPU. Cloud
 checkpoints and caches persist until deliberately removed through Modal volume
-management. The launcher stays attached; closing it can terminate an ephemeral
-app. Detached submission is not implemented.
+management. The launcher now submits a detached app and a durable spawned function call,
+then waits to download/import results. Closing the local client no longer
+intentionally stops training. App/call IDs are saved before waiting; use
+`fetch_modal_job.py` to recover results if the waiting client disconnects.
 
 ## Verification and remaining qualification
 
@@ -155,11 +171,73 @@ Completed locally:
   subprocess result packaging. Full suites: 174 discovered, 171 pass/3 skipped
   in MLX and 173 pass/1 skipped in PyTorch.
 
-No image has been built remotely, no GPU job has run, and CUDA numerical fidelity,
-real volume transport, result download and MLflow import have not been verified
-end to end. The next bounded cloud validation is the 16-input smoke evaluation,
+The pilot isolated input-bundle preflight passed locally on MPS: all native
+tokens and runtime states matched. Modal app/image definitions construct locally
+without creating resources. Tests cover device routing, recipe integrity, bundle
+transport, weight exclusions and MLflow curve import. Latest logs are
+`runs/modal_pilot_torch_tests.log` and `runs/modal_pilot_mlx_tests.log`.
+
+The first enriched pilot image has now built and its L4 worker is training.
+Input volume transport and native CUDA input checks passed. Numerical fidelity
+against MPS, full result download and MLflow import remain unverified end to end. The next bounded cloud validation is the 16-input smoke evaluation,
 followed by the 10-update head smoke only if desired. Cloud execution does not
 establish Codabench runtime compatibility.
+
+## GPU recommendation and cost estimates
+
+Pricing checked **2026-10-22**. Start with the **Starter plan and one NVIDIA
+L4**, using a normal Modal Function through the existing `modal-l4` profile.
+Starter has no subscription fee and includes $30/month of compute credits;
+the account's remaining credit balance has not been checked. Team is not
+needed for the current workflow.
+
+Current GPU-only base rates, converted from the published per-second charges:
+
+| GPU | USD per second | Approx. USD per hour |
+| --- | ---: | ---: |
+| T4 | 0.000164 | 0.59 |
+| **L4** | **0.000222** | **0.80** |
+| A10 | 0.000306 | 1.10 |
+| A100 40 GB | 0.000583 | 2.10 |
+
+Source: [Modal pricing](https://modal.com/pricing). CPU, system RAM and storage
+are additional. These are base Function rates, without region selection or
+non-preemptible premiums.
+
+The L4 has [24 GB of GPU memory](https://www.nvidia.com/en-us/data-center/l4/).
+It is expected to fit the current head-only experiment comfortably, but actual
+CUDA memory consumption and throughput have not been measured. This is a
+starting recommendation, not a demonstrated cost/performance winner.
+
+For our configured **2 physical CPU cores and 16 GiB system RAM**, estimated
+compute charges are:
+
+| Component | Approx. USD per billed hour |
+| --- | ---: |
+| L4 GPU | 0.7992 |
+| 2 CPU cores | 0.0943 |
+| 16 GiB RAM | 0.1279 |
+| **Total** | **1.0214** |
+
+That is approximately **$0.26 for 15 billed minutes**. Calculation:
+`3600 × (0.000222 + 2 × 0.0000131 + 16 × 0.00000222)`.
+Modal bills CPU/RAM at the greater of requested or actual usage, so this
+estimate assumes usage stays within those allocations. Model loading and the
+billed container tail contribute to billed time; it is not just time spent
+performing optimizer updates. Storage and any separately billable services
+are excluded. The 900-second function timeout is not a total spending cap.
+
+The proposed first hardware checks are the existing 16-input evaluation and
+10-update training smoke check on L4. Measure runtime, GPU memory, numerical
+fidelity and cost per completed experiment before selecting hardware for a
+longer pilot. These cloud checks have not yet run.
+
+At the same CPU/RAM allocation, A10 costs approximately $1.3238 per billed hour.
+It would need about **30% higher throughput** than L4 to break even on compute
+cost for the same workload. No such speedup has been measured. Benchmark an
+A100 later if encoder training or longer contexts warrant it; hourly price
+alone does not determine experiment cost. There is no need to reserve a
+continuously running machine for the present batch workflow.
 
 ## Official documentation checked
 

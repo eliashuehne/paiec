@@ -52,12 +52,18 @@ def import_tracking(root, directory):
         ) as run:
             if run:
                 for key, value in record["metrics"].items():
-                    run.client.log_metric(run.run_id, key, value)
+                    history = record.get("metric_history", {}).get(key, [])
+                    if history:
+                        for point in history:
+                            run.client.log_metric(run.run_id, key, point["value"],
+                                                  timestamp=point["timestamp"], step=point["step"])
+                    else:
+                        run.client.log_metric(run.run_id, key, value)
                 artifacts = directory / "tracking" / record["run_id"]
                 if artifacts.exists():
                     run.client.log_artifacts(run.run_id, str(artifacts))
                 mapping[record["run_id"]] = run.run_id
         if run and record["status"] != "FINISHED":
-            run.client.set_terminated(run.run_id, "FAILED")
+            run.client.set_terminated(run.run_id, "KILLED" if record["status"] == "KILLED" else "FAILED")
     receipt.write_text(json.dumps(mapping, indent=2))
     return mapping

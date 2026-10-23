@@ -1,7 +1,8 @@
-"""Pretrained Laya adapter; no fitting, corpus lookup, or API inference.
+"""Shared Laya adapter; fitting remains in the separate training workflow.
 
 By default the checkpoint sees only the target subject and item. Revealed
 examples are an explicit optional experiment, not a trained adaptation rule.
+Research enrichment is explicit, offline and independent of benchmark identity.
 """
 
 from __future__ import annotations
@@ -28,8 +29,8 @@ def load_questions() -> dict:
 
 
 def build_state(subject: dict, item: dict, labeled: list, *, use_labels: bool = False,
-                state_format: str = "json", omit_system: bool = False) -> str:
-    if state_format not in {"json", "text_v1", "context_v1"}:
+                state_format: str = "json", omit_system: bool = False, enricher=None) -> str:
+    if state_format not in {"json", "text_v1", "context_v1", "enriched_v1"}:
         raise ValueError("Unknown state format")
     subject, item = competition_input(subject, item)
     def task_fields(record):
@@ -48,9 +49,15 @@ def build_state(subject: dict, item: dict, labeled: list, *, use_labels: bool = 
     # Match evidence with the original system before applying the ablation.
     if omit_system:
         state["target_system"] = {}
-    if state_format == "context_v1":
+    if state_format in {"context_v1", "enriched_v1"}:
         from .state_rendering import render_context
-        return render_context(state)
+        rendered = render_context(state)
+        if state_format == "enriched_v1":
+            if enricher is None:
+                raise ValueError("enriched_v1 requires a prepared ProfileEnricher")
+            if not omit_system:
+                rendered, _ = enricher.enrich(rendered, subject)
+        return rendered
     if state_format == "text_v1":
         from .state_rendering import render_text
         return render_text(state)
@@ -66,16 +73,28 @@ class LayaPredictor:
         batch_size: int = 1, use_labels: bool = False, revision: str | None = None,
         router=None, backend: str = "mlx", dtype: str = "auto",
         question: dict | None = None, prompt_version: str | None = None,
-        state_format: str = "json", omit_system: bool = False, checkpoint_path: str | None = None,
+        state_format: str | None = None, omit_system: bool = False, checkpoint_path: str | None = None,
+        enrichment_policy: str | None = None, enricher=None,
     ):
+        from .input_contract import resolve_input_contract
+        contract = resolve_input_contract(checkpoint_path, state_format=state_format,
+                                         max_len=max_len, enrichment_policy=enrichment_policy)
+        state_format, max_len = contract["state_format"], contract["max_len"]
+        enrichment_policy = contract["enrichment_policy"]
+        if enricher is not None and state_format != "enriched_v1":
+            raise ValueError("Injected enrichment requires state_format=enriched_v1")
+        if checkpoint_path and (Path(checkpoint_path) / "paiec_training.json").exists():
+            saved = json.loads((Path(checkpoint_path) / "paiec_training.json").read_text())
+            if saved.get("input_contract") and (use_labels or question is not None):
+                raise ValueError("Prepared pilot checkpoints require the original question and no examples")
         settings = LayaConfig(model=model, device=device, max_len=max_len, batch_size=batch_size,
                               use_labels=use_labels, revision=revision, backend=backend, dtype=dtype, checkpoint_path=checkpoint_path,
-                              state_format=state_format)
+                              state_format=state_format, enrichment_policy=enrichment_policy)
         # LayaConfig resolves an omitted max_len to the checkpoint's trained length.
         max_len = settings.max_len
         if question is not None and (not prompt_version or prompt_version == PROMPT_VERSION):
             raise ValueError("Custom questions require a distinct prompt_version")
-        if state_format not in {"json", "text_v1", "context_v1"}:
+        if state_format not in {"json", "text_v1", "context_v1", "enriched_v1"}:
             raise ValueError("Unknown state format")
         self.questions = ({"correct": LayaQuestion.model_validate(question).model_dump()}
                           if question is not None else load_questions())
@@ -100,6 +119,17 @@ class LayaPredictor:
         if self.runtime_metadata["backend"] != backend:
             raise ValueError("Injected runtime differs from the requested backend")
         self.backend = backend
+        self.enricher = enricher
+        if state_format == "enriched_v1" and enricher is None:
+            from .profile_enrichment import ProfileEnricher, native_budget
+            tokenizer = getattr(getattr(router, "agent", None), "tok", None)
+            if tokenizer is None:
+                raise ValueError("Enriched runtime requires its native tokenizer")
+            count, room = native_budget(tokenizer, self.questions["correct"], max_len, backend)
+            self.enricher = ProfileEnricher(enrichment_policy, root=contract["profile_root"],
+                                          token_count=count, state_room=room)
+        if self.enricher is not None:
+            self.runtime_metadata = {**self.runtime_metadata, "enrichment": self.enricher.metadata}
         self.model = model
         self.device = self.runtime_metadata["device"]
         self.max_len = max_len
@@ -169,4 +199,5 @@ class LayaPredictor:
 
     def render_state(self, subject: dict, item: dict, labeled: list) -> str:
         return build_state(subject, item, labeled, use_labels=self.use_labels,
-                           state_format=self.state_format, omit_system=self.omit_system)
+                           state_format=self.state_format, omit_system=self.omit_system,
+                           enricher=self.enricher)

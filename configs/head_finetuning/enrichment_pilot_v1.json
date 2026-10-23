@@ -1,0 +1,19 @@
+{
+  "split": "configs/head_finetuning/frozen_split_v1.json",
+  "policy": "configs/head_finetuning/enrichment_v1.json",
+  "prepared": "runs/head_finetuning/enrichment_pilot_v1",
+  "output": "runs/head_finetuning/enrichment_pilot_v1_training",
+  "seed": 0,
+  "epochs": 4,
+  "samples": 5000,
+  "micro_batch": 2,
+  "accumulation": 32,
+  "evaluation_batch": 2,
+  "learning_rate": 0.0001,
+  "weight_decay": 0.01,
+  "grad_clip": 1.0,
+  "max_len": 1024,
+  "head_max_len": 192,
+  "device": "mps",
+  "precision": "float32"
+}

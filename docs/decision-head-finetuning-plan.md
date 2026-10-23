@@ -1,5 +1,10 @@
 # Plan: fine-tune Laya's decision head
 
+Subsequent preparation: [enriched-head-pilot.md](enriched-head-pilot.md) records
+the separately authorized control/enriched experiment using shared 1,024-token
+inputs. It is ready for a new user go-ahead; training has not started. The
+JSON/512 recipe below is the historical starting plan, not that new experiment.
+
 Date: **2026-10-22**. Status: **data prepared; bounded head-only smoke training performed**.
 See [head-training-smoke.md](head-training-smoke.md). No pilot quality result yet.
 

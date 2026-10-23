@@ -1,0 +1,171 @@
+{
+  "version": "enriched_v1",
+  "usage": "research_only",
+  "catalog": "research/system_profiles/collection_v1",
+  "max_added_tokens": 96,
+  "selected_model_fields": [
+    "architecture.backbone",
+    "architecture.parameterization",
+    "architecture.total_parameters",
+    "architecture.active_parameters_per_token",
+    "architecture.attention_types",
+    "architecture.layers",
+    "architecture.hidden_size",
+    "architecture.attention_heads",
+    "architecture.key_value_heads",
+    "architecture.experts_total",
+    "architecture.experts_active_per_token",
+    "input_modalities",
+    "output_modalities",
+    "architecture.family",
+    "model_type"
+  ],
+  "models": [
+    {
+      "profile_id": "model.mistral-7b-instruct-v0.1",
+      "identifiers": [
+        "mistralai/Mistral-7B-Instruct-v0.1"
+      ]
+    },
+    {
+      "profile_id": "model.sqlcoder-70b-alpha",
+      "identifiers": [
+        "defog/sqlcoder-70b-alpha",
+        "Defog SQLCoder 70B"
+      ]
+    },
+    {
+      "profile_id": "model.codellama-34b-instruct",
+      "identifiers": [
+        "codellama/CodeLlama-34b-Instruct-hf",
+        "meta-llama/CodeLlama-34b-Instruct-hf"
+      ]
+    },
+    {
+      "profile_id": "model.deepseek-r1",
+      "identifiers": [
+        "DeepSeek R1",
+        "deepseek-ai/DeepSeek-R1"
+      ]
+    },
+    {
+      "profile_id": "model.deepseek-v4-flash",
+      "identifiers": [
+        "DeepSeek V4 Flash",
+        "deepseek-ai/DeepSeek-V4-Flash"
+      ]
+    },
+    {
+      "profile_id": "model.qwen3.6-35b-a3b",
+      "identifiers": [
+        "Alibaba Qwen3.6 35B A3B",
+        "Qwen/Qwen3.6-35B-A3B"
+      ]
+    },
+    {
+      "profile_id": "model.llama4-maverick-fp8",
+      "identifiers": [
+        "meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8"
+      ]
+    },
+    {
+      "profile_id": "model.llama3.1-8b-instruct",
+      "identifiers": [
+        "meta-llama/Meta-Llama-3.1-8B-Instruct",
+        "Llama-3.1-8B-Instruct"
+      ]
+    },
+    {
+      "profile_id": "model.qwen-7b",
+      "identifiers": [
+        "Alibaba Qwen 7B",
+        "Qwen/Qwen-7B"
+      ]
+    },
+    {
+      "profile_id": "model.gpt-4o-mini",
+      "identifiers": [
+        "OpenAI GPT-4o mini",
+        "gpt-4o-mini"
+      ]
+    },
+    {
+      "profile_id": "model.gpt-4o",
+      "identifiers": [
+        "OpenAI GPT-4o",
+        "gpt-4o"
+      ]
+    },
+    {
+      "profile_id": "model.gpt-5.4-mini",
+      "identifiers": [
+        "OpenAI GPT-5.4 mini",
+        "gpt-5.4-mini"
+      ]
+    },
+    {
+      "profile_id": "model.claude3-sonnet",
+      "identifiers": [
+        "Anthropic Claude 3 Sonnet",
+        "claude-3-sonnet-20240229"
+      ]
+    },
+    {
+      "profile_id": "model.gemini1.5-flash",
+      "identifiers": [
+        "Google Gemini 1.5 Flash",
+        "gemini-1.5-flash"
+      ]
+    }
+  ],
+  "harnesses": [
+    {
+      "profile_id": "harness.asprm",
+      "identifiers": [
+        "ASPRM"
+      ]
+    },
+    {
+      "profile_id": "harness.fewshot-ttt",
+      "identifiers": [
+        "Fewshot-TTT"
+      ]
+    },
+    {
+      "profile_id": "harness.erbench",
+      "identifiers": [
+        "ERBench"
+      ]
+    },
+    {
+      "profile_id": "harness.cellverse",
+      "identifiers": [
+        "CellVerse"
+      ]
+    },
+    {
+      "profile_id": "harness.lighteval",
+      "identifiers": [
+        "Lighteval"
+      ]
+    },
+    {
+      "profile_id": "harness.opencompass",
+      "identifiers": [
+        "OpenCompass"
+      ]
+    },
+    {
+      "profile_id": "harness.petavue",
+      "identifiers": [
+        "Petavue NL2SQL-Benchmark"
+      ]
+    },
+    {
+      "profile_id": "harness.benger",
+      "identifiers": [
+        "BenGER"
+      ]
+    }
+  ]
+}

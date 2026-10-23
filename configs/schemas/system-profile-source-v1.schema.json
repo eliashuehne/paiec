@@ -1,0 +1,77 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "source_id": {
+      "title": "Source Id",
+      "type": "string"
+    },
+    "source_type": {
+      "enum": [
+        "benchmark_table",
+        "model_card",
+        "model_config",
+        "technical_report",
+        "harness_documentation",
+        "harness_code"
+      ],
+      "title": "Source Type",
+      "type": "string"
+    },
+    "location": {
+      "title": "Location",
+      "type": "string"
+    },
+    "revision": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Revision"
+    },
+    "sha256": {
+      "anyOf": [
+        {
+          "pattern": "^[a-f0-9]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Sha256"
+    },
+    "retrieved_on": {
+      "title": "Retrieved On",
+      "type": "string"
+    },
+    "eligibility": {
+      "default": "unreviewed",
+      "enum": [
+        "inventory_source",
+        "unreviewed",
+        "not_permitted"
+      ],
+      "title": "Eligibility",
+      "type": "string"
+    },
+    "eligibility_note": {
+      "title": "Eligibility Note",
+      "type": "string"
+    }
+  },
+  "required": [
+    "source_id",
+    "source_type",
+    "location",
+    "retrieved_on",
+    "eligibility_note"
+  ],
+  "title": "Source",
+  "type": "object"
+}

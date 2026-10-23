@@ -53,6 +53,7 @@ def score_pair(
     acquisition_items: int | None = None,
     evaluation_items: int | None = None,
     prediction_records: list[dict] | None = None,
+    evidence_by_budget: dict | None = None,
 ) -> list[dict]:
     """Score one pair at every budget."""
     split = make_split(
@@ -69,7 +70,8 @@ def score_pair(
 
     out = []
     for budget in budgets:
-        labeled = labelled_prefix(pair, split, budget, revealed)
+        labeled = (evidence_by_budget[budget] if evidence_by_budget is not None else
+                   labelled_prefix(pair, split, budget, revealed))
         labeled = competition_labels(labeled)
         subject = competition_input(pair.subject, {})[0]
         items = [competition_input(pair.subject, pair.item(item_id))[1] for item_id in split.evaluation]
@@ -121,9 +123,23 @@ def evaluate(
     acquisition_items: int | None = None,
     evaluation_items: int | None = None,
     prediction_records: list[dict] | None = None,
+    shared_evidence: bool = False,
 ) -> EvalResult:
     """Score a suite of pairs and average the curves with equal pair weight."""
     records = []
+    evidence_by_budget = None
+    if shared_evidence:
+        # The hosted predictor sees observations across sampled pairs. Keeping
+        # only the current private subject's labels would disambiguate identical
+        # visible profiles using scorer information unavailable to predict().
+        pairs = list(pairs)
+        evidence_by_budget = {budget: [] for budget in budgets}
+        for pair in pairs:
+            split = make_split(pair.item_ids,benchmark=pair.benchmark,subject_id=pair.subject_id,
+                seed=seed,acquisition_items=acquisition_items,evaluation_items=evaluation_items)
+            first = first_labels(pair.responses)
+            for budget in budgets:
+                evidence_by_budget[budget].extend(labelled_prefix(pair,split,budget,first))
     for pair in pairs:
         records.extend(
             score_pair(
@@ -134,6 +150,7 @@ def evaluate(
                 acquisition_items=acquisition_items,
                 evaluation_items=evaluation_items,
                 prediction_records=prediction_records,
+                evidence_by_budget=evidence_by_budget,
             )
         )
     frame = pd.DataFrame.from_records(records)

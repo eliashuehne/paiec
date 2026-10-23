@@ -59,16 +59,18 @@ def resolve_seed(configured: int | None, override: str | None) -> int:
 def predictor_instance(name, args, data_root, suite, cache):
     if name != "laya":
         return make_predictor(name, data_root, suite, cache, args.k)
-    from paiec.laya_predictor import LayaPredictor
-    predictor = LayaPredictor(
+    from paiec.predictor_factory import make_laya_predictor
+    predictor = make_laya_predictor(
         model=args.laya_model, device=args.laya_device,
         max_len=args.laya_max_len, batch_size=args.laya_batch_size,
         use_labels=args.laya_use_labels, revision=args.laya_revision,
         backend=args.laya_backend, dtype=args.laya_dtype, checkpoint_path=args.laya_checkpoint,
         state_format=args.laya_state_format,
+        enrichment_policy=args.laya_enrichment_policy,
+        evidence_mode=args.laya_evidence, evidence_strength=args.laya_evidence_strength,
     )
     print(f"  Laya {predictor.backend}/{predictor.model}, {predictor.device}, max_len={predictor.max_len}, "
-          f"revealed examples={predictor.use_labels}, prompt={predictor.prompt_version}", flush=True)
+          f"text examples={predictor.use_labels}, numeric evidence={args.laya_evidence}, prompt={predictor.prompt_version}", flush=True)
     return predictor
 
 
@@ -183,14 +185,26 @@ def main() -> int:
                     help="token ceiling; defaults to the checkpoint's own trained length "
                          "(english 512, multilingual 1024)")
     ap.add_argument("--laya-batch-size", type=int, default=1)
-    ap.add_argument("--laya-state-format", choices=["json", "text_v1", "context_v1"], default="json")
+    ap.add_argument("--laya-state-format", choices=["json", "text_v1", "context_v1", "enriched_v1", "task_v2", "task_enriched_v2", "compact_v3", "compact_enriched_v3"], default=None,
+                    help="defaults to the trained checkpoint's input contract, or json for upstream weights")
+    ap.add_argument("--laya-enrichment-policy", default=None, help="explicit research-only profile policy; bundled for new pilot checkpoints")
     ap.add_argument("--laya-use-labels", action="store_true", help="include revealed examples in Laya's input")
+    ap.add_argument("--laya-evidence", choices=["none", "beta_mean"], default="none",
+                    help="explicit numeric update from revealed outcomes; independent of checkpoint inputs")
+    ap.add_argument("--laya-evidence-strength", type=float, default=5., help="prior strength for beta_mean; not fitted")
     ap.add_argument("--laya-revision", default=DEFAULT_CHECKPOINT_REVISION, help="pinned upstream checkpoint revision")
     ap.add_argument("--laya-checkpoint", default=None, help="explicit local PAIEC trained checkpoint directory")
     ap.add_argument("--no-tracking", action="store_true", help="disable MLflow logging")
     ap.add_argument("--experiment", default="PAIEC", help="MLflow experiment name")
     ap.add_argument("--tracking-uri", default=None, help="override the project-local SQLite store")
     args = ap.parse_args()
+
+    from paiec.input_contract import resolve_input_contract
+    contract = resolve_input_contract(args.laya_checkpoint, state_format=args.laya_state_format,
+        max_len=args.laya_max_len, enrichment_policy=args.laya_enrichment_policy)
+    args.laya_state_format = contract["state_format"]
+    args.laya_max_len = contract["max_len"]
+    args.laya_enrichment_policy = contract["enrichment_policy"]
 
     data_root = Path(args.data_root)
     suite = load_suite(Path(args.config), args.suite)
@@ -201,8 +215,10 @@ def main() -> int:
         laya=LayaConfig(model=args.laya_model, device=args.laya_device,
                         backend=args.laya_backend, dtype=args.laya_dtype, checkpoint_path=args.laya_checkpoint,
                         state_format=args.laya_state_format,
+                        enrichment_policy=args.laya_enrichment_policy,
                         max_len=args.laya_max_len, batch_size=args.laya_batch_size,
-                        use_labels=args.laya_use_labels, revision=args.laya_revision),
+                        use_labels=args.laya_use_labels, revision=args.laya_revision,
+                        evidence_mode=args.laya_evidence, evidence_strength=args.laya_evidence_strength),
     )
     cache = Path(args.cache)
 
@@ -245,6 +261,8 @@ def main() -> int:
             from paiec.laya_predictor import PROMPT_VERSION
             params["laya_prompt_version"] = PROMPT_VERSION
             title += f" / {PROMPT_VERSION} / {args.laya_state_format}"
+            if args.laya_evidence != "none":
+                title += f" / {args.laya_evidence} / k={args.laya_evidence_strength}"
             if args.laya_checkpoint:
                 from paiec.laya_runtime import local_checkpoint_files
                 _, identity = local_checkpoint_files(args.laya_checkpoint, args.laya_model)
@@ -307,6 +325,7 @@ def main() -> int:
                 progress_pairs(), predictor, seed=suite["seed"],
                 acquisition_items=suite["acquisition_items"], evaluation_items=suite["evaluation_items"],
                 prediction_records=prediction_records,
+                shared_evidence=name == "laya" and args.laya_evidence != "none",
             )
             if name == "laya":
                 predictor.synchronize()
@@ -322,6 +341,8 @@ def main() -> int:
                     backend=predictor.backend, runtime=predictor.runtime_metadata,
                     packages=predictor.runtime_metadata["packages"],
                     prompt_version=predictor.prompt_version, state_format=predictor.state_format,
+                    evidence_mode=args.laya_evidence, evidence_strength=args.laya_evidence_strength,
+                    evidence_scope="all_sampled_pairs" if args.laya_evidence != "none" else "legacy_pair_local",
                 )
                 effective_questions = predictor.questions
                 detail["input_contract"] = INPUT_CONTRACT
@@ -360,6 +381,8 @@ def main() -> int:
                         f"{args.laya_model}_{settings.laya.max_len}_{mode}_{prompt_version}")
     if "laya" in results and args.laya_state_format != "json":
         default_out /= args.laya_state_format
+    if "laya" in results and args.laya_evidence != "none":
+        default_out /= f"{args.laya_evidence}_k{args.laya_evidence_strength}"
     if "laya" in results and args.laya_checkpoint:
         default_out /= metadata["predictors"]["laya"]["runtime"]["checkpoint_revision"]
     if suite["pair_selection"] == "random":

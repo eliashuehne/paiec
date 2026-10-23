@@ -498,3 +498,420 @@ requested browser authentication, which verified successfully for elias-huehne.
 SDK definition checks, dry runs and 174 lightweight tests pass with environment
 skips; no cloud image build, GPU invocation or new model scores occurred. See
 [modal.md](modal.md) for exact support and unverified end-to-end steps.
+
+
+## 2026-10-22: versioned system-profile research format
+
+Saved typed JSONL profiles with homogeneous fact/evidence objects and explicit
+model/harness/run separation. Architecture includes backbone, attention direction,
+dense/MoE, total/active parameters and optional layer/head/expert/tokenizer details.
+A collection plan and JSON Schemas accompany real MetaMath-Mistral/ASPRM/run
+seed records grounded in the original subject table. Architecture and other
+unreviewed facts remain unknown; no external collection, predictor integration,
+training or evaluation occurred. See `research/system_profiles/README.md`.
+
+## 2026-10-22: primary-source profile collection
+
+The user explicitly authorized actual collection after the schema-only seed.
+Saved `research/system_profiles/collection_v1` using schema 1.0: 18 model,
+8 harness and 32 recorded-run profiles covering all exported training/development
+subjects in `data_v2`. Collected 42 external document/configuration snapshots,
+plus 10 original subject-table sources. There are 121 documented specification
+facts, five inferred classifications and 20 recorded run settings; identity
+facts are separate. Architecture configs are pinned and quoted; current provider
+defaults are qualified rather than assumed to describe historical runs.
+
+Nineteen subjects have name-level model matches; thirteen retain unresolved
+identity/version status, including private CDG checkpoints, missing C-Eval names,
+ERBench aliases and historical GPT-3.5-16k. MetaMath-Llama's candidate card is
+inconsistent; unofficial CodeLlama config assertions were excluded. Configured
+position limits are not promoted into supported context limits. External
+sources remain unreviewed for competition eligibility, with no predictor join,
+training, inference, cloud job or score changes. See
+[system-profile-collection.md](system-profile-collection.md) for evidence,
+coverage and reproducibility.
+
+Verification: offline rebuild and both catalog validators pass; the full MLX
+lightweight suite passes 182 tests with three expected skips. Source snapshot
+checks and quoted/recorded evidence checks pass. No model evaluation was added.
+
+## 2026-10-22: enriched head pilot prepared; training awaits go-ahead
+
+Implemented research-only `enriched_v1`, a conservative identifier/field policy,
+and one shared renderer for training exports and later `LayaPredictor` calls.
+Documented properties fit only in spare input room, capped at 96 tokens; no
+original task text is removed. Unknown/private/conflicting models remain
+unresolved. Harness capabilities are not claimed to be enabled run behavior.
+Current API context/output defaults and inferred facts are excluded.
+
+Prepared matched `context_v1` control and enriched versions of the same frozen
+5,000 training responses and 963 development outcomes. Both use 1,024 tokens:
+2,042 training inputs truncate identically, development inputs do not truncate.
+2,732 training records receive some metadata (1,429 model, 2,278 harness;
+counts overlap). All development rows receive harness capabilities; only the
+120 Qwen rows receive model properties. This limits architecture generalization
+claims. The original JSON/512 experiments and frozen source exports are intact.
+
+Added a separate local MPS/FP32 pilot launcher with an explicit `--train` gate,
+four epochs/316 updates per variant, raw development Brier ALC selection,
+best/latest export, frozen-module checks and reload checks. New checkpoint
+input contracts bundle and pin profiles, policy, question, format, context and
+renderer hashes. Later API/CLI inference restores those settings automatically.
+The historical JSON/512 evaluator rejects new pilot checkpoints.
+
+Native PyTorch token checks and runtime-render reconstruction passed on every
+prepared record, with no cross-role effective-input overlap. Local MPS and disk
+checks pass; no Laya weights were loaded, no model inference or training started,
+and calibration/confirmation remain unopened. Preparation is logged separately
+in MLflow with no quality metrics. See [enriched-head-pilot.md](enriched-head-pilot.md)
+and `runs/head_finetuning/enrichment_pilot_v1/report.html`.
+
+Final checks pass: 197 tests in each environment (MLX four expected skips;
+PyTorch one), checkpoint-bundle export/drift tests, native input/render parity,
+and `git diff --check`. No actual Laya model forward pass or gradient update
+was performed during preparation.
+
+## 2026-10-22: local PyTorch/MPS pilot authorized and launched
+
+The user chose the prepared PyTorch/MPS workflow after discussing MLX training.
+Launched `scripts/run_head_pilot.py --train`: baseline then enriched, same
+prepared inputs and seed, four epochs/316 updates each. Progress is in
+`runs/enriched_pilot_training.log`. Completion and scores are not established
+by launch; read per-variant reports and the final comparison when available.
+No duplicate run, calibration fit or confirmation scoring is authorized by
+this launch.
+
+### MPS memory correction and fresh recovery
+
+The initial baseline reached 11 updates with finite losses/gradients, but GPU
+driver allocation increased from 6.45 GB at update 3 to 8.84 GB at update 11,
+and update time rose from about 30 to 43 seconds. Interrupted it before further
+memory pressure. MLflow marks `be2aec0b45bb441fad3f881f79719d25` KILLED; original
+log/history plus `interruption.json` are preserved. No epoch, trained checkpoint
+or quality result completed. This is unrelated to the older canceled 10k run.
+
+Added a 0.7 allocator fraction, 128-token masked padding buckets and unused-cache
+trimming after each update/every 16 development batches. Padding preserves real
+tokens, attention/target masks and marker positions; a synthetic attention check
+passes. All 198 PyTorch tests pass (one expected skip). Recorded memory policy
+in training provenance. The shared renderer and frozen prepared data are unchanged.
+
+Launched a fresh paired attempt from the original parent using `--out
+runs/head_finetuning/enrichment_pilot_v1_training_mpsbounded_v2`. New log:
+`runs/enriched_pilot_mpsbounded_training.log`. Recovery changes only output
+location and memory handling; same samples, seed, optimizer and four-epoch budget.
+
+## 2026-10-22: local run stopped; enriched-first Modal pilot prepared
+
+The user requested stopping local training and preparing Modal, with enriched
+first. Sent SIGINT to PID 12623 and verified exit. The memory-bounded attempt
+ended at 11 completed updates and zero epochs. MLflow
+`1187918c63604de29a3d0e0bcf0364a6` is KILLED, with reason tagged and
+`interruption.json` saved. No completed development score or checkpoint exists.
+Its driver allocation stayed near 3.24 GB after cleanup; update times were
+about 35 seconds. The interrupted histories are retained, not resumed or relabeled.
+
+Extended the shared pilot trainer to explicit PyTorch/CUDA placement and the
+typed execution launcher to `train-head-pilot`. The task defaults to enriched
+alone. `modal-l4-pilot` specifies one L4, two CPU cores, 16 GiB RAM and a
+four-hour timeout. The first job retains all 5,000 records, four epochs,
+316 updates, seed, weighting, optimizer and input hashes. FP32 is explicit,
+with CUDA TF32/autocast disabled. Device/output are the only allowed overrides
+of the prepared recipe; baseline remains a separate requested follow-up.
+
+The explicit 20-file inventory totals 75,980,393 bytes (20,633,944 compressed).
+Round-tripped it into an isolated source workspace and ran native preflight on
+MPS: all token sequences and runtime-rendered states matched. This establishes
+input completeness, not actual CUDA execution. Modal definitions constructed
+locally without hydration or cloud resources. The dry-run plan is saved in
+`runs/modal_enriched_pilot_plan.json`; validation evidence is in
+`runs/modal_pilot_preparation_validation.json` and the isolated preflight log.
+
+Cloud results preserve metric steps/timestamps during local MLflow import.
+The worker mirrors console progress, keeps model tensors/best/latest on the
+persistent volume, and records their paths in result receipts/status. The HTML
+report supports a single completed enriched variant without fabricating a
+baseline comparison. No cloud GPU has been launched, no remote image built,
+and no calibration/confirmation exports uploaded or scored. See
+[modal-head-pilot.md](modal-head-pilot.md) for the reviewed next launch.
+
+Final verification: 204 tests pass in each environment (PyTorch one expected
+skip; MLX six), isolated bundle/native preflight passes, and `git diff --check`
+passes. No remote compute or model inference was performed for preparation.
+
+## 2026-10-22: first enriched Modal job submitted
+
+The user asked to start training on Modal after preparation. Launched the
+reviewed enriched-only command with the original frozen recipe and L4 profile.
+Modal accepted job `job_bf242b6e53874dcebb6cd6dd44738625`, app
+`ap-LrMzFk0CpOsTcAQj28MLGD`. The first image build is running; model download,
+preflight, CUDA updates and quality results are not established by submission.
+Controller PID 17867, log `runs/modal_enriched_pilot_launch.log`, receipt
+`runs/modal_enriched_pilot_launch.json`. Idle-sleep prevention follows the
+controller process. Do not start a duplicate. Baseline remains unlaunched.
+
+### First CUDA updates verified
+
+The L4 worker started; pinned parent download and all native token/runtime-state
+preflight checks passed. Remote MLflow run `3a15460e13bc4bc6933b93693712126a`.
+First 15 updates completed with finite losses/gradients; median 7.67 seconds
+per update, maximum allocated tensor peak 2.43 GB and 2.58 GB reserved.
+This is early throughput, not a completed epoch/quality result. The local
+baseline used different inputs, so the roughly 35-second local observation is
+only an indicative speed comparison. Progress snapshot retained in
+`runs/modal_enriched_pilot_progress.json`. Controller remains attached to fetch
+results and import local MLflow automatically on completion.
+
+## 2026-10-22: GPU utilization and frozen-encoder caching probes
+
+User requested using GPU/memory efficiently. Existing L4, no new GPU: bounded
+isolated probes with watchdog-protected trainer pauses. Larger plain batches
+used more memory but slowed the single 64-record window (7.78s at batch two,
+8.49s at batch 64). Length-grouped batch eight took 6.60s. TF32 took 3.79s
+but shifted probabilities by up to 0.009154 on 64 records; not enabled live.
+
+Frozen-encoder GPU feature caching took 1.35s at batch two, 1.08s with grouped
+batch eight, after warming the cache. FP32 retained. Two-record probability
+check exact; maximum head-gradient drift 1.86e-9 with identical RNG. Estimated
+full training/development cache: 14.97 GB; not fully allocated or validated.
+Production integration, memory cap and full-corpus verification remain pending.
+The active run resumed unchanged (115 updates observed; epoch-one raw
+development Brier ALC 0.249080). No optimizer updates applied by the probes.
+Profiling pauses inflate step elapsed times; original metrics are retained.
+See docs/gpu-training-performance.md and runs/modal_gpu_utilization_audit.json.
+
+## 2026-10-22: cached enriched retraining authorized
+
+User requested retraining after the feature-cache prototype. The prior Modal
+app was already stopped after local client disconnection: recovered 139 update
+records, one completed epoch (raw development Brier ALC 0.249080), predictions
+and per-pair scores. Latest checkpoint remains on the volume; no final four-epoch
+result exists. Small files recovered to
+`runs/head_finetuning/enrichment_pilot_v1_modal_interrupted_recovery/`.
+
+Implemented a process-local frozen-encoder FP32 feature cache with byte-bounded
+LRU eviction, exact-token keys, mode/weight-version guards and explicit cleanup.
+Only frozen sequential FP32 encoders are supported. New runs compare cached
+and native probabilities/gradients on mixed-length training fixtures and all
+development inputs before updates. Cache buffers are not checkpoint tensors.
+Same 5,000 records, seed, micro-batch 2, accumulation 32, 316 updates, original
+parent, no TF32 or precision change. Feature reuse fills lazily during epoch one;
+later epochs should gain more. End-to-end speed remains to be measured.
+
+208 PyTorch tests pass (one skip), covering cache reuse/eviction/repadding,
+probabilities/gradients/RNG, state dict integrity and detached submission.
+Submitted fresh enriched-only L4 job `job_e5548e95fcec4aba88d110056a0e4f71`,
+app `ap-qpuYpW9bljFIY7WwDgyba2`, call `fc-01M5K8SQNQ19CSW1Z8GFTGAB2T`,
+14 GiB feature cap. Now uses `app.run(detach=True)` plus durable `spawn`,
+with call/app IDs written to the local receipt before waiting. Training can
+continue after local client loss; retrieval/import remains available afterward.
+No duplicate or baseline run was launched. Live log:
+`runs/modal_cached_head_launch.log`; receipt: `runs/modal_cached_head_launch.json`.
+
+Cached job CUDA checks passed: 33 training fixture batches, maximum probability
+drift 7.90e-7 and head-gradient drift 1.68e-8; full-development predictions and
+Brier match exactly. Remote MLflow `dedd67f8fc0247c28020573f1157e32c`.
+Observed update 30 with 5.28 GB stored features, 7.43 GB allocated total.
+Cold epoch-one updates still fill the cache; warmed throughput is pending.
+
+### Cached retrain completed and recovered locally
+
+The enriched cached run completed all four epochs / 316 updates / 20,000
+training presentations. Best epoch 1: development Brier ALC **0.24908013**.
+Original raw parent on the same enriched inputs: **0.33525644**; constant 0.5:
+**0.25000000**. Epoch scores: 0.24908013, 0.25615209, 0.26679374, 0.27265947.
+Later epochs worsened held-out development despite decreasing training loss,
+consistent with overfitting. This is only two development families; no
+confirmation scoring, calibration fit or paired baseline retraining was run.
+
+Training/development phase: 1,013.86 seconds (16.9 minutes), excluding startup,
+initial raw-parent evaluation, cache validation and downloads. Median full-window
+update times by epoch: 7.05, 1.41, 1.40, 1.40 seconds. Warm updates are roughly
+5x faster than cold epoch-one updates; this is not a 5x end-to-end speed claim.
+Cache held 5,215 unique features / 12.14 GB with zero evictions. Maximum
+allocated GPU memory was 14.58 GB, peak allocated 15.09 GB and reserved 15.31 GB.
+
+Encoder and auxiliary action-head hashes stayed unchanged; decision weights
+changed. Export/reload tensor hashes match and fixture probability drift is
+zero. Best checkpoint was downloaded locally, every file hash verified, and
+the bundled enriched_v1/1,024-token input contract validated without inference.
+
+Local output: `runs/head_finetuning/enrichment_pilot_v1_modal_cached/output/`.
+Report: `output/report.html`; best model: `output/enriched/best/`.
+Performance summary: `output/enriched/performance_summary.json`.
+Local MLflow experiment **PAIEC Modal**, run `6f174af602994e3d9f15bc0131351ca8`
+is FINISHED with all four development curve points imported. No GPU container
+remained active at the final check.
+
+## 2026-10-22: engineering audit of the current approach
+
+Reviewed saved inputs, predictions and training logs, without new fitting,
+inference, GPU work or calibration/confirmation access. The trained head's
+0.24908013 Brier ALC is just 0.00091987 better than constant 50%. Probabilities
+span 46.8–55.6%; mean within-pair AUROC is 0.450. Replacing each pair's
+predictions by its own average prediction improves Brier to 0.24842928 without
+using evaluation labels to choose the constants: item variation is adding net
+error on this sample. A paired item-cluster uncertainty interval includes no
+gain over 50%, conditional on the selected two development benchmarks, without
+correcting best-checkpoint selection optimism.
+
+2,042/5,000 training records are truncated. 654 rows belong to 17 retained-input
+groups containing distinct full tasks; one BenGER group merges 209 different
+tasks. Three C-Eval systems also have identical allowed system profiles because
+model identity is missing. These are distinct input-loss and missing-information
+problems; source display names must not be substituted into prediction.
+
+Training updates 26.2M parameters on 24 pairs/seven families. Later training
+loss decreases while development error increases. Web enrichment has no matched
+completed dataset-only training control, and verified model-property coverage
+is only 28.6% of training rows / 12.5% of development rows. The English frozen
+encoder's suitability for the largely Chinese C-Eval slice is an untested
+representation question. Current predictions ignore revealed labels at all
+budgets.
+
+Recommendations, **not run**: task-preserving inputs and visibility checks;
+small regularized Unicode-aware text/structured controls; numeric updates from
+allowed evidence; matched enrichment ablations; language/capacity experiments
+after those controls. External profile eligibility remains unreviewed under the
+current competition inventory restriction. No production input or model changed.
+
+Full review and ordered feature plan: [head-approach-review.md](head-approach-review.md).
+Reproduction: `scripts/audit_head_approach.py --out NEW_DIRECTORY`.
+Saved report, per-pair/coverage tables, real collision/error examples, cluster
+interval and source hashes: `runs/head_finetuning/approach_audit_v1/`.
+
+## 2026-10-22: task-v2 implementation and saved-prediction evidence control
+
+Implemented a label-blind, native-token-budgeted task parser/builder, structured
+feature/visibility export, separate task-v2 inference adapter, one-epoch matched
+head preparation, and an optional numeric evidence wrapper. Original renderers
+and historical input contracts are unchanged. The new Unicode/structured ridge
+is implemented but has only synthetic unit-test fitting, no competition score.
+
+Prepared all 5,000 training and 963 development responses under
+`runs/head_finetuning/task_features_pilot_v2/`. Whole-input multi-task collision
+rows fall from 654 to zero; BenGER retained inputs increase from 211 to 833.
+Explicit task omissions remain in 2,040 training rows; zero native truncation
+is not a claim of full context retention. Ignoring item metadata/IDs leaves 34
+ClashEval rows with content collisions, and zero in BenGER. Frozen roles/labels
+are unchanged, and calibration/confirmation remain unopened.
+
+New numeric evidence evaluations use mixed observations across sampled pairs,
+rather than the historical pair-local label list, preventing private scorer
+subject grouping from disambiguating identical visible profiles. The predictor
+matches only permitted fields and anonymous benchmark IDs. Prior strength is
+explicit and untuned, not a fitted calibration parameter.
+
+Scored a separate control with the already saved best enriched head
+probabilities, same frozen development targets and acquisition trajectory:
+0.249080 unchanged head; **0.238145** head + beta_mean k=5; **0.239531** constant
+0.5 + beta_mean k=5. No new Laya inference or gradient training. Early budgets
+1/3 worsen while 7/15/31 improve on this trajectory. This does not establish
+new-input quality or confirmation generalization. No strength search was run.
+Artifacts: `runs/head_finetuning/evidence_control_v1/`.
+
+Full design, upstream sources, measured limitations and usage:
+[task-feature-pipeline.md](task-feature-pipeline.md).
+
+## 2026-10-22: capability/difficulty/similarity research design
+
+User requested focusing retraining on model/harness capabilities, task difficulty
+and similarity, authorizing broad web research. Reviewed primary research:
+EmbedLLM, IrtNet and observational scaling laws; examined BGE-M3 as a possible
+multilingual retrieval control. None was imported as training data or run.
+
+New training-role-only audit finds **170 candidate pairs / 35 nonempty canonical
+model-name strings**, versus the current 24 sampled pairs. BIRD has 120
+configurations/15 names over the same 360 questions; BenGER has 25 candidates/
+12 names. These require subject/input review and are not 170 independent LLMs.
+Only four canonical strings recur across training benchmarks, with historical
+version equivalence unresolved. This limits disentangling ability and difficulty.
+No frozen family was reassigned or expanded automatically.
+
+Proposed model: attribute-conditioned system representation + text-predicted
+task requirements/difficulty + a learned compatible-evidence correction.
+Begin with a small head on frozen Laya representations; then episodic training
+and encoder adapters if validated. Use outcomes as primary supervision and web
+facts as explanatory inputs. ID-only embeddings, guessed difficulty scores,
+outside evaluation labels and unreviewed benchmark data are not accepted as
+shortcuts. This architecture has not been implemented/trained.
+
+Design: [capability-learning-design.md](capability-learning-design.md).
+Audit: `runs/head_finetuning/capability_data_audit_v1/`;
+reproduce with `scripts/audit_capability_training.py --out NEW_DIRECTORY`.
+No embedding inference, new quality scoring, paid API calls, calibration/
+confirmation outcomes or GPU jobs were used for this work.
+
+## 2026-10-22: compact-v3 delivery and development identity investigation
+
+Implemented opt-in `compact_v3` / `compact_enriched_v3`, shared across preparation
+and prediction through a new factory. Original pinned renderer sources, catalogs,
+prepared v1/v2 data and the trained head remain valid. The new recipe uses 2,048
+tokens and reserves a fixed 192-token fact block in both arms. Retained task text
+is identical between arms; detected options are never clipped. Marked question/
+context templates now separate the question from large retrieved passages.
+
+On the same frozen 5,000 training / 963 development records: all available facts
+reach input. Training model/base-family facts: 4,584 available/delivered, versus
+3,185 previously delivered; harness: 3,958 versus 2,304. Development model/base:
+603 versus 120; harness: all 963. All records receive some sourced context,
+**not** a verified model identity for every record. Three original C-Eval systems
+still lack identifiers (360 records); two private CDG targets remain unverified.
+
+There are zero native overflows, system/item-attribute omissions or shortened
+detected options; all 480 development MCQ records keep their options. Task/context
+omissions remain in 1,145 training rows; 652 have oversized question/user sections.
+Formatting and context length both changed, so these counts are not a quality
+gain or an isolated formatting comparison. No new Brier score exists.
+
+Reviewed all 19 development-family subjects. Primary ERBench paper/code evidence
+supports scoped reported model families, with explicitly labeled base-only facts
+for private fine-tunes. `collection_v3` keeps actual fine-tuned model links null.
+Four extra identifiable systems have a separate outcome-blind question-only
+supplement: 480 evaluation / 160 acquisition inputs. Response values/reference
+answers were not loaded; binary-outcome eligibility is not yet checked. Original
+evaluation records, labels, acquisition trajectories and frozen roles stay intact.
+
+Artifacts: `runs/head_finetuning/compact_pilot_v3_release/`,
+`runs/head_finetuning/development_identity_review_v3_release_final/`,
+`runs/head_finetuning/compact_workflow_v3/report.html`.
+Details: [compact-inputs-and-development.md](compact-inputs-and-development.md).
+Both suites pass 235 tests (MLX nine skips, Torch one). Full PyTorch preflight
+confirms native token/render parity without loading weights. The one-epoch /
+79-update paired recipe is prepared, not launched; GPU resources/performance
+at 2,048 tokens still need qualification. No model inference, scoring, training,
+paid API call, sealed-set access or GPU job was performed.
+
+## 2026-10-22: expanded profile collection and coverage audit
+
+User requested 100% coverage and selected all 170 training candidates plus eight
+development systems. Added versioned `collection_v2`, preserving prior catalogs,
+policies, renderer sources, prepared artifacts and the completed trained head.
+There are now 44 model/artifact/family profiles, eight harness profiles and 178
+recorded runs; 240 documented specification facts, six explicit inferences and
+273 recorded settings. Sources/excerpts/config values are checked offline;
+subject fields and frozen roles are checked against original subject tables.
+
+Across the same 178 systems, model-fact availability rises from 44 to 169;
+harness-fact availability remains 171. Both are available for 162; some sourced
+context is available for all 178. **Full model-and-harness coverage is not
+achieved:** three missing model identities, four generic study aliases/private
+deployments, two unverified private CDG checkpoints and seven missing harness
+names remain in a recorded resolution queue. No guessed dimensions or forbidden
+display-name recovery were used. Thirty-four model matches intentionally use
+family-only properties; no evaluated weight snapshot is independently verified.
+
+New opt-in policy `configs/head_finetuning/enrichment_catalog_v2.json` prioritizes
+size/type/modalities before deeper dimensions, with the existing 96-token cap.
+Tokenizer-only audit on the frozen task-v2 pilot: model facts available for
+4,584/5,000 training rows, actually rendered for 3,185; some enrichment rendered
+for 3,599. Development: 120/963 model-fact rows and 963/963 harness-fact rows.
+Metadata availability does not establish input visibility. Existing task omissions
+remain in 2,040 training records. No new preparation bundle or training was run.
+
+Report: `runs/head_finetuning/system_profile_coverage_v2_final/report.html`.
+Durable metrics/queue: `research/system_profiles/collection_v2/`.
+Details: [system-profile-coverage.md](system-profile-coverage.md).
+Both lightweight suites pass 225 tests (MLX nine skips, Torch one); prior prepared
+bundles and the completed best-head contract still validate. No new inference,
+Brier evaluation, paid API calls, sealed-set access or GPU job.

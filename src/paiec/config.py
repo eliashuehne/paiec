@@ -51,13 +51,22 @@ class LayaConfig(BaseModel):
     device: Literal["auto", "mps", "cpu", "cuda"] = "auto"
     max_len: int | None = Field(default=None, ge=1, le=8192)
     batch_size: int = Field(default=1, ge=1)
-    state_format: Literal["json", "text_v1", "context_v1"] = "json"
+    state_format: Literal["json", "text_v1", "context_v1", "enriched_v1", "task_v2", "task_enriched_v2", "compact_v3", "compact_enriched_v3"] = "json"
+    enrichment_policy: str | None = None
     use_labels: bool = False
     revision: str | None = None
     checkpoint_path: str | None = None
+    evidence_mode: Literal["none", "beta_mean"] = "none"
+    evidence_strength: Annotated[FiniteFloat, Field(gt=0)] = 5.0
 
     @model_validator(mode="after")
     def compatible_runtime(self):
+        if self.state_format in {"enriched_v1", "task_enriched_v2", "compact_v3", "compact_enriched_v3"} and not (self.enrichment_policy or self.checkpoint_path):
+            raise ValueError("enriched_v1 requires an explicit research enrichment policy")
+        if self.enrichment_policy and self.state_format not in {"enriched_v1", "task_enriched_v2", "compact_v3", "compact_enriched_v3"}:
+            raise ValueError("Enrichment policy requires state_format=enriched_v1")
+        if self.use_labels and (self.evidence_mode != "none" or self.state_format in {"task_v2", "task_enriched_v2", "compact_v3", "compact_enriched_v3"}):
+            raise ValueError("Use numeric evidence or legacy text examples, not both")
         if self.backend == "mlx" and self.device == "cuda":
             raise ValueError("MLX does not support CUDA")
         if self.backend == "torch" and self.dtype != "auto":
@@ -65,7 +74,7 @@ class LayaConfig(BaseModel):
         if self.max_len is None:
             # Resolve here so every downstream consumer (title, output folder,
             # tracked params, requests) sees one concrete value.
-            self.max_len = TRAINED_MAX_LEN[self.model]
+            self.max_len = 2048 if self.state_format in {"compact_v3", "compact_enriched_v3"} else TRAINED_MAX_LEN[self.model]
         return self
 
 

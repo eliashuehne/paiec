@@ -6,6 +6,7 @@ from pathlib import Path
 import shutil
 import subprocess
 import sys
+import threading
 import zipfile
 from .jobs import ExecutionProfile, JobSpec, command
 from .transport import unpack, sha256
@@ -53,7 +54,11 @@ def execute(
     )
     (base / "execution.json").write_text(json.dumps(metadata, indent=2))
     # A new root isolates data, MLflow SQLite and artifacts from other jobs.
-    with (base / "console.log").open("w") as log:
+    console = base / "console.log"
+    with console.open("w") as log:
+        stop_stream = threading.Event()
+        stream = threading.Thread(target=stream_console, args=(console, stop_stream), daemon=True)
+        stream.start()
         try:
             result = subprocess.run(
                 cmd,
@@ -67,6 +72,10 @@ def execute(
         except subprocess.TimeoutExpired:
             log.write("\nJob timed out; partial output retained.\n")
             return_code = 124
+        finally:
+            log.flush()
+            stop_stream.set()
+            stream.join(timeout=5)
     records = []
     store = work / "runs/mlflow/mlflow.db"
     if store.exists():
@@ -84,13 +93,19 @@ def execute(
                         name=run.data.tags.get("mlflow.runName", "run"),
                         params=run.data.params,
                         metrics=run.data.metrics,
+                        metric_history={key: [dict(value=m.value, step=m.step, timestamp=m.timestamp)
+                                              for m in client.get_metric_history(run.info.run_id, key)]
+                                        for key in run.data.metrics},
                         status=run.info.status,
                     )
                 )
                 if artifact_root.exists():
                     shutil.copytree(artifact_root, base / "tracking" / run.info.run_id)
     (base / "remote_tracking.json").write_text(json.dumps(records, indent=2))
-    (base / "status.json").write_text(json.dumps({"return_code": return_code}))
+    checkpoint_dirs = sorted(str(path.relative_to(storage)) for path in (work / job.out).rglob("*")
+                             if path.is_dir() and (path / "paiec_training.json").is_file())
+    (base / "status.json").write_text(json.dumps({"return_code": return_code,
+                                                "checkpoint_directories": checkpoint_dirs}))
     with zipfile.ZipFile(
         base / "results.zip", "w", compression=zipfile.ZIP_DEFLATED
     ) as archive:
@@ -107,10 +122,7 @@ def execute(
         ]:
             if origin.exists():
                 for path in origin.rglob("*"):
-                    if (
-                        path.is_file()
-                        and "checkpoint" not in path.relative_to(origin).parts
-                    ):
+                    if path.is_file() and small_result_file(path.relative_to(origin)):
                         archive.write(
                             path, str(Path(prefix) / path.relative_to(origin))
                         )
@@ -119,4 +131,24 @@ def execute(
         "return_code": return_code,
         "results_path": f"{job_id}/results.zip",
         "checkpoint_directory": f"{job_id}/work/{job.out}/checkpoint",
+        "checkpoint_directories": checkpoint_dirs,
     }
+
+
+def small_result_file(path):
+    """Keep cloud model tensors out of routine log/result downloads."""
+    return not ({"checkpoint", "best", "latest"} & set(path.parts)) and path.suffix not in {
+        ".safetensors", ".pt", ".pth", ".bin"}
+
+
+def stream_console(path, stop):
+    """Mirror subprocess progress into Modal logs while retaining the full file."""
+    with path.open(errors="replace") as source:
+        while True:
+            text = source.read()
+            if text:
+                print(text, end="", flush=True)
+            elif stop.is_set():
+                return
+            else:
+                stop.wait(.5)

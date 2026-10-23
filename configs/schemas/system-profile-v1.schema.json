@@ -1,0 +1,668 @@
+{
+  "$defs": {
+    "Architecture": {
+      "additionalProperties": false,
+      "properties": {
+        "family": {
+          "$ref": "#/$defs/Fact_str_"
+        },
+        "backbone": {
+          "$ref": "#/$defs/Fact_Literal__transformer____state_space____recurrent____hybrid____other___"
+        },
+        "attention_direction": {
+          "$ref": "#/$defs/Fact_Literal__causal____bidirectional____encoder_decoder____other___"
+        },
+        "parameterization": {
+          "$ref": "#/$defs/Fact_Literal__dense____mixture_of_experts____hybrid____other___"
+        },
+        "total_parameters": {
+          "$ref": "#/$defs/Fact_int_"
+        },
+        "active_parameters_per_token": {
+          "$ref": "#/$defs/Fact_int_"
+        },
+        "layers": {
+          "$ref": "#/$defs/Fact_int_"
+        },
+        "hidden_size": {
+          "$ref": "#/$defs/Fact_int_"
+        },
+        "attention_heads": {
+          "$ref": "#/$defs/Fact_int_"
+        },
+        "key_value_heads": {
+          "$ref": "#/$defs/Fact_int_"
+        },
+        "attention_types": {
+          "$ref": "#/$defs/Fact_list_str__"
+        },
+        "experts_total": {
+          "$ref": "#/$defs/Fact_int_"
+        },
+        "experts_active_per_token": {
+          "$ref": "#/$defs/Fact_int_"
+        },
+        "positional_encoding": {
+          "$ref": "#/$defs/Fact_str_"
+        },
+        "tokenizer_identifier": {
+          "$ref": "#/$defs/Fact_str_"
+        }
+      },
+      "title": "Architecture",
+      "type": "object"
+    },
+    "Evidence": {
+      "additionalProperties": false,
+      "properties": {
+        "source_id": {
+          "minLength": 1,
+          "title": "Source Id",
+          "type": "string"
+        },
+        "locator": {
+          "minLength": 1,
+          "title": "Locator",
+          "type": "string"
+        },
+        "excerpt": {
+          "minLength": 1,
+          "title": "Excerpt",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source_id",
+        "locator",
+        "excerpt"
+      ],
+      "title": "Evidence",
+      "type": "object"
+    },
+    "Fact_Literal__causal____bidirectional____encoder_decoder____other___": {
+      "additionalProperties": false,
+      "properties": {
+        "value": {
+          "anyOf": [
+            {
+              "enum": [
+                "causal",
+                "bidirectional",
+                "encoder_decoder",
+                "other"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value"
+        },
+        "status": {
+          "default": "unknown",
+          "enum": [
+            "unknown",
+            "recorded",
+            "documented",
+            "inferred"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "evidence": {
+          "items": {
+            "$ref": "#/$defs/Evidence"
+          },
+          "title": "Evidence",
+          "type": "array"
+        },
+        "note": {
+          "default": "Not established from reviewed sources.",
+          "title": "Note",
+          "type": "string"
+        }
+      },
+      "title": "Fact[Literal['causal', 'bidirectional', 'encoder_decoder', 'other']]",
+      "type": "object"
+    },
+    "Fact_Literal__dense____mixture_of_experts____hybrid____other___": {
+      "additionalProperties": false,
+      "properties": {
+        "value": {
+          "anyOf": [
+            {
+              "enum": [
+                "dense",
+                "mixture_of_experts",
+                "hybrid",
+                "other"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value"
+        },
+        "status": {
+          "default": "unknown",
+          "enum": [
+            "unknown",
+            "recorded",
+            "documented",
+            "inferred"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "evidence": {
+          "items": {
+            "$ref": "#/$defs/Evidence"
+          },
+          "title": "Evidence",
+          "type": "array"
+        },
+        "note": {
+          "default": "Not established from reviewed sources.",
+          "title": "Note",
+          "type": "string"
+        }
+      },
+      "title": "Fact[Literal['dense', 'mixture_of_experts', 'hybrid', 'other']]",
+      "type": "object"
+    },
+    "Fact_Literal__transformer____state_space____recurrent____hybrid____other___": {
+      "additionalProperties": false,
+      "properties": {
+        "value": {
+          "anyOf": [
+            {
+              "enum": [
+                "transformer",
+                "state_space",
+                "recurrent",
+                "hybrid",
+                "other"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value"
+        },
+        "status": {
+          "default": "unknown",
+          "enum": [
+            "unknown",
+            "recorded",
+            "documented",
+            "inferred"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "evidence": {
+          "items": {
+            "$ref": "#/$defs/Evidence"
+          },
+          "title": "Evidence",
+          "type": "array"
+        },
+        "note": {
+          "default": "Not established from reviewed sources.",
+          "title": "Note",
+          "type": "string"
+        }
+      },
+      "title": "Fact[Literal['transformer', 'state_space', 'recurrent', 'hybrid', 'other']]",
+      "type": "object"
+    },
+    "Fact_float_": {
+      "additionalProperties": false,
+      "properties": {
+        "value": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value"
+        },
+        "status": {
+          "default": "unknown",
+          "enum": [
+            "unknown",
+            "recorded",
+            "documented",
+            "inferred"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "evidence": {
+          "items": {
+            "$ref": "#/$defs/Evidence"
+          },
+          "title": "Evidence",
+          "type": "array"
+        },
+        "note": {
+          "default": "Not established from reviewed sources.",
+          "title": "Note",
+          "type": "string"
+        }
+      },
+      "title": "Fact[float]",
+      "type": "object"
+    },
+    "Fact_int_": {
+      "additionalProperties": false,
+      "properties": {
+        "value": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value"
+        },
+        "status": {
+          "default": "unknown",
+          "enum": [
+            "unknown",
+            "recorded",
+            "documented",
+            "inferred"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "evidence": {
+          "items": {
+            "$ref": "#/$defs/Evidence"
+          },
+          "title": "Evidence",
+          "type": "array"
+        },
+        "note": {
+          "default": "Not established from reviewed sources.",
+          "title": "Note",
+          "type": "string"
+        }
+      },
+      "title": "Fact[int]",
+      "type": "object"
+    },
+    "Fact_list_str__": {
+      "additionalProperties": false,
+      "properties": {
+        "value": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value"
+        },
+        "status": {
+          "default": "unknown",
+          "enum": [
+            "unknown",
+            "recorded",
+            "documented",
+            "inferred"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "evidence": {
+          "items": {
+            "$ref": "#/$defs/Evidence"
+          },
+          "title": "Evidence",
+          "type": "array"
+        },
+        "note": {
+          "default": "Not established from reviewed sources.",
+          "title": "Note",
+          "type": "string"
+        }
+      },
+      "title": "Fact[list[str]]",
+      "type": "object"
+    },
+    "Fact_str_": {
+      "additionalProperties": false,
+      "properties": {
+        "value": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value"
+        },
+        "status": {
+          "default": "unknown",
+          "enum": [
+            "unknown",
+            "recorded",
+            "documented",
+            "inferred"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "evidence": {
+          "items": {
+            "$ref": "#/$defs/Evidence"
+          },
+          "title": "Evidence",
+          "type": "array"
+        },
+        "note": {
+          "default": "Not established from reviewed sources.",
+          "title": "Note",
+          "type": "string"
+        }
+      },
+      "title": "Fact[str]",
+      "type": "object"
+    },
+    "HarnessSpecifications": {
+      "additionalProperties": false,
+      "properties": {
+        "supported_tools": {
+          "$ref": "#/$defs/Fact_list_str__"
+        },
+        "workflow": {
+          "$ref": "#/$defs/Fact_list_str__"
+        },
+        "context_management": {
+          "$ref": "#/$defs/Fact_list_str__"
+        },
+        "default_max_turns": {
+          "$ref": "#/$defs/Fact_int_"
+        },
+        "default_max_tool_calls": {
+          "$ref": "#/$defs/Fact_int_"
+        },
+        "default_max_retries": {
+          "$ref": "#/$defs/Fact_int_"
+        },
+        "default_timeout_seconds": {
+          "$ref": "#/$defs/Fact_float_"
+        },
+        "default_prompting_strategy": {
+          "$ref": "#/$defs/Fact_str_"
+        }
+      },
+      "title": "HarnessSpecifications",
+      "type": "object"
+    },
+    "Identity": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/Fact_str_"
+        },
+        "version": {
+          "$ref": "#/$defs/Fact_str_"
+        },
+        "provider": {
+          "$ref": "#/$defs/Fact_str_"
+        },
+        "resolution": {
+          "default": "unresolved",
+          "enum": [
+            "exact_version",
+            "reported_identifier_only",
+            "unresolved"
+          ],
+          "title": "Resolution",
+          "type": "string"
+        }
+      },
+      "title": "Identity",
+      "type": "object"
+    },
+    "ModelSpecifications": {
+      "additionalProperties": false,
+      "properties": {
+        "architecture": {
+          "$ref": "#/$defs/Architecture"
+        },
+        "model_type": {
+          "$ref": "#/$defs/Fact_str_"
+        },
+        "base_model": {
+          "$ref": "#/$defs/Fact_str_"
+        },
+        "fine_tuning_domains": {
+          "$ref": "#/$defs/Fact_list_str__"
+        },
+        "release_date": {
+          "$ref": "#/$defs/Fact_str_"
+        },
+        "max_input_tokens": {
+          "$ref": "#/$defs/Fact_int_"
+        },
+        "max_output_tokens": {
+          "$ref": "#/$defs/Fact_int_"
+        },
+        "max_combined_context_tokens": {
+          "$ref": "#/$defs/Fact_int_"
+        },
+        "input_modalities": {
+          "$ref": "#/$defs/Fact_list_str__"
+        },
+        "output_modalities": {
+          "$ref": "#/$defs/Fact_list_str__"
+        },
+        "documented_languages": {
+          "$ref": "#/$defs/Fact_list_str__"
+        },
+        "supported_reasoning_settings": {
+          "$ref": "#/$defs/Fact_list_str__"
+        },
+        "max_reasoning_tokens": {
+          "$ref": "#/$defs/Fact_int_"
+        }
+      },
+      "title": "ModelSpecifications",
+      "type": "object"
+    },
+    "RunSpecifications": {
+      "additionalProperties": false,
+      "properties": {
+        "model_profile_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Model Profile Id"
+        },
+        "harness_profile_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Harness Profile Id"
+        },
+        "enabled_tools": {
+          "$ref": "#/$defs/Fact_list_str__"
+        },
+        "reasoning_effort": {
+          "$ref": "#/$defs/Fact_str_"
+        },
+        "temperature": {
+          "$ref": "#/$defs/Fact_float_"
+        },
+        "top_p": {
+          "$ref": "#/$defs/Fact_float_"
+        },
+        "max_output_tokens": {
+          "$ref": "#/$defs/Fact_int_"
+        },
+        "max_reasoning_tokens": {
+          "$ref": "#/$defs/Fact_int_"
+        },
+        "few_shot_count": {
+          "$ref": "#/$defs/Fact_int_"
+        },
+        "system_prompt": {
+          "$ref": "#/$defs/Fact_str_"
+        },
+        "prompt_template": {
+          "$ref": "#/$defs/Fact_str_"
+        },
+        "max_turns": {
+          "$ref": "#/$defs/Fact_int_"
+        },
+        "max_tool_calls": {
+          "$ref": "#/$defs/Fact_int_"
+        },
+        "max_retries": {
+          "$ref": "#/$defs/Fact_int_"
+        },
+        "timeout_seconds": {
+          "$ref": "#/$defs/Fact_float_"
+        },
+        "candidate_count": {
+          "$ref": "#/$defs/Fact_int_"
+        },
+        "selection_method": {
+          "$ref": "#/$defs/Fact_str_"
+        },
+        "quantization": {
+          "$ref": "#/$defs/Fact_str_"
+        },
+        "serving_configuration": {
+          "$ref": "#/$defs/Fact_str_"
+        },
+        "raw_supplied_subject": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "title": "Raw Supplied Subject",
+          "type": "object"
+        }
+      },
+      "title": "RunSpecifications",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "1.0",
+      "default": "1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "profile_id": {
+      "pattern": "^[a-z0-9][a-z0-9_.-]+$",
+      "title": "Profile Id",
+      "type": "string"
+    },
+    "entity_type": {
+      "enum": [
+        "model",
+        "harness",
+        "recorded_run"
+      ],
+      "title": "Entity Type",
+      "type": "string"
+    },
+    "identity": {
+      "$ref": "#/$defs/Identity"
+    },
+    "valid_from": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Valid From"
+    },
+    "valid_until": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Valid Until"
+    },
+    "specifications": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ModelSpecifications"
+        },
+        {
+          "$ref": "#/$defs/HarnessSpecifications"
+        },
+        {
+          "$ref": "#/$defs/RunSpecifications"
+        }
+      ],
+      "title": "Specifications"
+    },
+    "usage": {
+      "const": "research_only",
+      "default": "research_only",
+      "title": "Usage",
+      "type": "string"
+    }
+  },
+  "required": [
+    "profile_id",
+    "entity_type",
+    "specifications"
+  ],
+  "title": "Profile",
+  "type": "object"
+}

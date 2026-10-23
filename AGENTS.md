@@ -2,6 +2,26 @@
 
 ## Start here
 
+Latest: `docs/compact-inputs-and-development.md`. `compact_v3` /
+`compact_enriched_v3` are prepared at 2,048 tokens using
+`configs/head_finetuning/compact_pilot_v3.json`; **no training launched**.
+Use `paiec.predictor_factory.make_laya_predictor` for these formats. Old pinned
+renderer sources remain unchanged. Prepared inputs:
+`runs/head_finetuning/compact_pilot_v3_release/`; earlier compact working previews
+are explicitly superseded. All available facts are delivered: training model/
+base 4,584/5,000 and harness 3,958/5,000; original development model/base 603/963,
+harness 963/963. This is not 100% model identity coverage: three original C-Eval
+systems (360 records) still have no allowed model identifier. There are 1,145
+long training task/context omissions and 652 oversized question/user sections;
+both arms retain identical task text and all detected options. `collection_v3`
+adds ERBench harness-scoped reported/base-family interpretations from primary
+paper/code evidence. Actual private fine-tuned targets stay unbound. Four extra
+development systems have separate question-only inputs (480 evaluation / 160
+acquisition) in `runs/head_finetuning/development_identity_review_v3_release_final/`;
+no outcomes were loaded/scored. Preserve original evaluation/frozen roles.
+235 tests pass in each environment, plus full native Torch token/render preflight.
+No new quality result, sealed-set access or GPU performance qualification follows.
+
 Read `docs/laya-backends.md` for the current interchangeable runtimes and
 validation, and `docs/project-status.md` for the earlier handoff, important
 findings, saved results, and interrupted-run history. Then read the documentation relevant to the task:
@@ -17,6 +37,26 @@ findings, saved results, and interrupted-run history. Then read the documentatio
   has run; see `docs/head-training-smoke.md` for its scope and validation.
 - `docs/head-development-results.md`: first frozen-development Brier ALC and
   raw/calibrated controls; confirmation is still untouched.
+- `docs/head-approach-review.md`: engineering audit of the completed enriched
+  pilot. Predictions cluster around 50%; 654 training rows belong to groups
+  where distinct full tasks share a retained input. Input preservation, small
+  regularized controls and revealed-label adaptation are proposed next, not
+  implemented or trained. Audit artifacts: `runs/head_finetuning/approach_audit_v1/`.
+- `docs/task-feature-pipeline.md`: subsequent implemented `task_v2` /
+  `task_enriched_v2` inputs, explicit omissions, Unicode/structured control and
+  optional numeric evidence. Prepared recipe is one epoch/79 updates, not run.
+  Old renderer contracts remain unchanged. Saved-head-only evidence control
+  improves development ALC from 0.249080 to 0.238145 at untuned k=5; this is not
+  a new-input or retrained-head result. Numeric evidence evaluations pool labels
+  across all sampled pairs, matching only visible profiles and anonymous IDs.
+- `docs/capability-learning-design.md`: subsequent proposed research direction:
+  attribute-derived system abilities, text-conditioned task difficulty and
+  compatible-example retrieval, followed by episodic/encoder training. Not an
+  implemented architecture or launchable recipe. Training-only breadth audit
+  finds 170 candidate pairs/35 canonical-name strings, versus 24 sampled pairs;
+  only four name strings recur across training benchmarks. Candidates still
+  need subject/input review. Frozen roles remain unchanged; web research stays
+  separate from competition eligibility.
 - `docs/head-data-split.md`: frozen pilot families and exports, preparation
   checks and truncation limits; use `configs/head_finetuning/frozen_split_v1.json`.
 - `docs/laya.md`: environment, sampling, context limits, and historical results.
@@ -25,7 +65,71 @@ findings, saved results, and interrupted-run history. Then read the documentatio
 - `docs/data-notes.md`: dataset provenance, tables, and EDA.
 
 - `docs/modal.md`: execution profiles, authenticated client, cloud data/tracking
-  layout and remaining GPU qualification. No paid job has been run.
+  layout and remaining GPU qualification. First enriched cloud job is now
+  submitted; inspect its live receipt/log before claiming training/results.
+
+- `research/system_profiles/README.md`: homogeneous model/harness/run research
+  profiles, architecture fields, provenance and source eligibility. Default
+  prediction stays unchanged; `enriched_v1` is an explicitly authorized
+  research-only experiment. `collection_v1` contains a primary-source
+  first pass for the 32 exported training/development systems. See
+  `docs/system-profile-collection.md` for identity ambiguity and coverage;
+  external sources remain `unreviewed` for competition eligibility. Never
+  promote candidate matches, documentation defaults, or configured position
+  limits into verified run settings.
+- `research/system_profiles/collection_v2/coverage.md`: expanded collection for
+  the user-approved 170 training candidates plus eight development systems.
+  There are 44 model/artifact/family profiles, eight harness profiles and 178
+  recorded runs. Sourced model facts are available for 169/178, harness facts
+  for 171/178, and both for 162/178. All 178 have some sourced enrichment;
+  this is **not** 100% model-and-harness coverage. Nine unresolved models and
+  seven missing harness names are in `collection_v2/unresolved.jsonl`.
+  New opt-in policy: `configs/head_finetuning/enrichment_catalog_v2.json`.
+  Prior catalogs/policies and renderer sources remain unchanged. Tokenizer-only
+  task-v2 audit: model facts reach 3,185/5,000 training inputs, despite being
+  available for 4,584. No new preparation bundle, fitting, inference or GPU job
+  was launched. See `docs/system-profile-coverage.md` and
+  `runs/head_finetuning/system_profile_coverage_v2_final/report.html`.
+- `docs/enriched-head-pilot.md`: prepared local control/enriched pilot, actual
+  coverage and launch command. The user subsequently gave the go-ahead for
+  PyTorch/MPS: both variants were launched via `run_head_pilot.py --train`.
+  The first attempt was stopped at 11 updates for growing MPS allocation and is
+  KILLED, not completed. Memory-bounded recovery was stopped at the user's
+  request after 11 completed updates and zero epochs in
+  `runs/head_finetuning/enrichment_pilot_v1_training_mpsbounded_v2/`;
+  MLflow `1187918c63604de29a3d0e0bcf0364a6` is KILLED. Do not restart it.
+  The user requested Modal preparation with enriched first; see
+  `docs/modal-head-pilot.md`. `train-head-pilot` defaults to enriched alone;
+  baseline is a separate follow-up. The user subsequently authorized launching
+  it: Modal job `job_bf242b6e53874dcebb6cd6dd44738625`
+  stopped after client disconnection at 139 updates / one completed epoch.
+  Its recovered history is in `runs/head_finetuning/enrichment_pilot_v1_modal_interrupted_recovery`.
+  User authorized a fresh cached retrain: detached Modal job
+  `job_e5548e95fcec4aba88d110056a0e4f71`, call `fc-01M5K8SQNQ19CSW1Z8GFTGAB2T`.
+  Inspect `runs/modal_cached_head_launch.json` and `.log` before any launch;
+  do not duplicate or restart the interrupted jobs. The cached run is now complete (see results below), bounded
+  to 14 GiB, FP32, same batch size/recipe.
+  Earlier uncached observations follow:
+  CUDA preflight passed; initial updates take about 8 seconds, not a quality
+  result. Remote MLflow run `3a15460e13bc4bc6933b93693712126a`. Check
+  `runs/modal_enriched_pilot_launch.json` and `.log` before further action;
+  never launch a duplicate or restart either local attempt.
+  Both variants use 5,000 records,
+  four epochs and 1,024 tokens, separate from the historical JSON/512 smoke.
+  Later prediction must use the bundled input contract, not the old evaluator.
+
+- `docs/gpu-training-performance.md`: measured batch/TF32/frozen-encoder-cache
+  probes. Cache prototype is about 6x faster on one warmed window and estimates
+  15 GB full-corpus features. Production cache is integrated in `encoder_cache.py`,
+  with weight/mode guards, LRU byte cap and equivalence checks before training.
+  The cached retrain completed: 316 updates, best epoch 1 Brier ALC 0.24908013,
+  later epochs worse. Local output is
+  `runs/head_finetuning/enrichment_pilot_v1_modal_cached/output/`; best weights
+  are downloaded in `enriched/best`. See `docs/modal-head-pilot.md` for results.
+  Cache: 12.14 GB, zero evictions, warm updates about 1.4 seconds. No GPU active
+  at final check; do not start another run without new authorization.
+  Earlier profiling pauses did not
+  change weights. Do not interpret pause-inflated step timings as computation.
 
 ## Current user decisions
 

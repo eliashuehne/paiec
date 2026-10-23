@@ -25,6 +25,9 @@ def main():
     ap.add_argument('--checkpoint', default='runs/head_finetuning/smoke_v1/checkpoint')
     ap.add_argument('--raw-control-reference', default=None, help='reuse completed matched comparison and add original temperature-1 control')
     args = ap.parse_args()
+    training_manifest = Path(args.checkpoint) / 'paiec_training.json'
+    if training_manifest.is_file() and json.loads(training_manifest.read_text()).get('input_contract'):
+        raise ValueError('This historical evaluator uses JSON/512 inputs. New pilot checkpoints are evaluated by run_head_pilot.py with their prepared input contract.')
     out = Path(args.out).resolve()
     out.mkdir(parents=True, exist_ok=False)
     frozen_path = ROOT/'configs/head_finetuning/frozen_split_v1.json'

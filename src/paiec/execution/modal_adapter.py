@@ -104,13 +104,19 @@ def launch(root, job, profile, files):
                 indent=2,
             )
         )
-        with modal.enable_output(), app.run():
+        with modal.enable_output(), app.run(detach=True):
             with volume.batch_upload() as upload:
                 upload.put_file(bundle, f"/{job_id}/inputs.zip")
             print(f"Modal job ID: {job_id}", flush=True)
-            result = worker.remote(
+            call = worker.spawn(
                 job_id, job.model_dump(), profile.model_dump(), provenance
             )
+            submitted = json.loads(receipt.read_text())
+            submitted.update(status="submitted", app_id=app.app_id,
+                             function_call_id=call.object_id, detached=True)
+            receipt.write_text(json.dumps(submitted, indent=2))
+            print(f"Detached function call: {call.object_id}", flush=True)
+            result = call.get()
         destination = root / job.out
         fetch(volume, result["results_path"], destination)
         import_tracking(root, destination)
