@@ -47,8 +47,9 @@ def evaluation_split(sample):
 
 def log_source(client, run_id, root):
     paths = sorted(set(
-        [*root.glob("src/paiec/*.py"), *root.glob("scripts/*.py"), *root.glob("configs/**/*.json"),
-         *root.glob("tests/test_*.py"), *root.glob("requirements*.lock"), root / "pyproject.toml"]
+        [*root.glob("src/paiec/**/*.py"), *root.glob("scripts/*.py"), *root.glob("configs/**/*.json"),
+         *root.glob("tests/**/*.py"), *root.glob("requirements/**/*.lock"),
+         *root.glob("requirements/**/*.in"), root / "pyproject.toml"]
     ))
     with tempfile.TemporaryDirectory() as directory:
         path = Path(directory) / "source.zip"

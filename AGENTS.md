@@ -2,6 +2,11 @@
 
 ## Start here
 
+Repository layout, checks and versioning: `CONTRIBUTING.md`; documentation index:
+`docs/README.md`. Dependency locks now live in `requirements/`; the old dated
+`memory/` notes are archived in `docs/history/`. Preserve hash-pinned renderer
+paths and immutable recipes when reorganizing unrelated project files.
+
 Latest: `docs/compact-inputs-and-development.md`. `compact_v3` /
 `compact_enriched_v3` are prepared at 2,048 tokens using
 `configs/head_finetuning/compact_pilot_v3.json`; **no training launched**.
@@ -19,7 +24,8 @@ paper/code evidence. Actual private fine-tuned targets stay unbound. Four extra
 development systems have separate question-only inputs (480 evaluation / 160
 acquisition) in `runs/head_finetuning/development_identity_review_v3_release_final/`;
 no outcomes were loaded/scored. Preserve original evaluation/frozen roles.
-235 tests pass in each environment, plus full native Torch token/render preflight.
+237 tests pass in each model environment and a source-only core export after
+repository cleanup. Earlier full native Torch token/render preflight is unchanged.
 No new quality result, sealed-set access or GPU performance qualification follows.
 
 Read `docs/laya-backends.md` for the current interchangeable runtimes and
@@ -65,8 +71,8 @@ findings, saved results, and interrupted-run history. Then read the documentatio
 - `docs/data-notes.md`: dataset provenance, tables, and EDA.
 
 - `docs/modal.md`: execution profiles, authenticated client, cloud data/tracking
-  layout and remaining GPU qualification. First enriched cloud job is now
-  submitted; inspect its live receipt/log before claiming training/results.
+  layout and remaining GPU qualification. The cached enriched run is complete;
+  see `docs/modal-head-pilot.md`. No cloud job is currently authorized by cleanup.
 
 - `research/system_profiles/README.md`: homogeneous model/harness/run research
   profiles, architecture fields, provenance and source eligibility. Default
@@ -180,10 +186,10 @@ findings, saved results, and interrupted-run history. Then read the documentatio
   or `.venv-laya/bin/python` for Laya 0.4.13 / PyTorch MPS. Both use Python 3.12.
   Keep the environments separate; the MLX environment has no torch/transformers.
   The original `.venv` uses Python 3.14. Preserve the PyTorch reference environment.
-- The MLX/tracking environment is recorded in `requirements-mlx.lock`; the
-  PyTorch/tracking reference is recorded in `requirements-dev.lock`.
-  `requirements-laya.lock` predates MLflow installation and has dependency
-  differences; use the combined lock when tracking is needed.
+- The MLX/tracking environment is recorded in `requirements/mlx.lock`; the
+  PyTorch/tracking reference is recorded in `requirements/torch.lock`.
+  `requirements/archive/laya-pretracking.lock` predates MLflow installation
+  and has dependency differences; use the combined lock when tracking is needed.
 - A bounded 256-row, 10-update head-only training smoke check has run.
   This is machinery validation, not a model-quality result or a full pilot.
   Cached model weights, payload, and run artifacts live outside Git. Avoid loading the roughly 23.4 GB trace data for
@@ -195,7 +201,8 @@ findings, saved results, and interrupted-run history. Then read the documentatio
   git diff --check
   ```
 
-  See `runs/mlx_tests.log` and `runs/torch_tests.log` for current full test results. Documentation-only
+  See `runs/repo_cleanup_mlx_tests.log`, `runs/repo_cleanup_torch_tests.log` and
+  `runs/repo_cleanup_clean_export_tests.log` for current full test results. Documentation-only
   work does not require new model inference or evaluation runs.
 
 ## Evaluation and experiment integrity

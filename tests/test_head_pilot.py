@@ -7,6 +7,7 @@ import unittest
 import pandas as pd
 
 from paiec.head_pilot import HeadPilotConfig, epoch_windows, pair_weights
+from tests.fixtures import write_pilot_fixture
 
 
 class PilotPlanTests(unittest.TestCase):
@@ -54,12 +55,13 @@ class PilotPlanTests(unittest.TestCase):
 
     def test_placement_override_preserves_prepared_recipe_and_rejects_optimizer_drift(self):
         from paiec.head_pilot import verify_prepared
-        root = Path(__file__).resolve().parents[1]
-        config = HeadPilotConfig(device="cuda", output="runs/cloud_fresh")
-        _, manifest = verify_prepared(root, config)
-        self.assertEqual(manifest["config"]["device"], "mps")
-        with self.assertRaisesRegex(ValueError, "Prepared configuration differs"):
-            verify_prepared(root, config.model_copy(update={"learning_rate": .0002}))
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            config = write_pilot_fixture(root).model_copy(update={"device": "cuda", "output": "runs/cloud_fresh"})
+            _, manifest = verify_prepared(root, config)
+            self.assertEqual(manifest["config"]["device"], "mps")
+            with self.assertRaisesRegex(ValueError, "Prepared configuration differs"):
+                verify_prepared(root, config.model_copy(update={"learning_rate": .0002}))
 
     @unittest.skipUnless(importlib.util.find_spec("torch"), "PyTorch device boundary")
     def test_cuda_memory_and_synchronization_do_not_use_mps(self):

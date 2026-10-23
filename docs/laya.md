@@ -21,7 +21,7 @@ The default backend is native MLX. Run it from the separate MLX environment:
 
 ```bash
 uv venv --python 3.12 .venv-laya-mlx
-uv pip install --python .venv-laya-mlx/bin/python -r requirements-mlx.lock -e .
+uv pip install --python .venv-laya-mlx/bin/python -r requirements/mlx.lock -e .
 ```
 
 For a fresh dependency resolution, use `-e '.[mlx,tracking]'` instead of the
@@ -30,9 +30,9 @@ lock. The tested environment uses Python 3.12.13, Laya-MLX 0.5.0, MLX/MLX Metal
 
 The original `.venv-laya` environment is preserved for ordinary Laya 0.4.13,
 PyTorch 2.14.1, Transformers 5.20.2, and tracking. Recreate it with
-`requirements-dev.lock` plus the editable project if needed. Select it with
+`requirements/torch.lock` plus the editable project if needed. Select it with
 `.venv-laya/bin/python` and `--laya-backend torch`. The older
-`requirements-laya.lock` predates the MLflow dependency adjustments.
+`requirements/archive/laya-pretracking.lock` predates the MLflow dependency adjustments.
 
 MLX `--laya-device auto` uses the Mac GPU and `--laya-dtype auto` means FP16.
 Use `--laya-dtype float32` for closer numerical agreement. Ordinary Laya's auto

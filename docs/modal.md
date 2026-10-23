@@ -22,8 +22,11 @@ probability fidelity, and model quality still need measurement on real cloud
 hardware. The **bounded 256-row/10-update** smoke trainer and prepared
 **5,000-row/four-epoch** head pilot are supported. The user requested preparing
 the enriched pilot first; see [modal-head-pilot.md](modal-head-pilot.md).
-Encoder adaptation and optimizer resumption are not implemented. The first enriched L4 pilot is now running; see its live receipt/log in
-`docs/modal-head-pilot.md`. The pilot task does not silently start the baseline variant.
+Encoder adaptation and optimizer resumption are not implemented. The cached
+enriched L4 pilot is complete; see [modal-head-pilot.md](modal-head-pilot.md)
+for results and interrupted-run history. The pilot task does not silently start
+the baseline variant. Compact-v3 is prepared separately at 2,048 tokens and
+needs fresh GPU qualification before launch.
 
 ```
 src/paiec/
@@ -52,16 +55,16 @@ The optional client environment is separate from both model environments:
 
 ```bash
 uv venv --python 3.12 .venv-modal
-uv pip install --python .venv-modal/bin/python -r requirements-modal-client.lock
+uv pip install --python .venv-modal/bin/python -r requirements/modal-client.lock
 .venv-modal/bin/python -m modal setup
 ```
 
 Authentication is already complete on this machine. Use `python -m modal`
 because the executable is not on the shell's normal PATH. No need to rerun setup
-for each experiment. `requirements-modal-client.lock` records the installed
+for each experiment. `requirements/modal-client.lock` records the installed
 SDK (1.6.2) and local tracking dependencies. The worker has its own Linux/CUDA
-resolution in `requirements-modal-worker.lock`, compiled for Python 3.12 Linux
-x86_64 from `requirements-modal-worker.in`; the image installs that lock.
+resolution in `requirements/modal-worker.lock`, compiled for Python 3.12 Linux
+x86_64 from `requirements/modal-worker.in`; the image installs that lock.
 The package `cloud` extra is available for a fresh client resolution.
 
 Inspect a plan without creating cloud resources or allocating a GPU:

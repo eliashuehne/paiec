@@ -16,7 +16,7 @@ def create_app(root, profile):
     image = (
         modal.Image.debian_slim(python_version="3.12")
         .apt_install("git")
-        .pip_install_from_requirements(str(root / "requirements-modal-worker.lock"))
+        .pip_install_from_requirements(str(root / "requirements/modal-worker.lock"))
         .env(
             {
                 "HF_HOME": "/cache/huggingface",
@@ -36,8 +36,8 @@ def create_app(root, profile):
         root / "pyproject.toml", "/opt/project/pyproject.toml", copy=True
     )
     image = image.add_local_file(
-        root / "requirements-modal-worker.lock",
-        "/opt/project/requirements-modal-worker.lock",
+        root / "requirements/modal-worker.lock",
+        "/opt/project/requirements/modal-worker.lock",
         copy=True,
     )
     app = modal.App("paiec-laya")
@@ -83,7 +83,7 @@ def launch(root, job, profile, files):
             for p in (root / folder).rglob("*")
             if p.is_file() and p.suffix in {".py", ".json"}
         ]
-        sources += [root / "pyproject.toml", root / "requirements-modal-worker.lock"]
+        sources += [root / "pyproject.toml", root / "requirements/modal-worker.lock"]
         provenance = {
             "git": git_context(root),
             "input_sha256": manifest,

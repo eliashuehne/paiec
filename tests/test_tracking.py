@@ -3,11 +3,36 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
+import zipfile
 
 import pandas as pd
 
 from paiec.evaluate import EvalResult
-from paiec.tracking import ExperimentTracker, TrackedRun, evaluation_split
+from paiec.tracking import ExperimentTracker, TrackedRun, evaluation_split, log_source
+
+
+class SourceSnapshotTests(unittest.TestCase):
+    def test_snapshot_keeps_nested_code_and_dependency_inputs_without_run_artifacts(self):
+        from tests.fixtures import write_file
+
+        class Client:
+            def log_artifact(self, run_id, path, artifact_path):
+                with zipfile.ZipFile(path) as archive:
+                    self.files = set(archive.namelist())
+
+            def set_tag(self, *args):
+                pass
+
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            expected = {"src/paiec/execution/modal_worker.py", "requirements/torch.lock",
+                        "requirements/modal-worker.in", "requirements/archive/laya-pretracking.lock",
+                        "tests/fixtures.py", "pyproject.toml"}
+            for name in expected | {"runs/private.log", ".env", "payload/data/private.json"}:
+                write_file(root, name, "fixture")
+            client = Client()
+            log_source(client, "fixture-run", root)
+            self.assertEqual(client.files, expected)
 
 
 @unittest.skipUnless(importlib.util.find_spec("mlflow"), "optional tracking dependency is not installed")

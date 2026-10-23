@@ -1,7 +1,10 @@
 # Model, harness and run profiles
 
-Versioned research data for the proposed system-knowledge layer. The initial
-catalog is **v1**, with JSONL records and Pydantic/JSON Schema validation.
+Versioned research data for the system-knowledge layer. The current researched
+catalog is **collection_v3**; the original `v1/` contains subject-only seed
+records. All collections retain schema **1.0**, with JSONL records and
+Pydantic/JSON Schema validation. Collection numbers and schema versions are
+independent; earlier collections remain immutable for old input contracts.
 It is separate from prediction input rendering, frozen training exports, and
 model checkpoints. Default prediction uses recorded fields only. The explicit
 [`enriched_v1` experiment](../../docs/enriched-head-pilot.md) now adds selected
@@ -125,7 +128,7 @@ builder with explicit estimation/provenance, not in static model specifications.
 
 ```bash
 .venv-laya-mlx/bin/python scripts/validate_system_profiles.py
-.venv-laya-mlx/bin/python scripts/validate_system_profiles.py --catalog research/system_profiles/collection_v1
+.venv-laya-mlx/bin/python scripts/validate_system_profiles.py --catalog research/system_profiles/collection_v3
 ```
 
 Validation checks types, unknown/evidence consistency, architecture counts,

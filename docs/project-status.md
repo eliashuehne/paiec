@@ -229,7 +229,7 @@ The user declined recomputation. No inference has been rerun to repair it.
 
 - `.venv-laya`: Python 3.12.13, Laya 0.4.13, PyTorch 2.14.1,
   Transformers 5.20.2, MLflow 3.17.2, Pydantic 2.14.1, PyArrow 25.0.1.
-  Use `requirements-dev.lock` for the tested combined environment. The earlier
+  Use `requirements/torch.lock` for the tested combined environment. The earlier
   Laya-only lock predates dependency changes needed for MLflow.
 - `.venv`: separate original Python 3.14 environment.
 - Public data: `aims-foundations/measurement-db`, pinned revision

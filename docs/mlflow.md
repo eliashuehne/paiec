@@ -251,11 +251,11 @@ uv pip install --python .venv-laya/bin/python -e '.[tracking]'
 ```
 
 For the exact combined development environment tested here (Laya, EDA, and
-tracking), install `requirements-dev.lock` together with the editable project:
+tracking), install `requirements/torch.lock` together with the editable project:
 
 ```bash
 uv venv --python 3.12 .venv-laya
-uv pip install --python .venv-laya/bin/python -r requirements-dev.lock -e .
+uv pip install --python .venv-laya/bin/python -r requirements/torch.lock -e .
 ```
 
 MLflow 3.17.2 requires dependency versions that differ slightly from the original

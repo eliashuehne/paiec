@@ -45,7 +45,7 @@ Recreate the tested MLX/tracking environment:
 
 ```bash
 uv venv --python 3.12 .venv-laya-mlx
-uv pip install --python .venv-laya-mlx/bin/python -r requirements-mlx.lock -e .
+uv pip install --python .venv-laya-mlx/bin/python -r requirements/mlx.lock -e .
 ```
 
 For a fresh dependency resolution, install the `mlx` and `tracking` extras

@@ -11,5 +11,5 @@ if __name__ == "__main__":
     args = parser.parse_args()
     profiles, sources = load_catalog(Path(args.catalog))
     print(
-        f"Valid: {len(profiles)} research profiles, {len(sources)} sources. Predictor use remains disabled."
+        f"Valid: {len(profiles)} research profiles, {len(sources)} sources. Research-only; competition eligibility remains unreviewed."
     )

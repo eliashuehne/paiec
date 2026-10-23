@@ -915,3 +915,43 @@ Details: [system-profile-coverage.md](system-profile-coverage.md).
 Both lightweight suites pass 225 tests (MLX nine skips, Torch one); prior prepared
 bundles and the completed best-head contract still validate. No new inference,
 Brier evaluation, paid API calls, sealed-set access or GPU job.
+
+
+## 2026-10-23 — Repository organization and clean-checkout checks
+
+Repository maintenance only; no Laya inference, fitting, evaluation score or
+cloud GPU job. The compact-v3 recipe remains prepared and untrained.
+
+Moved the six dependency files into `requirements/`, with runtime-specific
+names and the earlier pre-tracking lock under `requirements/archive/`. Their
+bytes and package versions are unchanged. Updated Modal image/provenance paths
+and MLflow source capture; snapshots now include nested execution modules,
+test helpers and dependency input files. Dated `memory/` notes now live in
+`docs/history/`; historical README baseline results are archived there too.
+Local root download metadata/logs were preserved under ignored
+`runs/setup_archive_20261023/`; the generated root Finder metadata was removed.
+
+Rewrote the root README around current work and fresh-checkout setup. Added
+indexes for docs, configs, commands, dependencies and tests, plus contribution
+and versioning rules, a `make check` entrypoint, LF checkout rules and explicit
+credential/cache/model-output ignores. Historical recipes, profile collections,
+source schemas and hash-pinned renderers retain their names and contents.
+
+An isolated export exposed three unit tests depending on ignored local runs or
+payload files. Those checks now build synthetic temporary inventories and still
+exercise artifact hashes, transport exclusion and configuration-drift rejection.
+The baseline reference remains the real pinned submodule. New focused tests
+cover relocated Modal worker dependencies and complete MLflow source capture.
+
+Verification: 237 tests pass in the MLX environment (9 skips), Torch environment
+(1 skip), and a source-only export using the core/Modal-client environment
+(10 skips). That export includes the pinned baseline and no local payload,
+prepared runs, model weights or credentials. All four checked-in catalogs
+validate. Prepared enriched-v1, task-v2 and compact-v3 bundles and the completed
+enriched checkpoint pass their existing integrity checks. CLI help, dependency
+byte equality and Markdown links also pass; no renderer regeneration was needed.
+
+Logs: `runs/repo_cleanup_mlx_tests.log`, `runs/repo_cleanup_torch_tests.log`,
+and `runs/repo_cleanup_clean_export_tests.log`. A GitHub Actions core-check
+workflow was added; it has been inspected locally, not executed on GitHub.
+Changes are left uncommitted and unpushed for review.

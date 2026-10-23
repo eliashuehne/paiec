@@ -11,11 +11,32 @@ import zipfile
 from paiec.execution.jobs import ExecutionProfile, JobSpec, command, input_files
 from paiec.execution.transport import pack_inputs, unpack, import_tracking
 from paiec.execution.modal_worker import execute, small_result_file
+from tests.fixtures import write_inventory_fixture, write_pilot_fixture
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
 class ExecutionTests(unittest.TestCase):
+    def test_modal_image_uses_the_relocated_worker_lock_and_records_it_in_the_image(self):
+        from types import SimpleNamespace
+        from unittest.mock import Mock, call
+        from paiec.execution.modal_adapter import create_app
+
+        image = Mock()
+        for method in ["apt_install", "pip_install_from_requirements", "env", "add_local_dir", "add_local_file"]:
+            getattr(image, method).return_value = image
+        app = Mock()
+        app.function.return_value = lambda function: function
+        modal = SimpleNamespace(Image=Mock(), App=Mock(return_value=app), Volume=Mock())
+        modal.Image.debian_slim.return_value = image
+        with patch.dict(sys.modules, {"modal": modal}):
+            create_app(ROOT, self.profile("modal-l4"))
+        lock = ROOT / "requirements/modal-worker.lock"
+        self.assertTrue(lock.is_file())
+        image.pip_install_from_requirements.assert_called_once_with(str(lock))
+        self.assertIn(call(lock, "/opt/project/requirements/modal-worker.lock", copy=True),
+                      image.add_local_file.call_args_list)
+
     def test_cached_pilot_command_and_detached_submission_receipt(self):
         from contextlib import nullcontext
         from types import SimpleNamespace
@@ -28,7 +49,8 @@ class ExecutionTests(unittest.TestCase):
             root = Path(temporary)
             for name in ["src","scripts","configs"]:
                 (root/name).mkdir()
-            for name in ["pyproject.toml","requirements-modal-worker.lock"]:
+            for name in ["pyproject.toml","requirements/modal-worker.lock"]:
+                (root/name).parent.mkdir(parents=True, exist_ok=True)
                 (root/name).write_text("")
             app = Mock(app_id="app-fixture")
             app.run.return_value = nullcontext()
@@ -68,7 +90,6 @@ class ExecutionTests(unittest.TestCase):
             self.assertEqual(import_tracking(root, results), mapping)
 
     def test_pilot_cloud_plan_uses_same_trainer_with_enriched_only_and_frozen_inventory(self):
-        from paiec.head_pilot import load_config
         from paiec.execution.transport import sha256
         job = JobSpec(task="train-head-pilot", out="runs/new")
         self.assertEqual(job.variant, "enriched")
@@ -79,20 +100,23 @@ class ExecutionTests(unittest.TestCase):
         self.assertEqual(cmd[cmd.index("--device") + 1], "cuda")
         self.assertIn("--download-parent", cmd)
         self.assertEqual(profile.timeout, 14400)
-        files = input_files(ROOT, job)
-        self.assertFalse(any(p.name in {"confirmation.jsonl", "calibration.jsonl", "traces.parquet"} for p in files))
-        self.assertFalse(any(p.parts[0] == "payload" for p in files))
-        config = load_config(ROOT / job.pilot_config)
-        manifest = json.loads((ROOT / config.prepared / "manifest.json").read_text())
-        # Every pinned preparation artifact must survive an isolated transport.
         with tempfile.TemporaryDirectory() as temporary:
-            folder = Path(temporary)
-            pack_inputs(ROOT, files, folder / "inputs.zip")
-            unpack(folder / "inputs.zip", folder / "work")
+            root = Path(temporary)
+            config = write_pilot_fixture(root)
+            files = input_files(root, job)
+            self.assertFalse(any(p.name in {"confirmation.jsonl", "calibration.jsonl", "traces.parquet"} for p in files))
+            self.assertFalse(any(p.parts[0] == "payload" for p in files))
+            manifest = json.loads((root / config.prepared / "manifest.json").read_text())
+            # Every pinned preparation artifact must survive an isolated transport.
+            pack_inputs(root, files, root / "inputs.zip")
+            unpack(root / "inputs.zip", root / "work")
             for name, expected in manifest["artifacts"].items():
-                self.assertEqual(sha256(folder / "work" / config.prepared / name), expected)
-        with self.assertRaises(ValueError):
-            input_files(ROOT, job.model_copy(update={"seed": 1}))
+                self.assertEqual(sha256(root / "work" / config.prepared / name), expected)
+            with self.assertRaises(ValueError):
+                input_files(root, job.model_copy(update={"seed": 1}))
+            (root / config.prepared / "enriched/training.jsonl").write_text("changed")
+            with self.assertRaisesRegex(ValueError, "Prepared artifact changed"):
+                input_files(root, job)
         with self.assertRaises(ValueError):
             command(job, self.profile("local-mlx"), "python")
         with self.assertRaises(ValueError):
@@ -128,15 +152,21 @@ class ExecutionTests(unittest.TestCase):
             )
 
     def test_inputs_are_minimal_and_no_traces_or_labels_from_confirmation(self):
-        files = input_files(ROOT, JobSpec(task="train-head-smoke", out="runs/new"))
-        self.assertEqual(
-            [p.name for p in files], ["provenance.parquet", "training.jsonl"]
-        )
-        evaluation = input_files(
-            ROOT, JobSpec(task="evaluate", out="runs/new", suite="smoke")
-        )
-        self.assertEqual(len(evaluation), 7)
-        self.assertNotIn("traces.parquet", [p.name for p in evaluation])
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            write_inventory_fixture(root)
+            files = input_files(root, JobSpec(task="train-head-smoke", out="runs/new"))
+            self.assertEqual(
+                [p.name for p in files], ["provenance.parquet", "training.jsonl"]
+            )
+            evaluation = input_files(
+                root, JobSpec(task="evaluate", out="runs/new", suite="smoke")
+            )
+            self.assertEqual(len(evaluation), 7)
+            self.assertNotIn("traces.parquet", [p.name for p in evaluation])
+            (root / files[0]).unlink()
+            with self.assertRaisesRegex(ValueError, "Missing or external input"):
+                input_files(root, JobSpec(task="train-head-smoke", out="runs/new"))
         with self.assertRaises(ValueError):
             JobSpec(task="evaluate", out="runs/../../elsewhere")
         with self.assertRaises(ValueError):
