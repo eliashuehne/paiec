@@ -1,0 +1,208 @@
+[
+  {
+    "task_key": "3f6b2ad9ad3e850c1c32200413aafd02cbd9ba67c99f9881bed786aaed874681",
+    "claims": {
+      "language": {
+        "values": [
+          "English"
+        ],
+        "quote": "Your task is to select one cell type"
+      },
+      "domain": {
+        "values": [
+          "cell_biology"
+        ],
+        "quote": "single cell biology and genomics"
+      },
+      "skills": {
+        "values": [
+          "gene_expression_interpretation",
+          "classification"
+        ],
+        "quote": "ordered by descending expression level"
+      },
+      "answer_format": {
+        "values": [
+          "prescribed_text_template"
+        ],
+        "quote": "Final Answer: Prediction"
+      }
+    }
+  },
+  {
+    "task_key": "869b67dde93b1a888ee79e0f0afcdc0606fb65c0f2bf5a3cf5fa03619db0b1b5",
+    "claims": {
+      "language": {
+        "values": [
+          "German"
+        ],
+        "quote": "Bearbeite die folgende juristische Frage nach deutschem Recht."
+      },
+      "domain": {
+        "values": [
+          "German_law"
+        ],
+        "quote": "deutschem Recht"
+      },
+      "skills": {
+        "values": [
+          "legal_rule_application"
+        ],
+        "quote": "Ist die Verfügung wirksam?"
+      },
+      "answer_format": {
+        "values": [
+          "JSON"
+        ],
+        "quote": "gültiges JSON"
+      },
+      "input_issues": {
+        "values": [
+          "potentially_conflicting_output_field_names"
+        ],
+        "quote": "kurzantwort"
+      }
+    }
+  },
+  {
+    "task_key": "8e292da6e02274b4cbcba6c7bf09c1c9fbabcfa1c8b608381db57fd5361422f3",
+    "claims": {
+      "language": {
+        "values": [
+          "English"
+        ],
+        "quote": "How many atoms belong to molecule id TR005?"
+      },
+      "domain": {
+        "values": [
+          "SQL"
+        ],
+        "quote": "CREATE TABLE"
+      },
+      "skills": {
+        "values": [
+          "SQL_aggregation",
+          "schema_interpretation"
+        ],
+        "quote": "How many atoms belong to molecule id TR005?"
+      },
+      "information_needs": {
+        "values": [
+          "database_contents_for_execution"
+        ],
+        "quote": "CREATE TABLE"
+      }
+    }
+  },
+  {
+    "task_key": "209838837f103ecdf1f622174cd017f759b1c03800f3b7c3a08a08f615b26f90",
+    "claims": {
+      "language": {
+        "values": [
+          "English"
+        ],
+        "quote": "How much does Ali have now?"
+      },
+      "domain": {
+        "values": [
+          "arithmetic"
+        ],
+        "quote": "Ali had $21."
+      },
+      "skills": {
+        "values": [
+          "fractions",
+          "addition"
+        ],
+        "quote": "Leila gave him half of her $100."
+      },
+      "answer_format": {
+        "values": [
+          "prescribed_text_template"
+        ],
+        "quote": "Answer: The answer is {your answer}."
+      }
+    }
+  },
+  {
+    "task_key": "c1204a6d6646e7080c60cddf81d498062f6dfa4850fb51802674c8e0cd057d76",
+    "claims": {
+      "language": {
+        "values": [
+          "English"
+        ],
+        "quote": "Evaluate"
+      },
+      "domain": {
+        "values": [
+          "complex_arithmetic"
+        ],
+        "quote": "$(1+2i)6-3i$"
+      },
+      "skills": {
+        "values": [
+          "complex_number_arithmetic"
+        ],
+        "quote": "$(1+2i)6-3i$"
+      }
+    }
+  },
+  {
+    "task_key": "5f0417c00dc535e9acef6517bcd1661b8bf429acb03e5afd0ea919cb92af987e",
+    "claims": {
+      "language": {
+        "values": [
+          "English"
+        ],
+        "quote": "True or ( True or not True ) is"
+      },
+      "domain": {
+        "values": [
+          "propositional_logic"
+        ],
+        "quote": "True or ( True or not True ) is"
+      },
+      "skills": {
+        "values": [
+          "Boolean_evaluation"
+        ],
+        "quote": "True or ( True or not True ) is"
+      }
+    }
+  },
+  {
+    "task_key": "66fa2868c0d07099906243d3cedcaa89cf1409b87c5c6897dd37d96f451aa4e1",
+    "claims": {
+      "language": {
+        "values": [
+          "English"
+        ],
+        "quote": "What year was Robert Giblin born?"
+      },
+      "domain": {
+        "values": [
+          "biographical_knowledge"
+        ],
+        "quote": "What year was Robert Giblin born?"
+      },
+      "skills": {
+        "values": [
+          "factual_recall"
+        ],
+        "quote": "What year was Robert Giblin born?"
+      },
+      "answer_format": {
+        "values": [
+          "four_digit_year"
+        ],
+        "quote": "YYYY"
+      },
+      "input_issues": {
+        "values": [
+          "retrieved_context_absent"
+        ],
+        "quote": "Context: None"
+      }
+    }
+  }
+]

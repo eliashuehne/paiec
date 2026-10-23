@@ -13,6 +13,7 @@ options; no command in this catalog is authorization to launch a run.
 | `run_job.py` | Local/Modal job launcher; `--dry-run` plans only, dispatch may allocate a GPU |
 | `compare_runs.py` | Compare saved completed predictions without new model inference |
 | `mlflow_ui.py` | Serve the local tracking dashboard |
+| `run_feature_pipeline.py` | Local ZenML/MLflow setup and feature sidecars; no training, APIs or GPU allocation |
 | `fetch_modal_job.py` | Recover existing cloud results and import tracking; no GPU allocation |
 
 ## Data and input inspection

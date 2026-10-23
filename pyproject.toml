@@ -17,6 +17,7 @@ laya = ["laya==0.4.13"]
 mlx = ["laya-mlx==0.5.0"]
 eda = ["matplotlib>=3.9", "markdown-it-py>=3"]
 tracking = ["mlflow==3.17.2"]
+pipeline = ["zenml[local,server]==0.98.0", "mlflow==3.17.2", "python-rapidjson<1.15"]
 test = ["scipy>=1.13"]
 
 [build-system]

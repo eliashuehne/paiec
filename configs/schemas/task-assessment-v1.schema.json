@@ -1,0 +1,136 @@
+{
+  "$defs": {
+    "Span": {
+      "additionalProperties": false,
+      "properties": {
+        "start": {
+          "minimum": 0,
+          "title": "Start",
+          "type": "integer"
+        },
+        "end": {
+          "exclusiveMinimum": 0,
+          "title": "End",
+          "type": "integer"
+        },
+        "quote": {
+          "minLength": 1,
+          "title": "Quote",
+          "type": "string"
+        }
+      },
+      "required": [
+        "start",
+        "end",
+        "quote"
+      ],
+      "title": "Span",
+      "type": "object"
+    },
+    "TaskClaim": {
+      "additionalProperties": false,
+      "properties": {
+        "values": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Values",
+          "type": "array"
+        },
+        "status": {
+          "const": "estimated",
+          "default": "estimated",
+          "title": "Status",
+          "type": "string"
+        },
+        "evidence": {
+          "items": {
+            "$ref": "#/$defs/Span"
+          },
+          "minItems": 1,
+          "title": "Evidence",
+          "type": "array"
+        }
+      },
+      "required": [
+        "values",
+        "evidence"
+      ],
+      "title": "TaskClaim",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "task_assessment_v1",
+      "default": "task_assessment_v1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "task_key": {
+      "pattern": "^[0-9a-f]{64}$",
+      "title": "Task Key",
+      "type": "string"
+    },
+    "method": {
+      "const": "codex_manual_v1",
+      "default": "codex_manual_v1",
+      "title": "Method",
+      "type": "string"
+    },
+    "review_status": {
+      "default": "candidate",
+      "enum": [
+        "candidate",
+        "reviewed",
+        "rejected"
+      ],
+      "title": "Review Status",
+      "type": "string"
+    },
+    "reviewer": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Reviewer"
+    },
+    "claims": {
+      "additionalProperties": {
+        "$ref": "#/$defs/TaskClaim"
+      },
+      "propertyNames": {
+        "enum": [
+          "language",
+          "domain",
+          "skills",
+          "reasoning_structure",
+          "modalities",
+          "answer_format",
+          "information_needs",
+          "input_issues"
+        ]
+      },
+      "title": "Claims",
+      "type": "object"
+    },
+    "difficulty": {
+      "default": null,
+      "title": "Difficulty",
+      "type": "null"
+    }
+  },
+  "required": [
+    "task_key",
+    "claims"
+  ],
+  "title": "TaskAssessment",
+  "type": "object"
+}

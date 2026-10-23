@@ -1,5 +1,9 @@
 # Configuration index
 
+Local feature preparation: `pipelines/feature_preparation_v1.json` selects the
+existing expanded bundle and unsealed roles for the preparation-only ZenML
+pipeline. See [ZenML](../docs/zenml.md). It does not dispatch training.
+
 Keep scientific configurations immutable once prepared or used. A changed recipe
 gets a new descriptive version; do not rename historical artifacts merely to
 make their number match the latest input format. None of the files below starts

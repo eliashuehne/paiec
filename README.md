@@ -50,6 +50,7 @@ scope are documented in [requirements/README.md](requirements/README.md).
 | Modal client and CUDA workers | [Cloud execution](docs/modal.md), separate client/worker locks |
 | Public data and EDA | [Data provenance and preparation](docs/data-notes.md) |
 | Experiment dashboard | [MLflow](docs/mlflow.md) |
+| Feature preparation pipeline | [ZenML with MLflow](docs/zenml.md), separate `.venv-pipeline` environment |
 
 ## Run and prepare experiments
 

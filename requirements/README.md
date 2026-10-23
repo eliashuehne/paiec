@@ -10,6 +10,7 @@ extras; the locks record complete environment snapshots.
 | `mlx.lock` | `.venv-laya-mlx` | macOS Apple Silicon; MLX inference and tracking, no Torch/Transformers |
 | `torch.lock` | `.venv-laya` | macOS reference PyTorch/MPS environment, training and tracking |
 | `modal-client.lock` | `.venv-modal` | Local Modal SDK and tracking; no GPU framework required |
+| `pipeline.lock` | `.venv-pipeline` | Local ZenML dashboard/pipeline and MLflow integration; no native model framework |
 | `modal-worker.in` | Modal image | Direct Python 3.12 Linux/CUDA requirements |
 | `modal-worker.lock` | Modal image | Resolved Linux x86_64/CUDA dependencies, installed by the adapter |
 | `archive/laya-pretracking.lock` | Historical only | Earlier Laya snapshot before MLflow dependency adjustments |

@@ -6,6 +6,7 @@ prepare_data.log
 # Local environments and build output.
 .venv/
 .venv-*/
+.zen/
 build/
 dist/
 *.egg-info/

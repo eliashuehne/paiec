@@ -40,6 +40,7 @@ not been trained. [AGENTS.md](../AGENTS.md) records active constraints, and
 | [Pretrained Laya](laya.md) | Environments, sampling and local evaluation |
 | [Modal execution](modal.md) | Job planning, transport and cloud setup |
 | [MLflow](mlflow.md) | Tracking, metrics and artifacts |
+| [ZenML preparation](zenml.md) | Local feature pipeline, structured tables, coverage and MLflow integration |
 | [Dependency locks](../requirements/README.md) | Platform-specific environments and historical lock |
 | [Command catalog](../scripts/README.md) | Script purposes and side effects |
 | [Configuration index](../configs/README.md) | Current and historical recipes |
