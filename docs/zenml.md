@@ -1,5 +1,17 @@
 # ZenML feature preparation and MLflow
 
+Primary-source supplementation is now applied in `prepare_model_profiles`.
+The assertion/source ledgers live in `research/feature_collection/`; archived
+text is under `runs/feature_sources/primary_v1` and `provider_v2`. The registry
+`configs/pipelines/feature_sources_v1.json` selects both source bundles. Fresh
+checkouts must restore both pinned archives using the commands in the collection
+README. Source bytes
+and quotations are verified before additive model facts enter the new tables.
+Existing documented conflicts are retained for review, not overwritten.
+Collection also exports `typed_run_features.jsonl`, matching recorded-run
+facts only by identical visible subject descriptions. Completeness remains
+unproven: successful pipeline execution is not evidence of 100% field coverage.
+
 The pipeline now includes `prepare_collection_review`, before publication.
 It exports a training-only 14-task review set, seven agent-authored candidate
 annotations with exact evidence spans, a task-assessment JSON Schema, and a

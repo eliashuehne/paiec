@@ -1,0 +1,52 @@
+[
+  {
+    "source_id": "openai-gpt4o",
+    "cache_file": "openai-gpt4o.md",
+    "sha256": "22950725c1d75a0098d1c5f046f10c946ffdd41e76d37d14b44e80a6dab8abee"
+  },
+  {
+    "source_id": "openai-gpt4omini",
+    "cache_file": "openai-gpt4omini.md",
+    "sha256": "93e14f848cf90f35dd77a270998a9b2b440ef08d724da11947b0dee26179f09b"
+  },
+  {
+    "source_id": "openai-gpt54mini",
+    "cache_file": "openai-gpt54mini.md",
+    "sha256": "83625d2f3548c29379b3b2a44b183a26d266d2f5c3ffda7161dd19c9213a9058"
+  },
+  {
+    "source_id": "openai-gpt54",
+    "cache_file": "openai-gpt54.md",
+    "sha256": "8912cd2f9c517765174dd16d79eec1e63636f37ae765e293a6350fdec9f010a3"
+  },
+  {
+    "source_id": "openai-gpt4preview",
+    "cache_file": "openai-gpt4preview.md",
+    "sha256": "e5445d7e72dd37f4649a818dad9ecd60309b874d72bc43e4c420a1efd1f36897"
+  },
+  {
+    "source_id": "claude-overview",
+    "cache_file": "claude-overview.md",
+    "sha256": "0bee72dee7cbb689a714c14458091412889a24d64364843f1db2ecd1f7b93483"
+  },
+  {
+    "source_id": "claude-sonnet46",
+    "cache_file": "claude-sonnet46.md",
+    "sha256": "9f6905f76eb8534dfbc6de4bd133d9d1ce32496ad865e19d947116d56d69f027"
+  },
+  {
+    "source_id": "claude-opus47",
+    "cache_file": "claude-opus47.md",
+    "sha256": "fac0c55b2537d0288981dcc22e204341a5ced41de139aab69d93318230ffd4cd"
+  },
+  {
+    "source_id": "google-gemini31pro",
+    "cache_file": "google-gemini31pro.html",
+    "sha256": "3d9a1687405ea68f1ba81a2eb3eeb66aa7659a62948828e808db97fcbd0ff4c2"
+  },
+  {
+    "source_id": "google-gemini31flashlite",
+    "cache_file": "google-gemini31flashlite.html",
+    "sha256": "ecfd89826788ae3f2d755be9c441e3156d499797b5d5ad01f5f01573e5f9d358"
+  }
+]

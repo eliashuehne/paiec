@@ -9,6 +9,8 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from .feature_preparation import read_jsonl, write_json, write_jsonl, stable_hash, source_inputs
 from .head_training import file_hash
+from .compact_profiles import CompactProfiles
+from .competition import competition_input
 
 
 class Span(BaseModel):
@@ -62,6 +64,36 @@ def get_field(profile, dotted):
     return value
 
 
+def recover_recorded_run_features(records, profiles, fields):
+    """Join only identical permitted descriptions, rejecting conflicting values."""
+    matched = {}
+    for profile in profiles:
+        if profile.entity_type != "recorded_run":
+            continue
+        raw = profile.specifications.raw_supplied_subject
+        if raw:
+            key = stable_hash(competition_input(raw, {})[0])
+            matched.setdefault(key, []).append(profile)
+    output = []
+    for key, record in sorted(records.items()):
+        features = {}
+        for field in fields:
+            candidates = [getattr(p.specifications, field).model_dump(mode="json")
+                          for p in matched.get(key, [])
+                          if getattr(p.specifications, field).status in {"recorded", "documented"}]
+            values = {stable_hash(fact["value"]) for fact in candidates}
+            if len(values) == 1:
+                fact = dict(candidates[0])
+                fact["evidence"] = list({stable_hash(e): e for c in candidates for e in c["evidence"]}.values())
+                features[field] = dict(fact, collection_status="recovered_from_exact_visible_match")
+            else:
+                features[field] = {"value": None, "status": "unknown", "evidence": [],
+                                   "collection_status": "conflicting_visible_matches" if values else "not_recorded",
+                                   "note": "No compatible verified setting; defaults are not actual run settings."}
+        output.append({"system_key": key, "features": features, "recorded": record["recorded"]})
+    return output
+
+
 def build_collection_bundle(inputs, systems, models, harnesses, tasks, out):
     """Reuse pinned facts, create collection requests, and select 2 tasks/family.
 
@@ -75,6 +107,11 @@ def build_collection_bundle(inputs, systems, models, harnesses, tasks, out):
     write_json(out / "task_assessment.schema.json", TaskAssessment.model_json_schema())
     records = {r["system_key"]: r for r in read_jsonl(systems["path"])}
     training_keys = {stable_hash(subject) for _, _, subject, _ in source_inputs(inputs["prepared"], ["training"])}
+    catalog = CompactProfiles(Path(inputs["prepared"]) / "profile_bundle/policy.json", root=inputs["prepared"])
+    recovered = recover_recorded_run_features({key: records[key] for key in training_keys},
+                                              catalog.profiles.values(), plan["run_fields"])
+    write_jsonl(out / "typed_run_features.jsonl", recovered)
+    recovered_by_key = {r["system_key"]: r["features"] for r in recovered}
     queue = []
     for kind, result in [("model", models), ("harness", harnesses)]:
         used = {records[k]["resolution"][kind + "_profile_id"] for k in training_keys} - {None}
@@ -89,7 +126,8 @@ def build_collection_bundle(inputs, systems, models, harnesses, tasks, out):
     for key in sorted(training_keys):
         for field in plan["run_fields"]:
             queue.append({"entity_type": "recorded_run", "system_key": key, "field": field,
-                          "collection_status": "recorded_settings_need_typing", "priority": 1,
+                          "collection_status": recovered_by_key[key][field]["collection_status"],
+                          "fact": recovered_by_key[key][field], "priority": 1,
                           "usage": "research_only", "recorded": records[key]["recorded"]})
         for kind in ["model", "harness"]:
             if not records[key]["resolution"][kind + "_profile_id"]:
@@ -136,9 +174,27 @@ def build_collection_bundle(inputs, systems, models, harnesses, tasks, out):
                "collection_requests": len(queue), "missing_static_facts": sum(r["collection_status"] == "needs_source" for r in queue),
                "sample_tasks": len(selected), "candidate_annotations": len(candidates), "human_reviewed": 0,
                "selection_is_representative": False, "selection_note": "Length-stratified starter review only; not a representative quality estimate.",
-               "new_sources_collected": 0, "annotation_api_calls": 0, "empirical_difficulty_fitted": False,
+               "source_snapshots_collected": models.get("source_collection", {}).get("source_snapshots", 0),
+               "new_static_facts": models.get("source_collection", {}).get("applied", 0),
+               "annotation_api_calls": 0, "empirical_difficulty_fitted": False,
+               "recovered_run_settings": sum(f["status"] != "unknown" for r in recovered for f in r["features"].values()),
+               "unresolved_run_settings": sum(f["status"] == "unknown" for r in recovered for f in r["features"].values()),
                "training_ready": False}
     write_json(out / "collection_summary.json", summary)
+    static = [r for r in queue if r["entity_type"] in {"model", "harness"} and r["field"] != "identity"]
+    write_json(out / "coverage_audit.json", {
+        "full_objective_achieved": False,
+        "static_fields": {"required": len(static), "missing": sum(r["fact"]["status"] == "unknown" for r in static)},
+        "unresolved_visible_identities": sum(r["collection_status"] == "unresolved_visible_identity" for r in queue),
+        "actual_run_fields": {"known": summary["recovered_run_settings"], "missing": summary["unresolved_run_settings"]},
+        "task_annotations": {"task_inputs": len(task_map), "candidates": len(candidates), "independently_reviewed": 0},
+        "demonstrated_abilities": "not_implemented",
+        "learned_difficulty": "not_implemented",
+        "system_task_compatibility": "not_implemented",
+        "episodic_evidence_features": "not_implemented",
+        "new_laya_input_contract": "not_implemented",
+        "sealed_roles_opened": False,
+    })
     html = '<!doctype html><meta charset="utf-8"><title>Feature collection review</title><style>body{font:16px system-ui;max-width:1000px;margin:40px auto;padding:0 20px;line-height:1.5}pre{white-space:pre-wrap;overflow-wrap:anywhere}details{border:1px solid #ddd;padding:16px;margin:12px 0}</style><h1>Feature collection review</h1><p>Training-only starter sample. Agent-authored candidates, not independently reviewed. No answers/outcomes or empirical difficulty are supplied.</p>'
     annotations = {r["task_key"]: r for r in candidates}
     for record in selected:

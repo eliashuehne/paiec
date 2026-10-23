@@ -40,7 +40,9 @@ def prepare_system_identities(inputs: dict, out: str) -> tuple[Annotated[dict, "
 
 @step(enable_cache=False)
 def prepare_model_profiles(inputs: dict, systems: dict, out: str) -> tuple[Annotated[dict, "model_manifest"], Annotated[pd.DataFrame, "model_facts"]]:
+    from .feature_sources import supplement_models
     result = features.build_profiles(inputs, systems, out, "model")
+    result = supplement_models(inputs["root"], result, out)
     return result, profile_table(result["path"])
 
 @step(enable_cache=False)
@@ -72,7 +74,8 @@ def validate_and_publish(inputs: dict, systems: dict, models: dict, harnesses: d
                         **{f"records_{role}": count for role, count in tasks["records_by_role"].items()}})
     mlflow.log_metrics({"collection_requests": collection["collection_requests"], "annotation_candidates": collection["candidate_annotations"]})
     for name in ["summary.json", "feature_plan.json", "manifest.json", "report.html", "resolved_config.json",
-                 "collection_summary.json", "collection_plan.json", "task_assessment.schema.json", "task_annotation_candidates.jsonl", "collection_review.html"]:
+                 "collection_summary.json", "collection_plan.json", "task_assessment.schema.json", "task_annotation_candidates.jsonl", "collection_review.html",
+                 "source_collection_audit.json", "coverage_audit.json"]:
         mlflow.log_artifact(str(Path(out) / name), "preparation")
     active = mlflow.active_run()
     log_source(mlflow.MlflowClient(), active.info.run_id, Path(inputs["root"]))

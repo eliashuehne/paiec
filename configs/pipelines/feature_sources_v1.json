@@ -1,0 +1,15 @@
+{
+  "version": "feature_sources_v1",
+  "bundles": [
+    {
+      "catalog": "research/feature_collection",
+      "cache": "runs/feature_sources/primary_v1",
+      "assertions": "assertions_v1.jsonl"
+    },
+    {
+      "catalog": "research/feature_collection/provider_v2",
+      "cache": "runs/feature_sources/provider_v2",
+      "assertions": "assertions_v1.jsonl"
+    }
+  ]
+}
