@@ -113,6 +113,28 @@ class BenchmarkDirTests(unittest.TestCase):
                 tables = load_benchmark(tmp, "toy")
                 self.assertEqual(tables.responses["label"].tolist(), [1])
 
+    def test_training_benchmarks_keep_only_public_binary_item_level(self):
+        import pandas as pd
+
+        from paiec.schema import training_benchmarks
+
+        cases = {
+            "keep": ("binary", "item", "public"),
+            "withheld": ("binary", "item", "withheld"),
+            "graded": ("ordinal", "item", "public"),
+            "aggregate": ("binary", "benchmark", "public"),
+        }
+        with tempfile.TemporaryDirectory() as tmp:
+            for name, (response_type, granularity, release) in cases.items():
+                target = Path(tmp) / name / "formatted_tables"
+                target.mkdir(parents=True)
+                (target / "items.parquet").touch()
+                pd.DataFrame(
+                    {"response_type": [response_type], "granularity": [granularity],
+                     "release": [release]}
+                ).to_parquet(target / "benchmarks.parquet")
+            self.assertEqual(training_benchmarks(tmp), ["keep"])
+
     def test_missing_benchmark_raises(self):
         with tempfile.TemporaryDirectory() as tmp:
             with self.assertRaises(FileNotFoundError):

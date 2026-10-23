@@ -85,6 +85,25 @@ def response_table_path(directory: Path) -> Path:
     raise FileNotFoundError(f"no response table in {directory}")
 
 
+def training_benchmarks(data_root: str | Path) -> list[str]:
+    """List benchmarks usable for training: binary, item-level and publicly released.
+
+    ``release == "withheld"`` marks benchmarks the dataset card excludes from
+    the active public release.
+    """
+    names = []
+    for path in sorted(Path(data_root).glob("*/formatted_tables/benchmarks.parquet")):
+        meta = pd.read_parquet(path).iloc[0]
+        if (
+            meta.get("response_type") == "binary"
+            and meta.get("granularity") == "item"
+            and meta.get("release") == "public"
+            and (path.parent / "items.parquet").is_file()
+        ):
+            names.append(path.parent.parent.name)
+    return names
+
+
 @dataclass(frozen=True)
 class BenchTables:
     """One benchmark's public tables, indexed for lookup by id."""
