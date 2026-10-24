@@ -1,8 +1,14 @@
-"""Reference predictors with the harness signature ``(subject, item, labeled) -> float``."""
+"""Predictors with the harness signature ``(subject, item, labeled) -> float``.
+
+Learned predictors also define ``fit(data_root, train_benchmarks)``; ``build``
+creates a fresh instance per fold and fits it on that fold's training benchmarks
+only, so nothing learned can come from the benchmarks it is scored on.
+"""
 
 from __future__ import annotations
 
 import importlib.util
+from collections.abc import Sequence
 from pathlib import Path
 
 BASELINE_ROOT = Path(__file__).resolve().parents[2] / "baseline"
@@ -26,4 +32,13 @@ def empirical_mean():
 
 REGISTRY = {"constant": constant, "empirical_mean": empirical_mean}
 
-__all__ = ["REGISTRY", "constant", "empirical_mean"]
+
+def build(name: str, data_root: str | Path, train_benchmarks: Sequence[str]):
+    """Create a fresh predictor and fit it on the training benchmarks if it learns."""
+    predictor = REGISTRY[name]()
+    if hasattr(predictor, "fit"):
+        predictor.fit(data_root, list(train_benchmarks))
+    return predictor
+
+
+__all__ = ["REGISTRY", "build", "constant", "empirical_mean"]
