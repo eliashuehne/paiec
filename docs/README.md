@@ -4,17 +4,11 @@ For model-independent data and feature reuse, start with
 [shared data and features](shared-data-start.md): data roles, portable starter
 bundle, a verified `X`/`y` loading example, grouping metadata and feature code.
 
-See [workflow organization](workflows.md) for the canonical pipeline map, commands,
-and the implemented ZenML graphs. See [data lifecycle](data-lifecycle.md) for
-dataset roles, protected versions and restorable retired previews. The workflow
-orchestration migration is implemented; no real-data training or evaluation was
-launched during the cleanup.
-
-Start with [enriched 30k and encoder training](enriched-30k-encoder.md) for the
-completed 30k frozen run and deferred follow-ups, [compact enriched training](compact-enriched-training.md)
-for the completed 5k Modal run, and [compact inputs and development
-coverage](compact-inputs-and-development.md) for its prepared data contract. [AGENTS.md](../AGENTS.md) records active constraints, and
-[CONTRIBUTING.md](../CONTRIBUTING.md) covers repository checks and versioning.
+[Current status](current-status.md) records the completed negative Laya result
+and the decision to focus on other approaches. [Workflow organization](workflows.md)
+maps the reusable preparation/evaluation graphs; [data lifecycle](data-lifecycle.md)
+records retained versions. [AGENTS.md](../AGENTS.md) preserves execution and
+holdout constraints. Historical Laya guides are reference material, not queued work.
 
 ## Inputs and research data
 
@@ -22,7 +16,7 @@ coverage](compact-inputs-and-development.md) for its prepared data contract. [AG
 | --- | --- |
 | [Laya input contract](laya-input-contract.md) | Upstream format audit, delivery of collected facts and measured multilingual 8k capacity |
 | [Multilingual qualification](multilingual-qualification.md) | Frozen 8k recipe, grouped overflow policy and bounded learning/hardware gates |
-| [Compact inputs and development](compact-inputs-and-development.md) | Current compact-v3 recipe, retained task text and missing identities |
+| [Compact inputs and development](compact-inputs-and-development.md) | Historical compact-v3 recipe, retained task text and missing identities |
 | [Predictor input boundary](benchmark-questions.md) | Exact permitted fields and shared question |
 | [Original input audit](input-context-audit.md) | Recorded settings and context-v1 |
 | [Task feature pipeline](task-feature-pipeline.md) | Task-v2 predecessor, omissions and measured evidence control |
@@ -35,7 +29,7 @@ coverage](compact-inputs-and-development.md) for its prepared data contract. [AG
 
 | Guide | Scope |
 | --- | --- |
-| [Grouped enriched training](grouped-enriched-training.md) | Enriched-only multilingual trainer/predictor; launched pilot with checkpoint verification and development evaluation managed by the existing completion process |
+| [Grouped enriched training](grouped-enriched-training.md) | Completed pilot: Brier ALC 0.282439, weak ranking; Laya work on hold |
 | [Compact enriched training](compact-enriched-training.md) | Completed enriched-only Modal run and 2,048-token qualification |
 | [Strategy toward ALC 0.15](brier-alc-strategy.md) | Saved-prediction diagnosis, fixed evidence control and proposed encoder/data experiments |
 | [Enriched 30k and encoder training](enriched-30k-encoder.md) | Expanded training data, learning controls, upper-layer comparison and L4 profiling |

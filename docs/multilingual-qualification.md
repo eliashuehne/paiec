@@ -134,7 +134,8 @@ passed. The source-only export includes no datasets or weights.
 
 The user subsequently selected **enriched-only** training. Its grouped trainer,
 checkpoint-bound inference wrapper and complete offline corpus are now
-[implemented](grouped-enriched-training.md). Full training has not started.
+[implemented and run](grouped-enriched-training.md). The full pilot scored
+Brier ALC 0.282439 versus constant 0.25; Laya work is now on hold.
 The old English trainer is not a drop-in replacement. This qualification
 supplies tested preparation, loss and resource settings, not a completed full
 pilot or a generalization result.

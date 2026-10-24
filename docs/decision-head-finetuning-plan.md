@@ -1,5 +1,10 @@
 # Plan: fine-tune Laya's decision head
 
+Status as of 2026-10-24: **Laya work is on hold** after the completed grouped
+pilot failed to beat the constant baseline. This is a retained experiment or
+implementation reference; proposals and commands below are not a current work
+queue. See [current status](current-status.md) and [shared data](shared-data-start.md).
+
 Subsequent preparation: [enriched-head-pilot.md](enriched-head-pilot.md) records
 the separately authorized control/enriched experiment using shared 1,024-token
 inputs. It is ready for a new user go-ahead; training has not started. The

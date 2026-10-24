@@ -1,5 +1,10 @@
 # Workflows and data
 
+Current modeling focus is model-independent data/features; Laya is on hold
+after a completed negative result. See [current status](current-status.md) and
+[shared data](shared-data-start.md). Historical training recipes are retained
+for reproducibility and are not queued work.
+
 Use `scripts/run_pipeline.py` as the canonical command. ZenML coordinates
 repeatable workflows; scientific functions stay in `src/paiec/`, MLflow records
 metrics and provenance, and existing local/Modal adapters execute native jobs
@@ -62,8 +67,9 @@ and hidden-test performance remain unverified.
 
 The subsequent [Laya input audit](laya-input-contract.md) connects the latest
 collected tables to versioned Laya-native rows. It also measures multilingual
-capacity up to 8,192 tokens. The export remains research-only and is blocked from
-full training until context handling and the new native recipe are qualified.
+capacity up to 8,192 tokens. Qualification and the grouped pilot subsequently
+completed. The export remains research-only; the negative development result
+does not establish competition eligibility or a reason to continue training.
 
 The catalog is `configs/data/data_versions_v1.json`; details are in
 [data lifecycle](data-lifecycle.md). It separates original/frozen sources,
@@ -95,7 +101,8 @@ claim.
 The enriched multilingual route uses the same `inputs` and `training` workflow
 families, with `grouped_enriched_preparation_v1.json` and
 `grouped_enriched_training_v1.json`. Offline grouped preparation is complete;
-the single enriched training arm is implemented and plan-verified, not launched.
+the single enriched training arm and original-development evaluation completed
+(Brier ALC 0.282439 versus constant 0.25). No further Laya run is planned.
 See [grouped enriched training](grouped-enriched-training.md) for the shared
 encoder/aggregation, bundled facts and explicit predictor loader.
 

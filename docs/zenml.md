@@ -2,7 +2,9 @@
 
 For the full workflow map, including separate competition data and candidate
 selection graphs, see [workflow organization](workflows.md). This guide describes
-the research feature-preparation graph specifically.
+the research feature-preparation graph specifically. The graphs remain useful
+for other approaches; Laya training is on hold after its completed negative
+result. Start with [current status](current-status.md) and [shared data](shared-data-start.md).
 
 Resumed competition work (2026-10-24): the separate
 [dataset-only competition route](competition-pipeline.md) prepares original

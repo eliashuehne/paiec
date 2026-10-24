@@ -1,72 +1,43 @@
-# PAIEC / Laya
+# PAIEC: predicting system outcomes
 
-Predict how likely a target AI system is to complete a task successfully, using
-its model and harness details, the task, and a small budget of revealed outcomes.
-This repository contains a local evaluator, interchangeable Laya runtimes, and
-head fine-tuning experiments for the
+Predict the probability that a target AI system succeeds on a task, using its
+supplied system/task information and permitted revealed outcomes. This project
+contains shared data preparation, feature builders, probability predictors,
+evaluation and experiment tracking for the
 [Predictive AI Evaluation Competition](https://aims.stanford.edu/competition).
-The organizers' reference implementation is the pinned `baseline/` submodule.
+The organizers' reference code is the pinned `baseline/` submodule.
 
-Use the [workflow map](docs/workflows.md) for the canonical ZenML commands and
-[data lifecycle](docs/data-lifecycle.md) for retained datasets and archived
-previews. `scripts/run_pipeline.py WORKFLOW` prints a plan; `--execute` is the
-explicit launch action. Training, assessment and release are separate workflows.
+## Current direction
 
-## Reuse the data for another model
+**Laya work is on hold.** The completed enriched multilingual pilot scored
+**0.282439 Brier ALC**, worse than constant 50% predictions (**0.25**), on the
+original development set. Within-pair AUROC was **0.5457**. The checkpoint and
+input checks passed, but the experiment did not deliver the intended predictive
+improvement. No further Laya or GPU run is planned.
 
-For logistic regression or another statistical model, start with
-[shared data and features](docs/shared-data-start.md). It covers the reusable
-34,718-row dataset, a ready-to-load 467-feature matrix, labels, grouping/splits
-and optional research enrichment. The portable starter bundle is available
-locally as `runs/shared_data/statistical_starter_v1.tar.gz`; generated data is Git-ignored and
-must be transferred separately. Reading it needs only the core Python package,
-with no Laya weights, GPU or native model runtime.
+Focus now is reusing the data, features and evaluation protocol for other
+approaches. Start with [current status](docs/current-status.md) and
+[shared data and features](docs/shared-data-start.md). Prior negative results
+and model-specific limitations remain documented; data preparation alone does
+not establish predictive quality.
 
-## Current work
+## Reuse the data
 
-The enriched-only multilingual grouped trainer and checkpoint-bound predictor
-are implemented. Offline preparation retains all **34,718 training examples**,
-including 514 long examples split into complete overlapping views. The shared
-8,192-token contract passed bounded qualification; integration and input-parity
-checks pass. **The user-authorized one-epoch grouped pilot has been launched**;
-its existing completion process handles checkpoint verification and one
-original-development evaluation. Check `runs/workflows/grouped_pilot_completion_v1/status.json`
-and the [training guide](docs/grouped-enriched-training.md) before starting any
-job; do not duplicate this run. See
-[grouped enriched training](docs/grouped-enriched-training.md) for the prepared
-data, ZenML routes and explicit inference loader.
+The portable starter has **34,718 training rows**, a **467-feature matrix**,
+separate native binary labels and family/task grouping metadata. Logistic
+regression or another statistical model can read it using the core package;
+no Laya weights, Torch, MLX or GPU are required.
 
-The expanded **30,000-record enriched head** completed one epoch with the
-encoder frozen. Original-development Brier ALC is **0.272163**, worse than the
-constant-50% baseline of 0.25 and the earlier compact head. The planned upper-two
-encoder comparison and separate evidence correction are prepared and **held at
-the user's request**; no further run should start automatically. The completed
-checkpoint is downloaded and verified; GPU containers are stopped. See the
-[30k workflow and result](docs/enriched-30k-encoder.md) for scope, checks and
-measured resource settings.
+Local archive: `runs/shared_data/statistical_starter_v1.tar.gz`. Generated data
+is Git-ignored and needs a separate transfer or reconstruction. Optional
+model/harness research facts are separate and are not included in this
+dataset-only bundle; their competition eligibility remains unreviewed.
 
-The earlier 5,000-record experiment compared prepared recorded inputs
-(`compact_v3`) with the same tasks plus sourced model/harness facts (`compact_enriched_v3`), at
-2,048 tokens. **The enriched head completed one epoch; the recorded-data control
-is deferred.** Its development Brier ALC is **0.248643**, a small improvement
-over the constant baseline of 0.25. See
-[completed enriched training](docs/compact-enriched-training.md) and
-[compact inputs and development coverage](docs/compact-inputs-and-development.md)
-for the recipe, actual information delivery, and remaining missing identities.
-
-An earlier enriched head completed training and scored **0.249080 Brier ALC**
-on the original development set; a separate update using revealed labels scored
-**0.238145** on its saved predictions. Those earlier results use a different
-input contract; neither isolates the benefit of compact-v3 enrichment.
-Always predicting 50% gives **0.25**; lower is better. See
-[training results](docs/modal-head-pilot.md) and
-[the evidence control](docs/task-feature-pipeline.md).
-
-MLX is the default inference runtime on Apple Silicon. PyTorch supports local
-MPS and Modal CUDA execution. Head training uses PyTorch. Model weights, public
-payloads, MLflow stores, and prepared inputs are local artifacts outside Git.
-External research profiles are not yet approved for competition use; hosted
-Codabench compatibility is also unverified.
+Use the [workflow map](docs/workflows.md) for ZenML orchestration and
+[data lifecycle](docs/data-lifecycle.md) for retained artifacts. Recipes,
+checkpoints, source snapshots and saved scores stay intact for reproducibility.
+The [completed Laya record](docs/grouped-enriched-training.md) contains exact
+results and artifact paths; the default checkpoint is not silently replaced.
 
 ## Set up a fresh checkout
 
@@ -85,35 +56,28 @@ scope are documented in [requirements/README.md](requirements/README.md).
 
 | Purpose | Setup and use |
 | --- | --- |
-| Apple MLX inference | [Runtime setup](docs/laya-backends.md), `requirements/mlx.lock` |
-| PyTorch inference and head training | [Local workflow](docs/laya.md), `requirements/torch.lock` |
-| Modal client and CUDA workers | [Cloud execution](docs/modal.md), separate client/worker locks |
-| Public data and EDA | [Data provenance and preparation](docs/data-notes.md) |
+| Statistical data and features | [Shared starter](docs/shared-data-start.md), core package only |
+| Preparation workflows | [ZenML with MLflow](docs/zenml.md), separate `.venv-pipeline` environment |
+| Public data and EDA | [Data provenance](docs/data-notes.md) |
 | Experiment dashboard | [MLflow](docs/mlflow.md) |
-| Feature preparation pipeline | [ZenML with MLflow](docs/zenml.md), separate `.venv-pipeline` environment |
+| Retained Laya runtimes | [MLX/Torch reference](docs/laya-backends.md), separate native locks |
+| Retained cloud execution | [Modal reference](docs/modal.md), separate client/worker locks |
 
-## Run and prepare experiments
+## Inspect workflows
 
-Evaluation requires a prepared public payload in `payload/`. After setting up
-the MLX environment, a small pretrained check is:
-
-```bash
-.venv-laya-mlx/bin/python scripts/run_eval.py --suite smoke --predictor constant empirical_mean laya
-```
-
-Local and Modal placement share `scripts/run_job.py`. Inspect a plan before
-dispatching it; this command does not allocate a GPU:
+Use the shared data directly for model-specific feature engineering and
+training-only validation. Inspect the dataset workflow without launching it:
 
 ```bash
-.venv-modal/bin/python scripts/run_job.py --profile modal-l4 --task evaluate --suite smoke --out runs/example_plan --dry-run
+.venv-pipeline/bin/python scripts/run_pipeline.py data \
+  --config configs/pipelines/competition_data_protocol_v2.json
 ```
 
-Head recipes live in `configs/head_finetuning/`. Preparation, preflight and
-training are separate steps. Historical pilots require `--train`; the new
-encoder launcher requires an exact saved qualification report. Existing prepared
-directories and checkpoints are immutable. Use the
-[current 30k workflow](docs/enriched-30k-encoder.md) rather than
-restarting a historical interrupted run or overwriting its output.
+The plan needs only the recipe; execution additionally needs its generated
+source dependencies. See [shared data](docs/shared-data-start.md) and
+[workflows](docs/workflows.md). Training, development assessment and release are
+separate actions. Historical Laya commands are retained for reproducibility;
+they are not the next recommended workflow.
 
 ## Repository map
 
@@ -137,8 +101,8 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for checks and versioning rules, and
 Predictors receive the published eight subject and four item fields, anonymous
 benchmark IDs, and only budget-permitted revealed examples. Missing model names
 stay missing. Reference answers, grading definitions and evaluation outcomes
-never enter the prediction state. The shared question asks about the target
-system's success; Laya already returns its yes-probability.
+never enter the prediction state. Models predict the recorded target event;
+the historical Laya prompt and probability interface are retained for reproducibility.
 
 The evaluator keeps all trials of an item together in a 50/50 acquisition/evaluation
 split. Budgets are nested at 0, 1, 3, 7, 15 and 31; subject–benchmark pairs are

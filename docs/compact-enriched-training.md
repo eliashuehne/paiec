@@ -1,5 +1,10 @@
 # Compact enriched head training
 
+Status as of 2026-10-24: **Laya work is on hold** after the completed grouped
+pilot failed to beat the constant baseline. This is a retained experiment or
+implementation reference; proposals and commands below are not a current work
+queue. See [current status](current-status.md) and [shared data](shared-data-start.md).
+
 Authorized 2026-10-23, enriched variant first. The recorded-data control is
 not launched. The family split, prepared inputs, catalog, question and scientific
 recipe remain immutable. Calibration/confirmation and the separate question-only

@@ -5,6 +5,11 @@ stay here because existing commands, source snapshots and imports use these
 paths. Shared model/scoring logic belongs in `src/paiec/`. Use `--help` to inspect
 options; no command in this catalog is authorization to launch a run.
 
+Current focus is shared data/features and alternative predictors; see
+[shared data](../docs/shared-data-start.md) and [current status](../docs/current-status.md).
+Laya commands remain reproducibility utilities. No training/inference job or
+continuation is queued.
+
 ## Evaluation, jobs and tracking
 
 | Script | Purpose / effects |

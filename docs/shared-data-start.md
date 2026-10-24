@@ -2,7 +2,9 @@
 
 Use this data preparation for logistic regression or other predictors. Share
 examples, labels and split assignments; keep model-specific preprocessing separate.
-Reading the prepared bundle requires the core Python package, without Laya,
+Laya is on hold after a completed negative result; see [current status](current-status.md).
+The prepared bundle remains available for other approaches. Reading it requires
+the core Python package, without Laya,
 Torch, MLX, a GPU or a running ZenML service.
 
 ## Get started

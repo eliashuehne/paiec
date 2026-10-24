@@ -1,11 +1,16 @@
 # Local and Modal execution
 
-Current expanded work: [enriched 30k and upper-encoder training](enriched-30k-encoder.md).
+Status as of 2026-10-24: **Laya work is on hold** after the completed grouped
+pilot failed to beat the constant baseline. This is a retained experiment or
+implementation reference; proposals and commands below are not a current work
+queue. See [current status](current-status.md) and [shared data](shared-data-start.md).
+
+Historical expanded work: [enriched 30k and upper-encoder training](enriched-30k-encoder.md).
 The new `qualify-encoder` / `train-encoder` tasks preserve historical pilots and
 use `modal-l4-encoder-qualify` / `modal-l4-encoder` profiles (2 cores; 8 GiB RAM for qualification, 10 GiB for training).
 They add selected encoder-block training, local native-token caching and
 measured batch/precision qualification. GPU memory is separate from system RAM.
-Read that guide for current job state; older limitations below describe the
+Read the current-status guide for the completed result; older limitations below describe the
 earlier head-only implementation.
 
 The user authorized Modal integration on 2026-10-22 and authenticated the client

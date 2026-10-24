@@ -1,5 +1,10 @@
 # Engineering assessment toward Brier ALC 0.15
 
+Status as of 2026-10-24: **Laya work is on hold** after the completed grouped
+pilot failed to beat the constant baseline. This is a retained experiment or
+implementation reference; proposals and commands below are not a current work
+queue. See [current status](current-status.md) and [shared data](shared-data-start.md).
+
 2026-10-23. Follow-up to the completed compact enriched head. The user asked
 for an engineering assessment, including confidence and encoder training.
 This work audits saved predictions and runs a fixed numeric evidence control.

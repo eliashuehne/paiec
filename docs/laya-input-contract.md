@@ -120,21 +120,12 @@ Audit: `runs/laya_inputs/collected_v3_multilingual_8192_audit/`, MLflow
   --max-len 8192 --head-max-len 256 --out runs/laya_inputs/NEW_AUDIT
 ```
 
-## Before a full training run
+## Subsequent outcome
 
-Subsequent user-authorized work completed the bounded
-[multilingual qualification](multilingual-qualification.md): both policies
-passed on L4, and all long inputs now have explicit grouped-token coverage.
-The following describes the prerequisites identified by this earlier audit;
-the subsequently implemented [enriched-only grouped trainer and inference
-wrapper](grouped-enriched-training.md) now complete the integration. Full
-training remains outstanding.
-
-The next candidate is the original multilingual parent and its tokenizer with
-an explicit long-context recipe. A bounded forward/backward memory/throughput
-qualification at 4,096/8,192 is still needed. The existing English-only,
-2,048-token native trainer is not silently switched or its recipe overwritten.
-The remaining long states need an explicit retention/chunking policy; they must
-not be silently truncated or dropped. Raw labels and frozen family roles remain
-unchanged. The enriched export is research-only; competition eligibility and a
-predictor-compatible inference contract remain separate gates.
+The [multilingual qualification](multilingual-qualification.md), grouped trainer,
+checkpoint-bound inference and one full enriched pilot subsequently completed.
+Every task token was retained, but original-development Brier ALC was
+**0.282439**, worse than constant **0.25**. See [the result](grouped-enriched-training.md).
+Laya work is on hold; this input audit is retained as evidence of data delivery,
+not evidence that this representation improves predictions. The structured
+source tables can still be reused independently of Laya; see [shared data](shared-data-start.md).

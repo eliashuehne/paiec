@@ -2,15 +2,14 @@
 
 Updated: **2026-10-24, America/Los_Angeles**.
 
-Latest engineering result: [enriched multilingual grouped training and
-prediction](grouped-enriched-training.md) are integrated. All 34,718 training
-states are retained, with 514 multi-view examples and no task-token omissions.
-Full serialized-state parity and 614-example tokenizer-only wrapper parity pass;
-344 tests pass in both native environments and a source-only export. ZenML
-preparation completed; the enriched-only training plan and upload are verified.
-No full training, real-model inference, development scoring or new GPU job was
-launched for this integration. The user selected enriched-only; a recorded-only
-arm is not part of this prepared recipe. This is not a model-quality result.
+Latest scientific result: the enriched multilingual grouped pilot completed
+543 updates and one original-development evaluation. Brier ALC **0.2824393058**
+versus constant **0.25**, mean within-pair AUROC **0.5457424346**. Checkpoint
+integrity/reload passed; both GPU apps are stopped. **Laya work is now on hold**;
+reuse data, features and evaluation pipelines for other approaches. No new model
+or additional run is authorized by this status update. See [current status](current-status.md)
+and [the complete result](grouped-enriched-training.md). Earlier proposals below
+are historical hypotheses, not a current work queue.
 
 This is the working record of completed comparisons, their limitations, and
 proposed next experiments. The user requested documentation of the run review

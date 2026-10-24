@@ -4,10 +4,16 @@ The authoritative role/lifecycle catalog is
 `configs/data/data_versions_v1.json`. It lists principal retained datasets,
 not every historical report. Original sources, checkpoint contracts, frozen
 exports, sealed roles, tracking stores and research provenance are protected.
-Keep historical scientific recipe and renderer paths unchanged.
+Keep historical scientific recipe and renderer paths unchanged. Laya work is
+on hold; retained artifacts support reproducibility, not automatic continuation.
+See [current status](current-status.md) and [shared data](shared-data-start.md).
 
 | Data version under `runs/` | Use |
 | --- | --- |
+| `shared_data/statistical_starter_v1` | Portable dataset-only tables, 467 features, training targets and grouping metadata |
+| `grouped_enriched/prepared_v1/tokens` | Full grouped training tokens and exact collected-fact snapshot |
+| `workflows/grouped_enriched_training_v1/job/output/final` | Completed fitted checkpoint; preserve hashes and native configuration |
+| `workflows/grouped_development_v1/scores` | Completed negative result and saved predictions; no need to rerun inference |
 | `head_finetuning/data_v2` | Original frozen exports and development provenance |
 | `head_finetuning/enriched_30k_v1` | Research-enriched 30k Laya inputs and token preparation |
 | `head_finetuning/compact_pilot_v3_release` | Retained compact-5k inputs used by the completed checkpoint |
@@ -19,7 +25,8 @@ Keep historical scientific recipe and renderer paths unchanged.
 Version numbers count different contracts, not one interchangeable sequence.
 A later dataset-only bundle cannot replace research-enriched inputs expected by
 an existing Laya checkpoint. There is not yet a newly qualified competition-only
-Laya training recipe; that is a scientific preparation step after this migration.
+Laya training recipe. No such follow-up is planned; model-independent reuse
+starts from the dataset-only bundle, without changing historical contracts.
 
 ## Retired working previews
 

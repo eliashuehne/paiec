@@ -1,5 +1,10 @@
 # Model, harness and run profiles
 
+Reusable research data for the system-knowledge layer; it is independent of
+Laya. The completed Laya pilot did not beat its baseline and Laya work is on
+hold. Profiles and provenance remain available for separately declared research
+with other predictors; see [current status](../../docs/current-status.md).
+
 Versioned research data for the system-knowledge layer. The current researched
 catalog is **collection_v3**; the original `v1/` contains subject-only seed
 records. All collections retain schema **1.0**, with JSONL records and

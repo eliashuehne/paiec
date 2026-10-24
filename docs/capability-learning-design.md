@@ -1,5 +1,10 @@
 # Training Laya to model capabilities, difficulty and similarity
 
+Status as of 2026-10-24: **Laya work is on hold** after the completed grouped
+pilot failed to beat the constant baseline. This is a retained experiment or
+implementation reference; proposals and commands below are not a current work
+queue. See [current status](current-status.md) and [shared data](shared-data-start.md).
+
 2026-10-22. Research and training-design follow-up to
 [task-feature-pipeline.md](task-feature-pipeline.md). The user authorized broad
 web research and wants a stronger learned predictor of target-system success.

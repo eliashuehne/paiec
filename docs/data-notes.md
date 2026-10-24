@@ -55,8 +55,9 @@ Two smaller notes, so size numbers can be read correctly:
 
 - The cache lists 102 benchmark directories but only 61 are eligible and
   downloaded. The other 41 are filtered out by the binary/item check.
-- `runs/` is small (~40 MB) even after many evaluations. MLflow stores metrics
-  and CSV artifacts, not trace tensors. It is not worth pruning.
+- The early audit found about 40 MB under `runs/`. Later work added checkpoints,
+  token caches and portable data bundles; that old size is no longer current.
+  Use [data lifecycle](data-lifecycle.md) before considering cleanup.
 
 Per-table schema:
 

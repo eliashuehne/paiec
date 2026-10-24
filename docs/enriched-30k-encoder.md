@@ -1,5 +1,10 @@
 # Expanded enriched data and upper-encoder experiment
 
+Status as of 2026-10-24: **Laya work is on hold** after the completed grouped
+pilot failed to beat the constant baseline. This is a retained experiment or
+implementation reference; proposals and commands below are not a current work
+queue. See [current status](current-status.md) and [shared data](shared-data-start.md).
+
 2026-10-23. The user authorized the sequence of learning checks, expanding to
 30,000 records, comparing frozen and partially trained encoders, and later
 learned evidence adaptation. This version implements those as separate stages;

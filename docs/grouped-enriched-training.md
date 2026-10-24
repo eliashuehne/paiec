@@ -1,72 +1,62 @@
-# Enriched multilingual grouped training and prediction
+# Enriched multilingual grouped pilot: completed result
 
-## Authorized pilot execution
+**Completed 2026-10-24; Laya work is on hold.** This guide preserves the
+experiment and implementation. It does not authorize further training or
+inference. See [current status](current-status.md) for the modeling decision and
+[shared data](shared-data-start.md) for reuse by other approaches.
 
-The training stage has now completed **543 updates / 34,718 examples** in
-6,239.54 seconds. Frozen-parameter checks and exact training/inference token
-parity passed; maximum native export/reload probability difference is
-**0.0000275824**. The fitted checkpoint is downloaded and all hashes verify
-locally at `runs/workflows/grouped_enriched_training_v1/job/output/final/`.
-Checkpoint manifest SHA256:
-`a4e9a8ac4be347811896478130abd87b8e00ebb45f7a64eb9aa34bdf5fe4518c`.
+## Result
 
-The original completion helper then exited before evaluation because the
-Modal stop command returned code 1 for an already-stopped training app. The
-app's stopped state and empty GPU-container inventory were verified. The
-cleanup operation now accepts that exact already-satisfied result, with a
-regression test; genuine errors still fail. Original failure artifacts are
-retained under the completion directory. Training was not restarted.
+| Measure | Result |
+| --- | ---: |
+| Training examples / optimizer updates | 34,718 / 543 |
+| Training, export and reload phase | 6,239.54 seconds |
+| Original-development Brier ALC | **0.2824393058** |
+| Constant-50% baseline | **0.2500000000** |
+| Mean within-pair AUROC | **0.5457424346** |
+| Pair-weighted ECE, diagnostic | 0.2788073398 |
+| Development responses / system-items / pairs | 963 / 960 / 8 |
+| Native export/reload maximum probability drift | 0.0000275824 |
 
-The first authorized evaluation was subsequently launched once through ZenML
-`eea88677-2242-4e09-ae7f-aa969723d7f4`, using the already generated bound recipe.
-See `runs/workflows/grouped_development_v1/` and
-`runs/workflows/grouped_pilot_completion_v1/recovery_receipt.json` for live/final
-status. No development quality result is claimed until its score report exists.
-The old completion process has exited; do not start a duplicate evaluation.
+The recipe did not beat the constant baseline. Weak ranking and poor probability
+calibration limit usefulness despite improved training loss. The experiment
+used two held-out benchmark families and no recorded-only control; it does
+not isolate enrichment's effect or establish that the underlying data lacks
+signal. No calibration was fitted. Revealed outcomes were ignored, so the same
+predictions apply at every budget. Calibration/confirmation and supplemental
+development outcomes remained unused.
 
-The user subsequently authorized one full enriched-only epoch, checkpoint
-verification and one original-development evaluation. Training is launched in
-`runs/workflows/grouped_enriched_training_v1/`, ZenML
-`77bc46d6-9a22-4aba-a734-f10310eb33bb`, Modal
-`job_93b4b7030f4e4a1a8911bb4faf46a462`, app `ap-wnqQfjWc36PqoccJN3lkO9`.
-The remote MLflow run is `832f1fb44be94ae9bf0aa7b6f10d185e`.
-There are 543 planned updates; observed training is underway at launch.
+Frozen-parameter checks, exact training/inference token parity and all checkpoint
+hashes passed. Both GPU apps are stopped with no active containers. The monitor
+was removed. The initial completion helper exited before evaluation because an
+already-stopped app returned a nonzero cleanup code; cleanup is now idempotent
+and regression-tested. One authorized evaluation then completed, without
+restarting training or duplicating inference.
 
-Current progress: `runs/workflows/grouped_enriched_training_v1/native_job.log`.
-A durable, already-started completion process waits for the existing run,
-downloads missing checkpoint tensors without a GPU, verifies all hashes, then
-uses the same ZenML native execution route for one original-development
-prediction/scoring workflow. It does not start another training run, select
-another checkpoint, or retry a failure. Its current status is
-`runs/workflows/grouped_pilot_completion_v1/status.json`; launch receipt is
-`runs/zenml/grouped_completion_v1_launch.json`. Inspect these before further
-action. The process stops both declared GPU apps after completion. A
-`STOP_AFTER_TRAINING` file in the training workflow directory cancels deferred
-stages while preserving active training.
+## Artifacts and provenance
 
-Development preparation is `runs/grouped_development/prepared_v1/`: the original
-963 response trials, 960 system-items and eight pairs, matched to the exact
-frozen input/label/provenance hashes. Only `requests.jsonl` and its manifest are
-uploaded for prediction. Native labels and scorer identities remain local and
-separate from the predictor. Predictions repeat across budgets because revealed
-evidence is ignored. Existing scoring preserves trial counts and equal pair
-weighting, with Brier ALC, constant-.25 control, within-pair AUROC and diagnostic
-calibration bins. No calibration is fitted. Calibration/confirmation sets and
-the supplemental development outcomes stay unused.
+| Artifact | Location / identity |
+| --- | --- |
+| Fitted checkpoint | `runs/workflows/grouped_enriched_training_v1/job/output/final/` |
+| Checkpoint manifest SHA256 | `a4e9a8ac4be347811896478130abd87b8e00ebb45f7a64eb9aa34bdf5fe4518c` |
+| Training report | `runs/workflows/grouped_enriched_training_v1/job/output/report.json` |
+| Development scores / predictions | `runs/workflows/grouped_development_v1/scores/` |
+| Completion and cleanup receipts | `runs/workflows/grouped_pilot_completion_v1/` |
+| Training ZenML / local native MLflow | `77bc46d6-9a22-4aba-a734-f10310eb33bb` / `6274cd35121049ce827f76a0906c84b1` |
+| Development ZenML / MLflow | `eea88677-2242-4e09-ae7f-aa969723d7f4` / `7b31e61a71ce474797401770ef98f4cb` |
+| Training Modal job | `job_93b4b7030f4e4a1a8911bb4faf46a462` |
+| Development Modal job | `job_ae2bfc15636b4ee28b29af58e551568d` |
 
-The checkpoint-bound evaluation recipe and workflow are generated only after
-the fitted checkpoint manifest is recovered. Expected final evaluation report:
-`runs/workflows/grouped_development_v1/scores/report.json`. Training is not yet a
-quality result. Both native suites pass 351 tests after this addition; saved logs
-are `runs/zenml/grouped_completion_{mlx,torch}_tests_final.log`.
+The native parent is the original multilingual checkpoint at revision
+`7b928d828b7b0e022f929d9bd2e44165aa270148`. Training updated the final two encoder
+blocks and decision head, with frozen prefix/action head, 8,192 total tokens,
+FP16 autocast and FP32 scorer. Scientific recipes and renderer hashes remain
+unchanged. The downloaded checkpoint is retained, not promoted to the default.
+It supports inference and supplies learned weights for possible future work;
+exact optimizer resumption is not implemented.
 
-The preparation-stage account below predates this launch.
-
-2026-10-24. The grouped input contract is integrated into a new enriched-only
-trainer and an explicit Torch predictor. Offline preparation is complete. No
-full training, new real-model inference, development scoring or GPU job was
-launched for this integration. The existing English trainers, factories and
-hash-pinned renderers remain unchanged.
+The remaining sections describe the retained implementation and historical
+preparation checks. Commands are references, not queued work.
 
 ## Data delivered to the model
 
@@ -128,10 +118,10 @@ still does not guarantee reasoning across distant windows.
 Loss weights give equal mass to training families, then to scopes within each
 family, then to records within a scope. Weights are normalized across each
 optimizer window, as in the existing weighted-loss path. Classes are not
-artificially balanced. The prepared recipe has one epoch, 543 optimizer windows
+artificially balanced. The completed recipe used one epoch, 543 optimizer windows
 of up to 64 original examples, decision-head learning rate 1e-4 and final-two
 encoder-block learning rate 1e-5. Encoder prefix and action head remain frozen.
-This policy is a proposed full experiment, not a measured generalization gain.
+Its measured held-out result is the negative result above.
 
 The trainer uses qualified CUDA FP16 autocast, FP32 scorer, gradient scaling,
 one physical view at a time and head/encoder checkpointing. It starts from the
@@ -182,7 +172,7 @@ probability = predictor(subject, item)  # published string dictionaries
 predictor.close()
 ```
 
-There is no trained grouped checkpoint yet. The loader requires a valid local
+The retained checkpoint is at the path above. The loader requires a valid local
 `grouped_enriched_checkpoint_v1` manifest, exact artifact/renderer hashes,
 8,192/256 context limits, identical question and the bundled feature snapshot.
 It never picks a newer catalog or original checkpoint silently. Known subjects
@@ -198,16 +188,15 @@ calibration is fitted. CUDA FP16 is supported explicitly; CPU uses FP32.
 exactly `subject` and `item` keys and a required checkpoint. It writes one
 probability per original request; invalid labels/private fields are rejected.
 
-After a future training run, export checks rebuild training-only single/multi-
-view fixtures through this wrapper, require identical token IDs/markers/view
-weights and maximum probability drift <=.005 across native FP16 save/reload.
-Frozen-parameter hashes must also match. This does not score held-out outcomes,
+The completed export checks rebuilt training-only single/multi-view fixtures
+through this wrapper and verified identical token IDs, markers and view weights,
+probability drift <=.005 across native FP16 save/reload, and frozen-parameter hashes. This does not score held-out outcomes,
 establish competition packaging compatibility, or provide resumable training.
 
 ## Integration verification
 
-Both native suites pass **344 tests** (16 skips without Torch; one Torch skip),
-including in a clean 451-file source-only export without datasets or weights;
+The final source-only handoff passes **352 tests** in each native environment
+(16 skips without Torch; one Torch skip), without datasets or weights;
 all four catalogs validate. Added tests cover weighted gradients across
 original examples, task-token coverage, label/input separation, native synthetic
 model fitting/export/reload through the wrapper, snapshot tampering, context

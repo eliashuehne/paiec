@@ -1,5 +1,10 @@
 # Interchangeable Laya backends
 
+Status as of 2026-10-24: **Laya work is on hold** after the completed grouped
+pilot failed to beat the constant baseline. This is a retained experiment or
+implementation reference; proposals and commands below are not a current work
+queue. See [current status](current-status.md) and [shared data](shared-data-start.md).
+
 The user authorized this integration on 2026-10-21. **MLX is now the default**;
 the original PyTorch Laya remains selectable. The canceled 3,000-record run
 was not restarted, recomputed, or relabeled.

@@ -8,7 +8,8 @@ logistic regression does not need a Laya training recipe or GPU profile.
 grouped training recipe to its exact input export and passed qualification.
 `pipelines/grouped_enriched_preparation_v1.json` prepares its tokens through
 ZenML; `pipelines/grouped_enriched_training_v1.json` plans its single training
-arm. Preparation is complete; full training has not started. See
+arm. Training and evaluation completed with Brier ALC 0.282439 versus constant
+0.25; Laya work is now on hold. These recipes remain historical references. See
 [grouped enriched training](../docs/grouped-enriched-training.md).
 
 `head_finetuning/multilingual_qualification_v1.json` freezes the original
@@ -63,7 +64,7 @@ gets a new descriptive version; do not rename historical artifacts merely to
 make their number match the latest input format. None of the files below starts
 a job by itself.
 
-## Active shared settings
+## Retained shared settings
 
 | Path | Purpose |
 | --- | --- |
