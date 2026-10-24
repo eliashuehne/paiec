@@ -14,11 +14,11 @@ explicit launch action. Training, assessment and release are separate workflows.
 
 ## Reuse the data for another model
 
-For Arno's logistic regression or another statistical model, start with
+For logistic regression or another statistical model, start with
 [shared data and features](docs/shared-data-start.md). It covers the reusable
 34,718-row dataset, a ready-to-load 467-feature matrix, labels, grouping/splits
 and optional research enrichment. The portable starter bundle is available
-locally as `runs/shared_data/arno_v1.tar.gz`; generated data is Git-ignored and
+locally as `runs/shared_data/statistical_starter_v1.tar.gz`; generated data is Git-ignored and
 must be transferred separately. Reading it needs only the core Python package,
 with no Laya weights, GPU or native model runtime.
 

@@ -18,9 +18,9 @@ once at `runs/workflows/grouped_development_v1/`, ZenML
 Recovery receipt/PID is in `runs/workflows/grouped_pilot_completion_v1/recovery_receipt.json`;
 the old completion process is no longer active. Do not duplicate evaluation.
 
-Arno's model-independent handoff: `docs/shared-data-start.md` and the README
+Model-independent data reuse: `docs/shared-data-start.md` and the README
 link explain tables, shared split boundaries, 467 numeric/text features and
-research-only enrichment. Generated `runs/shared_data/arno_v1.tar.gz` is a
+research-only enrichment. Generated `runs/shared_data/statistical_starter_v1.tar.gz` is a
 separate portable handoff (34,718 rows, 467 columns, raw training targets and
 training-family/task grouping metadata; no fitted weights or nontraining
 outcomes). It is Git-ignored. Its feature matrix was regenerated from the

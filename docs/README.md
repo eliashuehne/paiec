@@ -1,6 +1,6 @@
 # Documentation
 
-For Arno's logistic regression or any model-independent reuse, start with
+For model-independent data and feature reuse, start with
 [shared data and features](shared-data-start.md): data roles, portable starter
 bundle, a verified `X`/`y` loading example, grouping metadata and feature code.
 
