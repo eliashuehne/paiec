@@ -1,0 +1,9 @@
+{
+  "version": "validation_release_workflow_v1",
+  "mode": "review",
+  "prepared": "runs/competition_pipeline/protocol_panel_v2",
+  "selection": "runs/competition_analysis/evidence_policy_selection_v1",
+  "selection_manifest_sha256": "9a589e221c17daad564ebf9a67a6e42aa798e6ba2750700b7ce199969e8a01e9",
+  "saved_assessment": "runs/competition_analysis/evidence_policy_development_v1/summary.json",
+  "saved_assessment_sha256": "7bb6066ee74d34900c218179c3ec87926a18c400fb37cd8cf511870b2bc86453"
+}

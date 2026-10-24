@@ -1,8 +1,62 @@
 # Configuration index
 
+For model-independent reuse, see [shared data and features](../docs/shared-data-start.md).
+`pipelines/competition_data_protocol_v2.json` is the dataset-only starting point;
+logistic regression does not need a Laya training recipe or GPU profile.
+
+`head_finetuning/grouped_enriched_v1.json` binds the enriched-only multilingual
+grouped training recipe to its exact input export and passed qualification.
+`pipelines/grouped_enriched_preparation_v1.json` prepares its tokens through
+ZenML; `pipelines/grouped_enriched_training_v1.json` plans its single training
+arm. Preparation is complete; full training has not started. See
+[grouped enriched training](../docs/grouped-enriched-training.md).
+
+`head_finetuning/multilingual_qualification_v1.json` freezes the original
+multilingual parent, 8,192-token grouped-input policy and bounded learning gates.
+`pipelines/multilingual_qualification_workflow_v1.json` dispatches that probe
+through ZenML/Modal. It never starts a full training pilot. See
+[multilingual qualification](../docs/multilingual-qualification.md).
+
+`pipelines/laya_collected_inputs_v3.json` selects the latest collected-data
+input export and native tokenizer audit. Earlier v1/v2 input audits remain
+reproducible. See [Laya input contract](../docs/laya-input-contract.md) for actual
+field delivery, context overflow and the multilingual 8k audit.
+
+Canonical workflow recipes: `pipelines/laya_training_workflow_v1.json`,
+`pipelines/evidence_validation_workflow_v1.json` and
+`pipelines/evidence_release_workflow_v1.json`, alongside preparation/selection
+recipes below. Plans do not execute; training and release are explicit.
+`data/data_versions_v1.json` records data roles and retirement eligibility.
+Use [the workflow guide](../docs/workflows.md) rather than comparing version
+numbers across unrelated data/input contracts.
+
+`pipelines/competition_evidence_workflow_v1.json` selects training-only fixed
+controls and whole-family evidence-policy selection through ZenML. It cannot
+launch Laya, access development outcomes or approve a release. See
+[workflow organization](../docs/workflows.md).
+
+Competition dataset preparation: `pipelines/competition_data_protocol_v2.json` selects
+only supplied public-data fields and separate training targets. Research model
+profiles and manual annotations are not used. See
+[the competition route](../docs/competition-pipeline.md).
+
+`pipelines/competition_panel_v1.json` fixes the outcome-blind source augmentation.
+All original rows remain, with 4,718 additional training records to give all
+170 visible scopes full-budget coverage. Historical data recipes stay unchanged.
+
+`pipelines/conditional_control_v1.json` fixes the initial CPU-only conditional
+predictor comparison. Its fitted variants were rejected by the first training-
+family quality checks; see [the measured control result](../docs/conditional-control.md).
+
 Local feature preparation: `pipelines/feature_preparation_offline_v10.json` selects the
 existing expanded bundle and unsealed roles for the preparation-only ZenML
 pipeline. See [ZenML](../docs/zenml.md). It does not dispatch training.
+
+Expanded enriched training: `head_finetuning/enriched_30k_data_v1.json` fixes
+the 30k training sample inside existing family roles;
+`head_finetuning/enriched_30k_encoder_v1.json` fixes the one-epoch frozen versus
+upper-two-layer recipe. CUDA operational settings are selected by a separate
+saved qualification. See [the guide](../docs/enriched-30k-encoder.md).
 
 Keep scientific configurations immutable once prepared or used. A changed recipe
 gets a new descriptive version; do not rename historical artifacts merely to
@@ -24,7 +78,7 @@ a job by itself.
 
 | Path within `head_finetuning/` | Status and role |
 | --- | --- |
-| `compact_pilot_v3.json` | Current prepared control/enriched recipe, 2,048 tokens; not trained |
+| `compact_pilot_v3.json` | Current 2,048-token recipe; enriched completed one epoch, control deferred |
 | `compact_profiles_v3.json` | Compact facts and scoped alias policy for collection-v3 |
 | `task_features_pilot_v2.json` | Prepared task-v2 predecessor; not trained |
 | `enrichment_catalog_v2.json` | Expanded collection-v2 research policy |

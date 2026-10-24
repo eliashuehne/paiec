@@ -17,6 +17,27 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class ExecutionTests(unittest.TestCase):
+    def test_qualification_uses_the_verified_pilot_inputs_without_starting_training(self):
+        job = JobSpec(task="qualify-head-pilot", variant="enriched", out="runs/qualification")
+        args = command(job, self.profile("modal-l4"), "python")
+        self.assertEqual(args[1], "scripts/benchmark_head_batches.py")
+        self.assertEqual(args[args.index("--variant") + 1], "enriched")
+        self.assertEqual(args[args.index("--micro-batches") + 1], "2")
+        self.assertIn("--download-parent", args)
+        self.assertNotIn("--train", args)
+        with self.assertRaises(ValueError):
+            command(job, self.profile("local-torch"), "python")
+        with self.assertRaises(ValueError):
+            JobSpec(task="qualify-head-pilot", variant="both", out="runs/qualification")
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            write_pilot_fixture(root)
+            inventory = input_files(root, job)
+            training = input_files(root, job.model_copy(update={"task": "train-head-pilot"}))
+            self.assertEqual(inventory, training)
+            self.assertFalse(any(p.name in {"confirmation.jsonl", "calibration.jsonl", "traces.parquet"}
+                                 for p in inventory))
+
     def test_modal_image_uses_the_relocated_worker_lock_and_records_it_in_the_image(self):
         from types import SimpleNamespace
         from unittest.mock import Mock, call

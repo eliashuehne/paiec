@@ -47,8 +47,8 @@ def create_app(root, profile):
     @app.function(
         image=image,
         gpu=profile.gpu,
-        cpu=2,
-        memory=16384,
+        cpu=profile.cpu,
+        memory=profile.memory_mib,
         timeout=profile.timeout,
         volumes={"/jobs": volume, "/cache": cache},
         retries=0,

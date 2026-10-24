@@ -1,0 +1,7 @@
+{
+  "version": "conditional_control_v1",
+  "prepared": "runs/competition_pipeline/protocol_panel_v2",
+  "l2": 100.0,
+  "prior_strength": 5.0,
+  "offset_regularization": 1.0
+}

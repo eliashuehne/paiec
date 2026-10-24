@@ -1,0 +1,7 @@
+{
+  "version": "competition_data_v1",
+  "source_policy": "provided_dataset_only",
+  "prepared": "runs/competition_sources/protocol_panel_v1",
+  "dataset_revision": "54074453da7b9911be0f48e4c560be547bc84d21",
+  "roles": ["training", "monitor", "development"]
+}

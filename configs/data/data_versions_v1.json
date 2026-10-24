@@ -1,0 +1,111 @@
+{
+  "version": "data_versions_v1",
+  "frozen_split": "configs/head_finetuning/frozen_split_v1.json",
+  "artifacts": [
+    {
+      "name": "collected_full_inputs",
+      "path": "runs/laya_inputs/collected_v3",
+      "role": "laya_research_inputs",
+      "source_policy": "research_enriched",
+      "lifecycle": "protected"
+    },
+    {
+      "name": "grouped_enriched_tokens",
+      "path": "runs/grouped_enriched/prepared_v1/tokens",
+      "role": "laya_research_training",
+      "source_policy": "research_enriched",
+      "lifecycle": "protected"
+    },
+    {
+      "name": "multilingual_qualification_result",
+      "path": "runs/workflows/multilingual_qualification_v1/job/output",
+      "role": "training_qualification",
+      "source_policy": "research_enriched",
+      "lifecycle": "protected"
+    },
+    {
+      "name": "frozen_split_inputs",
+      "path": "runs/head_finetuning/data_v2",
+      "role": "frozen_role_exports",
+      "source_policy": "provided_dataset_only",
+      "lifecycle": "protected"
+    },
+    {
+      "name": "expanded_enriched",
+      "path": "runs/head_finetuning/enriched_30k_v1",
+      "role": "laya_research_training",
+      "source_policy": "research_enriched",
+      "lifecycle": "protected"
+    },
+    {
+      "name": "compact_release",
+      "path": "runs/head_finetuning/compact_pilot_v3_release",
+      "role": "laya_research_training",
+      "source_policy": "research_enriched",
+      "lifecycle": "protected"
+    },
+    {
+      "name": "protocol_sources",
+      "path": "runs/competition_sources/protocol_panel_v1",
+      "role": "competition_training_source",
+      "source_policy": "provided_dataset_only",
+      "lifecycle": "protected"
+    },
+    {
+      "name": "protocol_dataset",
+      "path": "runs/competition_pipeline/protocol_panel_v2",
+      "role": "competition_training_tables",
+      "source_policy": "provided_dataset_only",
+      "lifecycle": "protected"
+    },
+    {
+      "name": "research_features",
+      "path": "runs/feature_pipeline/offline_evidence_preparation_v1",
+      "role": "research_features",
+      "source_policy": "research_enriched",
+      "lifecycle": "protected"
+    },
+    {
+      "name": "development_question_supplement",
+      "path": "runs/head_finetuning/development_identity_review_v3_release_final",
+      "role": "question_only_supplement",
+      "source_policy": "research_enriched",
+      "lifecycle": "protected"
+    },
+    {
+      "name": "compact_pilot_v3",
+      "path": "runs/head_finetuning/compact_pilot_v3",
+      "role": "untrained_preview",
+      "source_policy": "research_enriched",
+      "lifecycle": "archived_preview",
+      "replacement": "runs/head_finetuning/compact_pilot_v3_release",
+      "archive": "runs/data_retirement/workflow_migration_v1/compact_pilot_v3"
+    },
+    {
+      "name": "compact_pilot_v3_ready",
+      "path": "runs/head_finetuning/compact_pilot_v3_ready",
+      "role": "untrained_preview",
+      "source_policy": "research_enriched",
+      "lifecycle": "archived_preview",
+      "replacement": "runs/head_finetuning/compact_pilot_v3_release",
+      "archive": "runs/data_retirement/workflow_migration_v1/compact_pilot_v3_ready"
+    },
+    {
+      "name": "compact_pilot_v3_final",
+      "path": "runs/head_finetuning/compact_pilot_v3_final",
+      "role": "untrained_preview",
+      "source_policy": "research_enriched",
+      "lifecycle": "archived_preview",
+      "replacement": "runs/head_finetuning/compact_pilot_v3_release",
+      "archive": "runs/data_retirement/workflow_migration_v1/compact_pilot_v3_final"
+    }
+  ],
+  "always_preserve": [
+    "payload/",
+    "research/",
+    "runs/mlflow/",
+    "runs/zenml/",
+    "all checkpoints and paiec_training.json contracts",
+    "all sealed roles and original source tables"
+  ]
+}

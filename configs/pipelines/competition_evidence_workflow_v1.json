@@ -1,0 +1,5 @@
+{
+  "version": "competition_evidence_workflow_v1",
+  "source_policy": "provided_dataset_only",
+  "prepared": "runs/competition_pipeline/protocol_panel_v2"
+}

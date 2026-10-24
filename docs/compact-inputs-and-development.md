@@ -1,5 +1,10 @@
 # Compact inputs and development identity review
 
+Subsequent execution: the enriched-only head completed one epoch on Modal on
+2026-10-23, Brier ALC 0.24864261. The recorded-data control is deferred. See
+[completed enriched training](compact-enriched-training.md). Preparation facts
+and the historical validation status below describe the 2026-10-22 snapshot.
+
 Completed 2026-10-22 as preparation, research and native-token validation. No
 training, forward inference, Brier evaluation or GPU job ran. The original
 evaluation and frozen roles are unchanged.

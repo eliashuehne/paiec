@@ -1,5 +1,13 @@
 # Local and Modal execution
 
+Current expanded work: [enriched 30k and upper-encoder training](enriched-30k-encoder.md).
+The new `qualify-encoder` / `train-encoder` tasks preserve historical pilots and
+use `modal-l4-encoder-qualify` / `modal-l4-encoder` profiles (2 cores; 8 GiB RAM for qualification, 10 GiB for training).
+They add selected encoder-block training, local native-token caching and
+measured batch/precision qualification. GPU memory is separate from system RAM.
+Read that guide for current job state; older limitations below describe the
+earlier head-only implementation.
+
 The user authorized Modal integration on 2026-10-22 and authenticated the client
 against workspace **elias-huehne**. The SDK verified the credentials and saved
 them outside the repository in `~/.modal.toml`. No credentials are included in
@@ -16,17 +24,27 @@ A runtime and an execution location are separate choices:
 | `modal-l4` | Modal NVIDIA L4 | PyTorch/CUDA, upstream automatic inference precision | Evaluation; head smoke training (900 seconds) |
 | `modal-l4-pilot` | Modal NVIDIA L4 | PyTorch/CUDA, FP32 pilot training | Head pilot (four-hour timeout) |
 
+The separate `qualify-head-pilot` task uses a CUDA profile and the same verified
+pilot input inventory, then measures the selected variant at its actual context
+limit. It does not train or export weights. For compact-v3, use the 900-second
+`modal-l4` profile, `--variant enriched`, and
+`--pilot-config configs/head_finetuning/compact_pilot_v3.json`. The saved report
+must pass the requested batch and unchanged-weight checks before training.
+
 MLX is Apple-specific and is not an NVIDIA training backend. Head training uses
 FP32 on either MPS or CUDA. CUDA performance, inference precision differences,
 probability fidelity, and model quality still need measurement on real cloud
 hardware. The **bounded 256-row/10-update** smoke trainer and prepared
 **5,000-row/four-epoch** head pilot are supported. The user requested preparing
 the enriched pilot first; see [modal-head-pilot.md](modal-head-pilot.md).
-Encoder adaptation and optimizer resumption are not implemented. The cached
+Those historical pilot tasks keep the encoder frozen. The separate current
+`train-encoder` task implements upper-block adaptation; optimizer resumption
+remains unavailable. The cached
 enriched L4 pilot is complete; see [modal-head-pilot.md](modal-head-pilot.md)
 for results and interrupted-run history. The pilot task does not silently start
-the baseline variant. Compact-v3 is prepared separately at 2,048 tokens and
-needs fresh GPU qualification before launch.
+the baseline variant. Compact-v3 subsequently passed a separate 2,048-token
+qualification and completed enriched-only training; see
+[compact-enriched-training.md](compact-enriched-training.md).
 
 ```
 src/paiec/

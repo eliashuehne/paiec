@@ -1,13 +1,23 @@
 # Experiment log and ideas before fine-tuning
 
-Updated: **2026-10-22, America/Los_Angeles**.
+Updated: **2026-10-24, America/Los_Angeles**.
+
+Latest engineering result: [enriched multilingual grouped training and
+prediction](grouped-enriched-training.md) are integrated. All 34,718 training
+states are retained, with 514 multi-view examples and no task-token omissions.
+Full serialized-state parity and 614-example tokenizer-only wrapper parity pass;
+344 tests pass in both native environments and a source-only export. ZenML
+preparation completed; the enriched-only training plan and upload are verified.
+No full training, real-model inference, development scoring or new GPU job was
+launched for this integration. The user selected enriched-only; a recorded-only
+arm is not part of this prepared recipe. This is not a model-quality result.
 
 This is the working record of completed comparisons, their limitations, and
 proposed next experiments. The user requested documentation of the run review
 and brainstorming. The initial version recorded proposals only. The user then
 authorized the input-visibility and short-question experiments; their results
-are recorded below. Other proposals remain untried. No Laya fine-tuning has
-been performed.
+are recorded below. Later fine-tuning and evidence experiments are recorded in the linked guides
+and subsequent entries; the original October 22 comparisons used frozen weights.
 
 For runtime setup, see [laya-backends.md](laya-backends.md). For historical
 experiments and the canceled 10,000-input run, see
@@ -955,3 +965,142 @@ Logs: `runs/repo_cleanup_mlx_tests.log`, `runs/repo_cleanup_torch_tests.log`,
 and `runs/repo_cleanup_clean_export_tests.log`. A GitHub Actions core-check
 workflow was added; it has been inspected locally, not executed on GitHub.
 Changes are left uncommitted and unpushed for review.
+
+
+## 2026-10-23 — Compact enriched head completed on Modal
+
+The user authorized the next training experiment with the enriched variant as
+the focus. The recorded-data control remains deferred. Added an independent
+`qualify-head-pilot` execution task: same verified pilot bundle, selected
+variant, bounded physical-batch-two CUDA window and longest training inputs,
+zero optimizer steps, unchanged-weight checks and a saved JSON report. The
+compact 2,048-token L4 check passed (13.004 seconds per warmed 64-record window).
+It is not a batch-size optimization sweep. Preparation, input renderers, frozen
+roles and scientific recipe were unchanged.
+
+Enriched job `job_58c10a1eb5a54753af8b3afc0f19c855` completed one epoch,
+79 updates and 5,000 presentations from the pinned original English parent,
+FP32/TF32 off. Native preflight verified all paired inputs remotely. Final
+original-development Brier ALC: **0.2486426089**, versus constant **0.25**,
+raw original parent on the same compact enriched states **0.4140704701**,
+and the historical different-input head **0.2490801324**. Difference from the
+older trained head: -0.0004375236. This is a small exploratory gain; no matched
+recorded-data training control was run, so it does not isolate enrichment.
+Both original development families are near 0.25 (C-Eval 0.24814649, ERBench
+0.24913873); predictions span 46.52–56.04%, mean 50.27%. No label adaptation,
+calibration/confirmation scoring or supplemental development scoring occurred.
+
+The training/development/export phase took 1,151.60 seconds; median full update
+13.109 seconds. Peak sampled CUDA allocation 2.777 GB, reserved memory 3.020 GB.
+The user's 16 GB memory question concerns the worker's system RAM, separate
+from the L4's roughly 23 GB usable VRAM. Live utilization snapshots were 95–100%
+with about 3 GB used. This does not establish maximum useful GPU throughput.
+Full-corpus encoder features estimate about 20 GB before other allocations,
+and the prior cache gain came from repeated epochs; this single-pass run used
+the unchanged uncached recipe. Larger 2,048-token batches remain unmeasured.
+
+Encoder/action-head hashes stayed unchanged and decision weights changed.
+Export/reload probability drift was zero. Best checkpoint downloaded and every
+file hash, policy/catalog hash, renderer hash and one exact training render
+verified locally without new model inference. Local MLflow experiment
+`PAIEC Modal` (ID 4), FINISHED run `57987fd441494993babee451c882f1c6`;
+remote run `2f6c34e8dbfb407bb8b7b1cd777a845f`. Final app-log streaming timed
+out after computation; return code and exported verification files confirm
+success. No retry was launched. Completed app explicitly stopped; no GPU
+container remained active.
+
+Artifacts: `runs/head_finetuning/compact_pilot_v3_modal_enriched/output/`,
+including `enriched/best`, `report.html`, `enriched/performance_summary.json`,
+and `enriched/local_checkpoint_check.json`. Receipt/log:
+`runs/compact_v3_enriched_launch.json` and `.log`. The HTML report now derives
+coverage from preflight counts rather than claiming only one enriched system.
+See `docs/compact-enriched-training.md`. Integration checks: 238 tests in each
+model environment, plus all four research catalogs; no pinned renderer edits.
+
+## 2026-10-23 — Diagnose the gap to Brier ALC 0.15
+
+The user requested an engineering assessment of weak compact enriched results,
+confidence near 0.5, and encoder training. `scripts/audit_head_strategy.py`
+reproduces saved raw Brier exactly and audits original development only:
+960 system-item inputs, 963 response rows, eight pairs. Mean within-pair AUROC
+is 0.428037, versus pooled response AUROC 0.553599. Doubling deviations from
+0.5 worsens Brier from 0.248643 to 0.249164; quadrupling yields 0.255844.
+Forcing confidence is therefore unsupported by this sample.
+
+A fixed previously used beta strength k=5, using only original acquisition
+outcomes with shared allowed-profile matching, improves the saved head's ALC
+to 0.237534. The constant-0.5-plus-evidence control scores 0.239531. Both worsen
+budgets one/three on this frozen acquisition trajectory, and neither approaches
+0.15. These are postprocessing controls, not retrained checkpoint results.
+
+Two deliberately label-using diagnostics are kept separate: optimal scalar
+stretch scores 0.248596 on its fitting labels; best constant-per-scorer-pair
+fit scores 0.186602. Neither is a valid predictor/held-out result. The latter
+is not a global irreducible-noise estimate; it shows that pair-wide constants
+alone cannot reach 0.15 on this sample. Three indistinguishable allowed C-Eval
+profiles still span observed rates 25.83–83.33%.
+
+Proposed next work: synthetic/tiny-training learning checks, broaden admitted
+training-role system/task coverage, compare partial encoder adaptation against
+a matched enriched frozen-encoder control, and learn budget-dependent updates
+from disjoint support/query episodes. Preserve frozen roles and input contracts;
+invalidate frozen-encoder caches for any encoder updates. Upstream fine-tuning
+guidance and primary adaptation/ability-difficulty research are linked in
+`docs/brier-alc-strategy.md`. No new model inference, gradient training, cloud
+job, supplemental scoring or calibration/confirmation access occurred.
+
+Artifacts: `runs/head_finetuning/compact_strategy_audit_v1/report.html`,
+`summary.json`, per-pair/sharpness/evidence tables and `diagnostics.png`.
+
+## October 23: 30k enriched data, learning controls and encoder experiment
+
+User-authorized expansion uses the existing eight training benchmarks / seven
+families. All 170 candidates passed source/input admission, yielding 151,356
+unique system/item candidates. The outcome-blind balanced selection exports
+30,000 unique fitting records, 1,000 task-disjoint training-family monitor
+records and the unchanged original development (963 responses / eight pairs).
+There are 15,383 distinct normalized fitting tasks. Model/base facts reach
+28,542 fitting records and harness facts 20,236. All detected options survive;
+7,286 task/context omissions include 2,490 oversized question/user sections.
+No calibration/confirmation labels or supplemental development outcomes read.
+Full local native token/render parity passed for all 31,963 exported records.
+
+Qualification v3 passed on L4 with FP16 autocast, FP32 scorer, gradient scaling
+and within-window grouping: microbatch four / effective batch 64. Frozen /
+upper-two medians 3.437 / 3.783 seconds per 64 records; original-order FP32
+12.080 / 13.292 seconds. Larger microbatches used more VRAM but ran slower.
+Both synthetic controls reached 100% validation accuracy; tiny real training
+Brier .427079 -> .062162 frozen / .063530 upper-two. Controls discarded; these
+are machinery checks, not generalization results. BF16 candidates failed the
+numerical drift gate; v1 also failed a signed-zero-only disposable probe check
+now reproduced and covered by CPU regression. No quality metric was rewritten.
+
+Matched final experiment submitted as `job_22bab18c0ed84ae1bd90a81377078cb3`:
+identical enriched fitting inputs, seed, optimizer windows and precision; frozen
+encoder then final-two-block adaptation, one epoch / 469 updates per arm.
+Original development is scored once per fixed-epoch checkpoint; it does not
+select a checkpoint. Separate learned evidence fitting uses only training-role
+monitor queries/supports after heads complete. Guide, receipts and limitations:
+[enriched 30k and encoder training](enriched-30k-encoder.md). At this entry,
+main training is active and no new development score is available.
+
+The user subsequently requested finishing only the active run, reporting Brier
+and starting no new run. The frozen arm remains active; the queued upper-two
+arm, evidence fitting and extra inference/evaluation are deferred. An external
+controller stops the parent after the frozen arm's finished report and preserves
+its checkpoint. This changes the scope from a completed paired encoder study
+to a single 30k enriched frozen-encoder run. The original plan remains prepared,
+not automatically authorized for continuation.
+
+Completed frozen arm: 469 updates / one epoch / 30,000 records, original
+development **Brier ALC 0.2721625032** (constant .25; previous compact 5k
+.2486426089). C-Eval .2541254; ERBench .2901997. Training-family monitor
+.1686245 is not the unseen-family result. More confident development predictions
+(.2271-.8798) did not improve this score. Encoder/action bytes unchanged; native
+export/reload fixture drift zero; downloaded artifact hashes verified.
+The parent was intentionally interrupted during final logging after the finished
+arm, before any upper-two optimizer update. Local MLflow
+`9448ce30b7c34f6581900633de5ff40d` records the completed arm with the parent-stop
+distinction. GPU app stopped / zero containers. Encoder training, evidence
+fitting and extra inference/evaluation remain held. No paired encoder result
+exists. See the [full result and scope](enriched-30k-encoder.md).

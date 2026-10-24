@@ -1,0 +1,8 @@
+{
+  "version": "grouped_frozen_development_v1",
+  "prepared": "runs/grouped_development/prepared_v1",
+  "training_job_id": "job_93b4b7030f4e4a1a8911bb4faf46a462",
+  "training_output": "runs/workflows/grouped_enriched_training_v1/job",
+  "checkpoint_manifest_sha256": "a4e9a8ac4be347811896478130abd87b8e00ebb45f7a64eb9aa34bdf5fe4518c",
+  "seed": 0
+}

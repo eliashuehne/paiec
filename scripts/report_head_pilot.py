@@ -63,7 +63,12 @@ def render(directory):
         lines.append('<tr>' + ''.join('<td>' + escape(cell) + '</td>' for cell in cells) + '</tr>')
         summaries[variant] = report
     lines += ['</table>', '<p class="note">Loss is measured on training batches and is not Brier ALC. Development scores appear only after a complete pass. GPU allocation is sampled after cache cleanup; it is not a peak measurement. Update history is not a resumable checkpoint.</p>',
-              '<p>Always returning 50% gives Brier ALC 0.250000. Only two development benchmark families are covered. Model-property enrichment reaches one development system; other systems receive harness capabilities.</p>']
+              '<p>Always returning 50% gives Brier ALC 0.250000. Only two development benchmark families are covered.</p>']
+    coverage = plan.get('preflight', {}).get('checks', {}).get('development', {})
+    if all(key in coverage for key in ['responses', 'model_property_rows', 'harness_capability_rows']):
+        lines.append('<p>Prepared enriched development inputs contain model/base-family facts in '
+                     f"{coverage['model_property_rows']:,} of {coverage['responses']:,} records and harness facts in "
+                     f"{coverage['harness_capability_rows']:,} records. Missing identities remain unknown.</p>")
     if complete and comparison.get('enriched_minus_baseline') is not None:
         delta = comparison['enriched_minus_baseline']
         lines.append(f'<h2>Completed comparison</h2><p>Enriched minus baseline Brier ALC: {delta:+.6f}. Negative favors enrichment.</p>')

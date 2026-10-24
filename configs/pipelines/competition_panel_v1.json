@@ -1,0 +1,10 @@
+{
+  "version": "competition_panel_v1",
+  "source_policy": "provided_dataset_only",
+  "base_prepared": "runs/head_finetuning/enriched_30k_v1",
+  "split": "configs/head_finetuning/frozen_split_v1.json",
+  "dataset_revision": "54074453da7b9911be0f48e4c560be547bc84d21",
+  "augmentation_seed": 20261024,
+  "minimum_task_groups": 80,
+  "maximum_added_rows": 10000
+}

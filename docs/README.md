@@ -1,14 +1,27 @@
 # Documentation
 
-Start with [compact inputs and development coverage](compact-inputs-and-development.md)
-for the current prepared experiment. Preparation is complete; compact-v3 has
-not been trained. [AGENTS.md](../AGENTS.md) records active constraints, and
+For Arno's logistic regression or any model-independent reuse, start with
+[shared data and features](shared-data-start.md): data roles, portable starter
+bundle, a verified `X`/`y` loading example, grouping metadata and feature code.
+
+See [workflow organization](workflows.md) for the canonical pipeline map, commands,
+and the implemented ZenML graphs. See [data lifecycle](data-lifecycle.md) for
+dataset roles, protected versions and restorable retired previews. The workflow
+orchestration migration is implemented; no real-data training or evaluation was
+launched during the cleanup.
+
+Start with [enriched 30k and encoder training](enriched-30k-encoder.md) for the
+completed 30k frozen run and deferred follow-ups, [compact enriched training](compact-enriched-training.md)
+for the completed 5k Modal run, and [compact inputs and development
+coverage](compact-inputs-and-development.md) for its prepared data contract. [AGENTS.md](../AGENTS.md) records active constraints, and
 [CONTRIBUTING.md](../CONTRIBUTING.md) covers repository checks and versioning.
 
 ## Inputs and research data
 
 | Guide | Scope |
 | --- | --- |
+| [Laya input contract](laya-input-contract.md) | Upstream format audit, delivery of collected facts and measured multilingual 8k capacity |
+| [Multilingual qualification](multilingual-qualification.md) | Frozen 8k recipe, grouped overflow policy and bounded learning/hardware gates |
 | [Compact inputs and development](compact-inputs-and-development.md) | Current compact-v3 recipe, retained task text and missing identities |
 | [Predictor input boundary](benchmark-questions.md) | Exact permitted fields and shared question |
 | [Original input audit](input-context-audit.md) | Recorded settings and context-v1 |
@@ -22,6 +35,10 @@ not been trained. [AGENTS.md](../AGENTS.md) records active constraints, and
 
 | Guide | Scope |
 | --- | --- |
+| [Grouped enriched training](grouped-enriched-training.md) | Enriched-only multilingual trainer/predictor; launched pilot with checkpoint verification and development evaluation managed by the existing completion process |
+| [Compact enriched training](compact-enriched-training.md) | Completed enriched-only Modal run and 2,048-token qualification |
+| [Strategy toward ALC 0.15](brier-alc-strategy.md) | Saved-prediction diagnosis, fixed evidence control and proposed encoder/data experiments |
+| [Enriched 30k and encoder training](enriched-30k-encoder.md) | Expanded training data, learning controls, upper-layer comparison and L4 profiling |
 | [Fine-tuning plan](decision-head-finetuning-plan.md) | Decision head, holdouts and gates |
 | [Frozen data split](head-data-split.md) | Family roles, exports and integrity checks |
 | [Training smoke](head-training-smoke.md) | Historical bounded machinery validation |
@@ -41,6 +58,9 @@ not been trained. [AGENTS.md](../AGENTS.md) records active constraints, and
 | [Modal execution](modal.md) | Job planning, transport and cloud setup |
 | [MLflow](mlflow.md) | Tracking, metrics and artifacts |
 | [ZenML preparation](zenml.md) | Local feature pipeline, structured tables, coverage and MLflow integration |
+| [Competition pipeline](competition-pipeline.md) | Dataset-only route, training evidence diagnostics and remaining runtime requirements |
+| [Protocol panel and policy](protocol-panel-and-policy.md) | Full 170-scope coverage, nested evidence selection and locally checked candidate ZIP |
+| [Conditional control](conditional-control.md) | Whole-family negative result, portable predictor and candidate rejection checks |
 | [Task annotations](task-annotation-collection.md) | Full-input plans, offline imports, candidate coverage and quality limits |
 | [Feature evidence links](feature-evidence-links.md) | Training-only collection folds and support/query indices; no fitting |
 | [Dependency locks](../requirements/README.md) | Platform-specific environments and historical lock |

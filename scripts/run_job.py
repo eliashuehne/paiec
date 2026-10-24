@@ -16,7 +16,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--profile", default="local-mlx")
     parser.add_argument(
-        "--task", choices=["evaluate", "train-head-smoke", "train-head-pilot"], required=True
+        "--task", choices=["evaluate", "train-head-smoke", "train-head-pilot", "qualify-head-pilot", "qualify-encoder", "train-encoder", "qualify-multilingual", "train-grouped-enriched", "predict-grouped"], required=True
     )
     parser.add_argument("--suite", default="smoke")
     parser.add_argument("--seed", type=int, default=0)
@@ -28,6 +28,11 @@ def main():
     parser.add_argument("--evidence-strength", type=float, default=5.)
     parser.add_argument("--encoder-cache-gib", type=int, default=0)
     parser.add_argument("--pilot-config", default="configs/head_finetuning/enrichment_pilot_v1.json")
+    parser.add_argument("--encoder-config", default="configs/head_finetuning/enriched_30k_encoder_v1.json")
+    parser.add_argument("--qualification")
+    parser.add_argument("--multilingual-config", default="configs/head_finetuning/multilingual_qualification_v1.json")
+    parser.add_argument("--grouped-config", default="configs/head_finetuning/grouped_enriched_v1.json")
+    parser.add_argument("--grouped-prediction-config", default="configs/head_finetuning/grouped_development_v1.json")
     parser.add_argument("--variant", choices=["enriched", "baseline", "both"], default="enriched",
                         help="head pilot selection; enriched runs alone by default")
     parser.add_argument("--out", required=True)
@@ -48,6 +53,11 @@ def main():
         pilot_config=args.pilot_config,
         variant=args.variant,
         encoder_cache_gib=args.encoder_cache_gib,
+        encoder_config=args.encoder_config,
+        qualification=args.qualification,
+        multilingual_config=args.multilingual_config,
+        grouped_config=args.grouped_config,
+        grouped_prediction_config=args.grouped_prediction_config,
     )
     python = str(ROOT / profile.python) if profile.executor == "local" else "python"
     cmd = command(job, profile, python)
@@ -55,7 +65,7 @@ def main():
         raise FileExistsError("Use a new output directory")
     files = input_files(ROOT, job)
     pilot = None
-    if job.task == "train-head-pilot":
+    if job.task in {"train-head-pilot", "qualify-head-pilot"}:
         from paiec.head_pilot import load_config
         config = load_config(ROOT / job.pilot_config)
         pilot = dict(config=config.model_dump(), variants=["baseline", "enriched"] if job.variant == "both" else [job.variant],

@@ -10,7 +10,6 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
-from paiec.feature_preparation import FeaturePreparationConfig, local_path, write_json
 from paiec.zenml_pipeline import configure_environment
 
 
@@ -36,17 +35,12 @@ def main():
         print(json.dumps({"stack": client.active_stack_model.name, "store_type": client.zen_store.type.value,
                           "setup": json.loads((ROOT / "runs/zenml/setup.json").read_text())}, indent=2))
         return 0
-    config = FeaturePreparationConfig.model_validate_json((ROOT / args.config).read_text())
-    out = local_path(ROOT, args.out or ("runs/feature_pipeline/" + datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")))
-    prepared = local_path(ROOT, config.prepared)
-    if out == prepared or out.is_relative_to(prepared) or prepared.is_relative_to(out):
-        raise ValueError("Output must be separate from the immutable preparation")
-    setup_stack(ROOT)
-    out.mkdir(parents=True, exist_ok=False)
-    write_json(out / "resolved_config.json", config.model_dump())
-    from paiec.zenml_pipeline import create_pipeline
-    create_pipeline()(root=str(ROOT), config=config.model_dump(), out=str(out))
-    print(f"Feature preparation: {out / 'report.html'}")
+    from paiec.pipeline_workflows import workflow_plan, execute_workflow
+    out = args.out or ('runs/workflows/research/' + datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%S%fZ'))
+    plan = workflow_plan(ROOT, 'research', args.config, out)
+    execute_workflow(plan)
+    print(f"Feature preparation: {Path(plan['out']) / 'report.html'}")
+
     return 0
 
 

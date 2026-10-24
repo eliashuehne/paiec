@@ -1,0 +1,20 @@
+{
+  "version": "multilingual_qualification_v1",
+  "inputs": "runs/laya_inputs/collected_v3",
+  "capacity_audit": "runs/laya_inputs/collected_v3_multilingual_8192_audit",
+  "prepared": "runs/multilingual_qualification/prepared_v1",
+  "model": "multilingual",
+  "checkpoint_revision": "7b928d828b7b0e022f929d9bd2e44165aa270148",
+  "max_len": 8192,
+  "head_max_len": 256,
+  "overlap_tokens": 128,
+  "seed": 0,
+  "upper_layers": 2,
+  "learning_rate": 0.0003,
+  "encoder_learning_rate": 0.00001,
+  "weight_decay": 0.01,
+  "grad_clip": 1.0,
+  "synthetic_updates": 80,
+  "real_updates": 60,
+  "max_views": 32
+}

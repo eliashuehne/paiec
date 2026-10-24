@@ -1,5 +1,8 @@
 # Enriched head pilot on Modal
 
+This guide records the earlier enriched-v1 pilot. The subsequent compact-v3
+enriched head completed separately; see [compact enriched training](compact-enriched-training.md).
+
 Prepared 2026-10-22 at the user's request. **The local run is stopped. The user
 subsequently authorized the first cloud launch.** The submitted job selects **enriched alone**;
 baseline is available separately. No automatic second run or retry is scheduled.

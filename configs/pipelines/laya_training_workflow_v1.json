@@ -1,0 +1,11 @@
+{
+  "version": "laya_execution_workflow_v1",
+  "profile": "modal-l4-pilot",
+  "job": {
+    "task": "train-head-pilot",
+    "out": "runs/workflows/training/NEW/job",
+    "seed": 0,
+    "pilot_config": "configs/head_finetuning/compact_pilot_v3.json",
+    "variant": "enriched"
+  }
+}

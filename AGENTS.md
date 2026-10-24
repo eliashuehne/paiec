@@ -2,14 +2,208 @@
 
 ## Start here
 
+2026-10-24 CURRENT GROUPED RESULT: training completed all 543 updates / 34,718
+examples in 6,239.54 seconds. Native export/reload max probability drift
+0.0000275824, exact token parity passed, frozen parameters unchanged. Checkpoint
+is downloaded and all artifact/renderer hashes verify locally at
+`runs/workflows/grouped_enriched_training_v1/job/output/final/` (manifest SHA
+`a4e9a8ac4be347811896478130abd87b8e00ebb45f7a64eb9aa34bdf5fe4518c`).
+The original completion helper exited BEFORE evaluation because Modal returns
+code 1 for an already-stopped app. App `ap-wnqQfjWc36PqoccJN3lkO9` was verified
+stopped with zero tasks/containers. Cleanup is now idempotent and regression
+tested. Original failure/logs are retained; training was not restarted.
+The already-authorized FIRST original-development workflow was then launched
+once at `runs/workflows/grouped_development_v1/`, ZenML
+`eea88677-2242-4e09-ae7f-aa969723d7f4`; inspect its log/receipts for CURRENT status.
+Recovery receipt/PID is in `runs/workflows/grouped_pilot_completion_v1/recovery_receipt.json`;
+the old completion process is no longer active. Do not duplicate evaluation.
+
+Arno's model-independent handoff: `docs/shared-data-start.md` and the README
+link explain tables, shared split boundaries, 467 numeric/text features and
+research-only enrichment. Generated `runs/shared_data/arno_v1.tar.gz` is a
+separate portable handoff (34,718 rows, 467 columns, raw training targets and
+training-family/task grouping metadata; no fitted weights or nontraining
+outcomes). It is Git-ignored. Its feature matrix was regenerated from the
+current source encoder; older analysis matrices retain historical hashes.
+
+2026-10-24 NEW USER AUTHORIZATION: user approved the enriched-only one-epoch
+grouped pilot, checkpoint verification and one original-development evaluation.
+Training launched through ZenML `77bc46d6-9a22-4aba-a734-f10310eb33bb`, Modal
+`job_93b4b7030f4e4a1a8911bb4faf46a462`, app `ap-wnqQfjWc36PqoccJN3lkO9`,
+call `fc-01M5QWJF769X4SARQXCAM93CVJ`. Remote MLflow training run
+`832f1fb44be94ae9bf0aa7b6f10d185e`. One epoch / 543 planned updates; initial
+observed updates are running. This is the multilingual upper-two recipe, not
+a restart of any stopped English run. Do not launch a duplicate.
+Inspect `runs/zenml/grouped_enriched_training_v1_launch.json`,
+`runs/workflows/grouped_enriched_training_v1/native_job.log` and
+`runs/workflows/grouped_pilot_completion_v1/status.json` for CURRENT status.
+A separate durable completion process is already waiting (launch receipt
+`runs/zenml/grouped_completion_v1_launch.json`): it recovers/verifies the exact
+checkpoint, executes ONE outcome-free GPU prediction/local-scoring workflow on
+the original 963 responses / 960 items / eight pairs, then stops both GPU apps.
+It never launches/restarts training or retries failed stages. Deferred stages
+can be canceled using `STOP_AFTER_TRAINING` in the training workflow directory
+or `CANCEL` in the completion directory; this does not stop active training.
+Do not manually duplicate its evaluation. New evaluation configs are generated
+only after the completed checkpoint digest exists. Expected scoring result:
+`runs/workflows/grouped_development_v1/scores/report.json`.
+Calibration/confirmation/supplemental development remain unused. Labels for
+development stay in local `runs/grouped_development/prepared_v1/scoring.jsonl`;
+only published subject/item requests go to inference. 351 tests pass per native
+environment after evaluation/completion integration. Training loss is not Brier
+or accuracy; no completed quality result exists at launch. The earlier notes
+below saying no full grouped launch describe the preceding preparation stage.
+
+2026-10-24 grouped enriched integration is IMPLEMENTED, not trained. User chose
+enriched-only and authorized trainer/inference wiring. Use
+`configs/head_finetuning/grouped_enriched_v1.json`, the preparation/training
+ZenML recipes with the same prefix, and `docs/grouped-enriched-training.md`.
+Offline `runs/grouped_enriched/prepared_v1/tokens/` retains all 34,718 fitting
+records (7 families/170 scopes); 514 are multi-view, maximum six, zero task-token
+omissions. Training and prediction share the unchanged qualified encoder,
+weighted-logit aggregation and bundled seven-table feature snapshot. All
+training states match the original serialized states; native synthetic
+export/reload and weighted-gradient tests pass. 344 tests pass per native
+environment. ZenML preparation `c6c12be2-486b-45ce-b840-67fa2ceb955b`, MLflow
+`49d27161ae6946a19048b23ddbc8f9ca`. Explicit new loader:
+`paiec.grouped_predictor.make_grouped_laya_predictor`; Torch/multilingual only,
+strict local grouped-checkpoint contract, raw uncalibrated grouped softmax,
+no revealed evidence. Historical factories/renderers remain unchanged.
+The one-epoch upper-two training task is plan/transport-verified only. No real
+model weights were loaded for preparation, no GPU/full training/development
+scoring was launched, and no new grouped checkpoint exists. Do not execute
+that training plan without new authorization. Earlier stop boundaries persist.
+
+2026-10-24 multilingual qualification is COMPLETE, not a full pilot. The user
+authorized it after the input-contract review. Recipe
+`configs/head_finetuning/multilingual_qualification_v1.json`, preparation
+`runs/multilingual_qualification/prepared_v1/`, ZenML
+`935ae3ea-5745-4fe8-b076-d12c023c1234`, Modal
+`job_6f3ff7c62b2e4891a1ea37e37c66ab46`: both frozen and upper-two policies passed
+8k/grouped capacity, FP16/FP32 gradients, disposable learning and native reload
+checks in 318.47s. Full original task-token coverage uses at most six views;
+514 training/17 monitor records use multiple views and none are dropped.
+Loss is aggregated once per original example, with RNG-replayed bounded-memory
+backward. This does not guarantee reasoning across windows. Artifacts:
+`runs/workflows/multilingual_qualification_v1/job/output/qualification.json`;
+MLflow `88fc2c14313c4062938ecea27b668879` FINISHED, app stopped, no GPU containers.
+333 tests pass per native environment and in a source-only export. See
+`docs/multilingual-qualification.md`. No full pilot/development scoring/revealed
+evidence training occurred. Do not restart or duplicate this probe or the older
+stopped jobs. The next pilot needs matched task partitions and a grouped native
+training/inference contract; the historical English trainer remains unchanged.
+
+2026-10-24 workflow/data cleanup: use `scripts/run_pipeline.py` and
+`docs/workflows.md` as the canonical orchestration map. Research, dataset-only
+preparation, evidence selection, native training/execution, and validation/release
+all have ZenML graphs. Plans are the default; no real training/evaluation/cloud
+job was launched by the migration. Existing stop boundaries below still apply.
+`configs/data/data_versions_v1.json` defines retained data roles. Three explicitly
+superseded, untrained compact working previews were byte-verified and compressed
+under `runs/data_retirement/workflow_migration_v1/`; use `scripts/manage_data.py`
+to restore them. Release inputs, checkpoints, frozen roles and source tables
+remain unchanged. See `docs/data-lifecycle.md`. Further Laya training needs a
+newly reviewed scientific recipe; the workflow's example enriched-5k recipe is
+not a new experiment authorization or competition-eligibility claim.
+
 Repository layout, checks and versioning: `CONTRIBUTING.md`; documentation index:
 `docs/README.md`. Dependency locks now live in `requirements/`; the old dated
 `memory/` notes are archived in `docs/history/`. Preserve hash-pinned renderer
 paths and immutable recipes when reorganizing unrelated project files.
 
-Latest: `docs/compact-inputs-and-development.md`. `compact_v3` /
+Latest 2026-10-23 result: the expanded **30k enriched frozen-encoder head**
+completed one epoch / 469 optimizer updates. Original-development Brier ALC
+**0.2721625032**, worse than constant .25 and previous compact-5k .2486426089.
+Training-family question-held-out monitor Brier .1686245; this is not unseen-family
+performance. Encoder/action-head hashes unchanged, decision weights changed,
+export/reload fixture drift zero. Raw predictions ignore revealed outcomes.
+Only this arm completed; **no encoder-adaptation quality result exists**.
+
+USER STOP BOUNDARY: while frozen training was active, user requested its Brier
+when finished and no new run. The queued upper-two encoder arm, evidence fitting,
+additional inference/evaluation and GPU jobs are held until new authorization.
+An external controller interrupted the parent immediately after frozen/report.json
+said finished, during final metric logging. Zero upper-encoder optimizer updates;
+no upper_2 directory/checkpoint. Do not restart the parent or complete deferred
+stages automatically. GPU app stopped; container inventory is empty.
+
+Job `job_22bab18c0ed84ae1bd90a81377078cb3`, app
+`ap-rHJVtBX7GZkIrPKrUYtC9d`, call `fc-01M5N6ENR8NGHG800W9HKSQNR1`.
+Parent return code -2 reflects the user stop after the completed arm, not failed
+training. Output/report/checkpoint:
+`runs/head_finetuning/enriched_30k_encoder_training_v1/output/frozen/`.
+All downloaded checkpoint hashes verified, identity
+`local-8821de1fd7271a91cd46c139fe56593730a5ad8ea5f84c7a980e371070c255db`.
+Local MLflow `9448ce30b7c34f6581900633de5ff40d` is FINISHED after completing
+final metric logging from verified saved artifacts; original cloud status was
+KILLED during logging. Parent interruption and status basis are tagged, with
+`completed_frozen_tracking_receipt.json` retaining the distinction.
+Guide: `docs/enriched-30k-encoder.md`. Stop intent/outcome:
+`runs/enriched_30k_stop_after_frozen_v1.log` and job output
+`user_stop_after_frozen.json`. No local native inference was added after the stop
+instruction; only saved-score reporting and checkpoint hashes were checked.
+
+Prepared bundle `runs/head_finetuning/enriched_30k_v1/`: 30,000 unique system/item
+fitting records from 170 pairs, 15,383 normalized tasks, 1,000 task-disjoint
+training-family monitor records, unchanged 963 original-development responses /
+960 system-items / eight pairs. Model/base facts reach 28,542 training records;
+harness facts 20,236. All detected options retained; 7,286 task/context omissions
+include 2,490 oversized question/user sections. Full native Torch token/render
+checks passed; hashed tokens prepared locally. Calibration/confirmation and
+supplemental development outcomes remain unused. Breadth/script diagnostics:
+`runs/head_finetuning/enriched_30k_data_diagnostics_v1/`.
+
+Qualification v3 PASSED on L4: FP16 autocast, FP32 scorer, gradient scaling,
+within-window length grouping, microbatch four / effective batch 64. Measured
+64-record windows: 3.437 seconds frozen / 3.783 upper-two versus 12.080 / 13.292
+original-order FP32. Max fixture probability drift .003625, mean .000394;
+longest-input and sampled-gradient gates pass. Bigger batches were slower;
+BF16 exceeded the drift gate. Disposable learning controls passed, then were
+discarded; these do not establish generalization. Qualification apps stopped.
+Report: `runs/head_finetuning/enriched_30k_qualification_v3/output/qualification.json`.
+Main median update 3.354 seconds, peak CUDA allocation 2.773 GiB, process RSS
+9.621 GiB, training/scoring/export phase 28.146 minutes. Main profile requests
+L4, two cores, 10 GiB host RAM. Memory occupancy is not the speed objective.
+
+Upper-two training and separate learned evidence code are implemented/prepared,
+not completed. The latter uses training-only monitor queries/supports, preserving
+budget zero and checkpoint binding; it has not been fitted. Selective development
+loader verifies frozen table hashes and materializes outcomes only for the
+original scored items / eligible revealed prefix. Historical renderer/recipe
+contracts are unchanged. Native Torch/MLX checkpoint-check script is prepared
+but was not run after the stop instruction. 248 unit tests pass in each native
+environment (12 MLX skips, one Torch skip), with catalogs validated.
+
+Latest execution: `docs/compact-enriched-training.md`. The user authorized the
+enriched-only compact-v3 run on Modal on 2026-10-23 after a successful bounded
+2,048-token L4 probe. Job `job_58c10a1eb5a54753af8b3afc0f19c855`, detached call
+`fc-01M5MSWBXW80BBK8Y9B9FTP0SB`. Completed one epoch / 79 updates, Brier ALC
+0.24864261; constant 0.25, raw
+parent on the same inputs 0.41407047. Recorded-data control deferred. Inspect
+`runs/compact_v3_enriched_launch.json` and `.log`; do not duplicate it. Best
+checkpoint is downloaded in `runs/head_finetuning/compact_pilot_v3_modal_enriched/output/enriched/best`.
+All file/contract hashes and exact render parity verified, native reload drift
+zero, encoder/action-head unchanged. MLflow local `57987fd441494993babee451c882f1c6`
+is FINISHED; app stopped and no GPU container active. Small exploratory gain,
+not isolated enrichment evidence; predictions remain near 50%.
+238 tests pass in each model environment after qualification-task integration.
+
+Latest assessment: `docs/brier-alc-strategy.md`. Saved compact-head predictions
+have mean within-pair AUROC 0.428; doubling confidence deviations worsens Brier
+to 0.249164. Fixed untuned beta-k=5 revealed-evidence control scores ALC
+0.237534, with worse budgets one/three. The 0.186602 best constant-per-pair fit
+uses evaluation labels/private scorer IDs: diagnostic only, never a predictor
+or a global noise floor. Artifacts: `runs/head_finetuning/compact_strategy_audit_v1/`.
+That assessment proposed broader enriched training, partial encoder adaptation
+and budget-aware episodes; the subsequent active work above implements and
+launches the first two and prepares a separate numeric episode correction.
+No new inference, GPU job or sealed-set access occurred during the assessment
+itself.
+
+Prepared input details: `docs/compact-inputs-and-development.md`. `compact_v3` /
 `compact_enriched_v3` are prepared at 2,048 tokens using
-`configs/head_finetuning/compact_pilot_v3.json`; **no training launched**.
+`configs/head_finetuning/compact_pilot_v3.json`; the enriched run is now complete
+as described above.
 Use `paiec.predictor_factory.make_laya_predictor` for these formats. Old pinned
 renderer sources remain unchanged. Prepared inputs:
 `runs/head_finetuning/compact_pilot_v3_release/`; earlier compact working previews
@@ -24,9 +218,11 @@ paper/code evidence. Actual private fine-tuned targets stay unbound. Four extra
 development systems have separate question-only inputs (480 evaluation / 160
 acquisition) in `runs/head_finetuning/development_identity_review_v3_release_final/`;
 no outcomes were loaded/scored. Preserve original evaluation/frozen roles.
-237 tests pass in each model environment and a source-only core export after
-repository cleanup. Earlier full native Torch token/render preflight is unchanged.
-No new quality result, sealed-set access or GPU performance qualification follows.
+The earlier repository cleanup passed 237 tests and a source-only core export;
+current suites pass 238 tests. Compact-v3 native preflight and bounded CUDA
+qualification now pass as described above. Calibration/confirmation and the
+separate developmental supplement remain unscored. Later 30k qualification measured batch/precision throughput; see the active
+work above.
 
 Read `docs/laya-backends.md` for the current interchangeable runtimes and
 validation, and `docs/project-status.md` for the earlier handoff, important

@@ -7,17 +7,57 @@ head fine-tuning experiments for the
 [Predictive AI Evaluation Competition](https://aims.stanford.edu/competition).
 The organizers' reference implementation is the pinned `baseline/` submodule.
 
+Use the [workflow map](docs/workflows.md) for the canonical ZenML commands and
+[data lifecycle](docs/data-lifecycle.md) for retained datasets and archived
+previews. `scripts/run_pipeline.py WORKFLOW` prints a plan; `--execute` is the
+explicit launch action. Training, assessment and release are separate workflows.
+
+## Reuse the data for another model
+
+For Arno's logistic regression or another statistical model, start with
+[shared data and features](docs/shared-data-start.md). It covers the reusable
+34,718-row dataset, a ready-to-load 467-feature matrix, labels, grouping/splits
+and optional research enrichment. The portable starter bundle is available
+locally as `runs/shared_data/arno_v1.tar.gz`; generated data is Git-ignored and
+must be transferred separately. Reading it needs only the core Python package,
+with no Laya weights, GPU or native model runtime.
+
 ## Current work
 
-The latest prepared experiment compares recorded inputs (`compact_v3`) with
-the same tasks plus sourced model/harness facts (`compact_enriched_v3`), at
-2,048 tokens. **It has not been trained.** See
+The enriched-only multilingual grouped trainer and checkpoint-bound predictor
+are implemented. Offline preparation retains all **34,718 training examples**,
+including 514 long examples split into complete overlapping views. The shared
+8,192-token contract passed bounded qualification; integration and input-parity
+checks pass. **The user-authorized one-epoch grouped pilot has been launched**;
+its existing completion process handles checkpoint verification and one
+original-development evaluation. Check `runs/workflows/grouped_pilot_completion_v1/status.json`
+and the [training guide](docs/grouped-enriched-training.md) before starting any
+job; do not duplicate this run. See
+[grouped enriched training](docs/grouped-enriched-training.md) for the prepared
+data, ZenML routes and explicit inference loader.
+
+The expanded **30,000-record enriched head** completed one epoch with the
+encoder frozen. Original-development Brier ALC is **0.272163**, worse than the
+constant-50% baseline of 0.25 and the earlier compact head. The planned upper-two
+encoder comparison and separate evidence correction are prepared and **held at
+the user's request**; no further run should start automatically. The completed
+checkpoint is downloaded and verified; GPU containers are stopped. See the
+[30k workflow and result](docs/enriched-30k-encoder.md) for scope, checks and
+measured resource settings.
+
+The earlier 5,000-record experiment compared prepared recorded inputs
+(`compact_v3`) with the same tasks plus sourced model/harness facts (`compact_enriched_v3`), at
+2,048 tokens. **The enriched head completed one epoch; the recorded-data control
+is deferred.** Its development Brier ALC is **0.248643**, a small improvement
+over the constant baseline of 0.25. See
+[completed enriched training](docs/compact-enriched-training.md) and
 [compact inputs and development coverage](docs/compact-inputs-and-development.md)
 for the recipe, actual information delivery, and remaining missing identities.
 
 An earlier enriched head completed training and scored **0.249080 Brier ALC**
 on the original development set; a separate update using revealed labels scored
-**0.238145** on its saved predictions. Neither is a result for compact-v3.
+**0.238145** on its saved predictions. Those earlier results use a different
+input contract; neither isolates the benefit of compact-v3 enrichment.
 Always predicting 50% gives **0.25**; lower is better. See
 [training results](docs/modal-head-pilot.md) and
 [the evidence control](docs/task-feature-pipeline.md).
@@ -69,9 +109,10 @@ dispatching it; this command does not allocate a GPU:
 ```
 
 Head recipes live in `configs/head_finetuning/`. Preparation, preflight and
-training are separate steps; training requires `--train`. Existing prepared
+training are separate steps. Historical pilots require `--train`; the new
+encoder launcher requires an exact saved qualification report. Existing prepared
 directories and checkpoints are immutable. Use the
-[current compact workflow](docs/compact-inputs-and-development.md) rather than
+[current 30k workflow](docs/enriched-30k-encoder.md) rather than
 restarting a historical interrupted run or overwriting its output.
 
 ## Repository map

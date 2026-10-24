@@ -1,0 +1,5 @@
+{
+  "version": "grouped_enriched_preparation_workflow_v1",
+  "recipe": "configs/head_finetuning/grouped_enriched_v1.json",
+  "native_python": ".venv-laya/bin/python"
+}

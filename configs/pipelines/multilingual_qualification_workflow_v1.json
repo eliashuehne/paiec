@@ -1,0 +1,10 @@
+{
+  "version": "laya_execution_workflow_v1",
+  "profile": "modal-l4-multilingual-qualify",
+  "job": {
+    "task": "qualify-multilingual",
+    "out": "runs/workflows/multilingual_qualification/NEW/job",
+    "seed": 0,
+    "multilingual_config": "configs/head_finetuning/multilingual_qualification_v1.json"
+  }
+}

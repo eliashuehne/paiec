@@ -1,0 +1,10 @@
+{
+  "version": "laya_execution_workflow_v1",
+  "profile": "modal-l4-grouped-evaluation",
+  "job": {
+    "task": "predict-grouped",
+    "out": "runs/workflows/grouped_development_v1/job",
+    "seed": 0,
+    "grouped_prediction_config": "configs/head_finetuning/grouped_development_v1.json"
+  }
+}

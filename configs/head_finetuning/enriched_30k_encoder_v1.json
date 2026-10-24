@@ -1,0 +1,14 @@
+{
+  "prepared": "runs/head_finetuning/enriched_30k_v1",
+  "seed": 0,
+  "epochs": 1,
+  "samples": 30000,
+  "effective_batch": 64,
+  "upper_layers": 2,
+  "learning_rate": 0.0001,
+  "encoder_learning_rate": 0.00001,
+  "weight_decay": 0.01,
+  "grad_clip": 1.0,
+  "max_len": 2048,
+  "head_max_len": 192
+}

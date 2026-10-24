@@ -18,7 +18,9 @@ class PilotPlanTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temporary:
             directory = Path(temporary)
             (directory / "run_plan.json").write_text(json.dumps(dict(variants=["enriched"],
-                config=dict(device="cuda", samples=5000, epochs=4, micro_batch=2, accumulation=32))))
+                config=dict(device="cuda", samples=5000, epochs=4, micro_batch=2, accumulation=32),
+                preflight=dict(checks=dict(development=dict(responses=963, model_property_rows=603,
+                                                           harness_capability_rows=963))))))
             (directory / "comparison.json").write_text(json.dumps(dict(runs=[dict(variant="enriched")],
                 enriched_minus_baseline=None)))
             self.assertFalse(render(directory))
@@ -27,6 +29,8 @@ class PilotPlanTests(unittest.TestCase):
             self.assertIn("PyTorch/CUDA", html)
             self.assertIn("Selected variants: enriched.", html)
             self.assertNotIn("Enriched minus baseline", html)
+            self.assertIn("603 of 963 records", html)
+            self.assertNotIn("one development system", html)
 
     def test_budget_and_last_partial_window_cover_each_record_once(self):
         config = HeadPilotConfig()

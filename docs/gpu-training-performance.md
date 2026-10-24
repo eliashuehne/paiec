@@ -1,5 +1,10 @@
 # L4 training performance probes
 
+For the current 30k upper-encoder experiment and its separate qualification,
+see [the expanded-training guide](enriched-30k-encoder.md). The measurements
+below retain their historical recipe/context and must not be treated as current
+encoder-training throughput.
+
 Measured 2026-10-22 during the first enriched Modal pilot, at the user's request.
 The actual GPU is NVIDIA L4, not T4. Training remains on the existing FP32
 recipe. No optimizer updates or scientific configuration changes were applied
@@ -98,3 +103,54 @@ Reusable probe: `scripts/benchmark_head_batches.py` (optional `--tf32` or
 `runs/modal_batch_benchmark_cache.log`. Structured audit:
 `runs/modal_gpu_utilization_audit.json`. These are performance probes, not
 training-quality runs. The separate probe never modifies the active model.
+
+
+## 2026-10-23 — Compact enriched 2,048-token qualification
+
+The user authorized enriched-only training. A separate L4 qualification job
+(`job_f5095d9c721e465c87dd6571fea14830`) first tested the verified compact-v3
+recipe at 2,048 tokens, batch two / accumulation 32, FP32 and TF32 off. It
+passed the mixed 64-record window and longest-input batch; one warmed window
+took 13.004 seconds. Peak allocated memory was 2.57 GB and reserved 2.71 GB.
+All model-module hashes stayed unchanged, with zero optimizer steps. This is
+one bounded window, not an optimized batch-size sweep or full-run speed result.
+Report: `runs/head_finetuning/compact_pilot_v3_modal_qualification/output/qualification.json`.
+
+The subsequent enriched run uses the existing uncached one-epoch recipe.
+Early live updates reserve about 3.02 GB (the device reports 3,129 MiB used)
+with roughly 95–100% GPU utilization in snapshots. Utilization is not proof of
+maximum useful throughput. The Modal worker's 16 GiB system RAM allocation is
+separate from the L4's roughly 23 GB usable GPU memory. Low memory occupancy
+alone does not establish that computation is idle.
+
+At this context size, a simple full-corpus FP32 encoder-feature estimate is
+18.99 GB training plus 1.02 GB development, before model/optimizer/temporary
+buffers; it does not account for duplicate token sequences. This one-epoch run
+cannot obtain the previous multi-epoch cache reuse benefit. No full cache,
+larger physical batch, TF32 or mid-run recipe change was introduced.
+
+Larger 2,048-token batches and within-window encoder precomputation remain
+unmeasured optimization ideas. They require retained-token, probability,
+gradient and RNG checks, plus actual throughput measurement. The earlier
+1,024-token sweep does not establish the fastest current batch size.
+
+
+The compact enriched run subsequently completed 79 updates / one epoch. Median
+full-window time was 13.109 seconds, total optimizer-window time 1,021.10 seconds,
+and training/development/export phase 1,151.60 seconds. Peak sampled allocation
+was 2.777 GB; maximum reserved memory 3.020 GB. CUDA reload probability drift
+was zero. Development Brier ALC was 0.24864261, a small improvement over 0.25.
+See [completed compact training](compact-enriched-training.md). The completed
+app was stopped and no GPU container remained active at verification.
+
+## Expanded 30k frozen arm (2026-10-23)
+
+The new qualified FP16/FP32-scorer, length-grouped microbatch-four path completed
+469 updates: median 3.354 seconds/update, peak device allocation 2.773 GiB,
+process RSS 9.621 GiB. Training/scoring/export took 28.146 minutes; setup and
+initial monitor inference are additional. The outcome is Brier ALC .272163,
+worse than .25, so faster execution is not an accuracy improvement. The user
+held the queued encoder arm and further runs; no encoder speed/quality training
+comparison followed. Qualification-only upper-block probes are distinct.
+Checkpoint/report and numerical gates: [30k workflow](enriched-30k-encoder.md).
+GPU app stopped; no active container.

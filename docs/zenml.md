@@ -1,5 +1,15 @@
 # ZenML feature preparation and MLflow
 
+For the full workflow map, including separate competition data and candidate
+selection graphs, see [workflow organization](workflows.md). This guide describes
+the research feature-preparation graph specifically.
+
+Resumed competition work (2026-10-24): the separate
+[dataset-only competition route](competition-pipeline.md) prepares original
+supplied fields and isolated training targets without the external profile
+catalog or teacher annotations. The graph below remains the research path;
+its collected web metadata must not silently enter a competition artifact.
+
 Commit checkpoint, 2026-10-23: offline collection machinery is ready for review;
 the full feature dataset is incomplete. All scoped metadata fields have source
 reviews, but only 14 of 16,909 tasks have candidate annotations and none has an

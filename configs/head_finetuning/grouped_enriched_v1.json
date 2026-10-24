@@ -1,0 +1,23 @@
+{
+  "version": "grouped_enriched_training_v1",
+  "source_policy": "research_only",
+  "inputs": "runs/laya_inputs/collected_v3",
+  "input_manifest_sha256": "5c7d46b2bab1ddd729b7b448a7bdf7ff7851ab8ce67711c9c8377041f134bc9b",
+  "dataset": "runs/competition_pipeline/protocol_panel_v2",
+  "prepared": "runs/grouped_enriched/prepared_v1/tokens",
+  "qualification": "runs/workflows/multilingual_qualification_v1/job/output/qualification.json",
+  "qualification_sha256": "2b6b8c2406dc2ceb36a72ef72c4daf28ff29a7743c453d2cf6e147b7691d762a",
+  "model": "multilingual",
+  "max_len": 8192,
+  "head_max_len": 256,
+  "overlap_tokens": 128,
+  "max_views": 32,
+  "upper_layers": 2,
+  "seed": 0,
+  "epochs": 1,
+  "effective_batch": 64,
+  "learning_rate": 0.0001,
+  "encoder_learning_rate": 0.00001,
+  "weight_decay": 0.01,
+  "grad_clip": 1.0
+}

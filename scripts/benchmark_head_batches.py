@@ -21,23 +21,32 @@ def main():
     parser.add_argument("--pause-pid", type=int)
     parser.add_argument("--tf32", action="store_true", help="probe TF32 matmul with FP32 stored weights")
     parser.add_argument("--cache-encoder", action="store_true", help="prototype GPU feature caching for the frozen encoder")
+    parser.add_argument("--pilot-config", default="configs/head_finetuning/enrichment_pilot_v1.json")
+    parser.add_argument("--variant", choices=["baseline", "enriched"], default="enriched")
+    parser.add_argument("--micro-batches", nargs="+", type=int, choices=[2, 8, 16, 32, 64],
+                        help="bounded original-order sizes; omit for the historical full sweep")
+    parser.add_argument("--download-parent", action="store_true")
+    parser.add_argument("--out", type=Path, help="fresh JSON report; no model weights are saved")
     args = parser.parse_args()
     root = args.root.resolve()
     sys.path.insert(0, str(root / "src"))
     import torch
     import pandas as pd
     from laya.train import load_checkpoint, items_from_rows, encode_item, _forward
-    from paiec.head_pilot import load_config, read_rows, epoch_windows, pair_weights
+    from paiec.head_pilot import load_config, read_rows, epoch_windows, pair_weights, verify_prepared
     from paiec.head_pilot_training import cached_parent, collate_pilot
-    from paiec.head_training import freeze_for_head, weighted_ce
+    from paiec.head_training import freeze_for_head, weighted_ce, tensor_hashes, file_hash
 
     if not torch.cuda.is_available():
         raise RuntimeError("This benchmark requires an existing CUDA worker")
-    config = load_config(root / "configs/head_finetuning/enrichment_pilot_v1.json")
-    prepared = root / config.prepared
-    manifest = json.loads((prepared / "manifest.json").read_text())
-    rows = read_rows(prepared / "enriched/training.jsonl")
-    frame = pd.read_parquet(prepared / "enriched/provenance.parquet")
+    if args.out and args.out.exists():
+        raise FileExistsError("Qualification output already exists")
+    config = load_config(root / args.pilot_config)
+    prepared, manifest = verify_prepared(root, config)
+    if config.effective_batch != 64:
+        raise ValueError("This probe qualifies an effective batch of 64")
+    rows = read_rows(prepared / args.variant / "training.jsonl")
+    frame = pd.read_parquet(prepared / args.variant / "provenance.parquet")
     frame = frame[frame.role.eq("training")].sort_values("jsonl_line").reset_index(drop=True)
     selected = epoch_windows(len(rows), config.effective_batch, config.seed, 0)[0]
     longest = frame.state_tokens.nlargest(config.effective_batch).index.tolist()
@@ -63,8 +72,9 @@ def main():
             os.kill(args.pause_pid, signal.SIGSTOP)
             paused = True
         signal.alarm(180)
-        parent = cached_parent(manifest["checkpoint_revision"])
+        parent = cached_parent(manifest["checkpoint_revision"], allow_download=args.download_parent)
         model, tok, _ = load_checkpoint(str(parent))
+        before = tensor_hashes(model)
         model.to("cuda")
         freeze_for_head(model)
         items, skipped = items_from_rows(tok, [rows[i] for i in selected], config.max_len, config.head_max_len)
@@ -124,7 +134,7 @@ def main():
             overhead = config.max_len-manifest["state_room"]
             estimates = {}
             for role in ["training","development"]:
-                sidecar = pd.read_parquet(prepared / "enriched/provenance.parquet")
+                sidecar = pd.read_parquet(prepared / args.variant / "provenance.parquet")
                 selected_rows = sidecar[sidecar.role.eq(role)]
                 tokens = sum(min(config.max_len, int(n)+overhead) for n in selected_rows.state_tokens)
                 estimates[role] = tokens * model.encoder.config.hidden_size * 4
@@ -176,7 +186,9 @@ def main():
             return result
 
         window(2)  # Warm-up excluded from measurements.
-        for micro_batch, sorted_lengths in [(2, False), (8, False), (8, True), (16, True), (32, True), (64, False)]:
+        sweep = ([(n, False) for n in args.micro_batches] if args.micro_batches else
+                 [(2, False), (8, False), (8, True), (16, True), (32, True), (64, False)])
+        for micro_batch, sorted_lengths in sweep:
             try:
                 result = window(micro_batch, sorted_lengths)
                 # A longest-input batch tests capacity beyond the timed mixed window.
@@ -197,12 +209,26 @@ def main():
                 torch.cuda.empty_cache()
                 break
             print(json.dumps(results[-1]), flush=True)
+        after = tensor_hashes(model)
+        if before != after:
+            raise RuntimeError("Qualification changed model weights")
         report = dict(status="finished", gpu=torch.cuda.get_device_name(), precision="float32; TF32 " + ("on" if args.tf32 else "off"),
             effective_batch=64, timing_windows=1, optimizer_updates_applied=0,
+            variant=args.variant, max_len=config.max_len, config=config.model_dump(),
+            prepared_manifest_sha256=file_hash(prepared / "manifest.json"),
+            parent_weights_sha256=file_hash(parent / "model.safetensors"),
+            tensor_hashes_before=before, tensor_hashes_after=after,
+            gpu_total_bytes=torch.cuda.get_device_properties(0).total_memory,
+            all_requested_batches_passed=all(row.get("status") != "out_of_memory" for row in results),
             probability_check=probability_check,
             encoder_cache=cache_info,
             records="first frozen training window; longest-input capacity probes", results=results)
         print("BATCH_BENCHMARK_RESULT=" + json.dumps(report), flush=True)
+        if args.out:
+            args.out.parent.mkdir(parents=True, exist_ok=True)
+            args.out.write_text(json.dumps(report, indent=2) + "\n")
+        if args.micro_batches and not report["all_requested_batches_passed"]:
+            raise RuntimeError("Requested GPU batch did not fit; training is not qualified")
     finally:
         signal.alarm(0)
         if paused:

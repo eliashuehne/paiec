@@ -1,0 +1,11 @@
+{
+  "version": "laya_execution_workflow_v1",
+  "profile": "modal-l4-grouped-enriched",
+  "job": {
+    "task": "train-grouped-enriched",
+    "out": "runs/workflows/grouped_enriched_training/NEW/job",
+    "seed": 0,
+    "variant": "enriched",
+    "grouped_config": "configs/head_finetuning/grouped_enriched_v1.json"
+  }
+}

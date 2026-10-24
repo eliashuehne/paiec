@@ -1,0 +1,9 @@
+{
+  "version": "collected_inputs_v3",
+  "source_policy": "research_only",
+  "prepared": "runs/competition_pipeline/protocol_panel_v2",
+  "features": "runs/feature_pipeline/offline_evidence_preparation_v1",
+  "max_len": 2048,
+  "head_max_len": 192,
+  "native_python": ".venv-laya/bin/python"
+}
