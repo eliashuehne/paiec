@@ -41,6 +41,8 @@ not been trained. [AGENTS.md](../AGENTS.md) records active constraints, and
 | [Modal execution](modal.md) | Job planning, transport and cloud setup |
 | [MLflow](mlflow.md) | Tracking, metrics and artifacts |
 | [ZenML preparation](zenml.md) | Local feature pipeline, structured tables, coverage and MLflow integration |
+| [Task annotations](task-annotation-collection.md) | Full-input plans, offline imports, candidate coverage and quality limits |
+| [Feature evidence links](feature-evidence-links.md) | Training-only collection folds and support/query indices; no fitting |
 | [Dependency locks](../requirements/README.md) | Platform-specific environments and historical lock |
 | [Command catalog](../scripts/README.md) | Script purposes and side effects |
 | [Configuration index](../configs/README.md) | Current and historical recipes |

@@ -1,0 +1,10 @@
+{
+  "version": "feature_preparation_v1",
+  "prepared": "runs/head_finetuning/enriched_30k_v1",
+  "roles": ["training", "monitor", "development"],
+  "source_registry": "configs/pipelines/feature_sources_v6.json",
+  "collection_scope": "all_selected_roles",
+  "identity_review_ledger": "research/feature_collection/identity_reviews_v1.jsonl",
+  "task_annotation_config": "configs/pipelines/task_annotation_v2.json",
+  "prepare_evidence_links": true
+}

@@ -1,6 +1,6 @@
 # Configuration index
 
-Local feature preparation: `pipelines/feature_preparation_v1.json` selects the
+Local feature preparation: `pipelines/feature_preparation_offline_v10.json` selects the
 existing expanded bundle and unsealed roles for the preparation-only ZenML
 pipeline. See [ZenML](../docs/zenml.md). It does not dispatch training.
 

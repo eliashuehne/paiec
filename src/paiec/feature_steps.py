@@ -42,13 +42,29 @@ def prepare_system_identities(inputs: dict, out: str) -> tuple[Annotated[dict, "
 def prepare_model_profiles(inputs: dict, systems: dict, out: str) -> tuple[Annotated[dict, "model_manifest"], Annotated[pd.DataFrame, "model_facts"]]:
     from .feature_sources import supplement_models
     result = features.build_profiles(inputs, systems, out, "model")
-    result = supplement_models(inputs["root"], result, out)
-    return result, profile_table(result["path"])
+    result = supplement_models(inputs["root"], result, out,
+                               source_registry=inputs["config"].get("source_registry", "configs/pipelines/feature_sources_v1.json"))
+    table = profile_table(result["path"])
+    qualified = [{"profile_id": r["profile_id"], "field": "qualifications." + r["field"],
+                  "value": json.dumps(r["value"]), "status": r["status"], "note": r["note"]}
+                 for r in features.read_jsonl(Path(out) / "qualified_model_observations.jsonl")]
+    if qualified:
+        table = pd.concat([table, pd.DataFrame(qualified)], ignore_index=True)
+    return result, table
 
 @step(enable_cache=False)
 def prepare_harness_and_run_profiles(inputs: dict, systems: dict, out: str) -> tuple[Annotated[dict, "harness_manifest"], Annotated[pd.DataFrame, "harness_facts"]]:
+    from .feature_sources import supplement_harnesses
     result = features.build_profiles(inputs, systems, out, "harness")
-    return result, profile_table(result["path"])
+    result = supplement_harnesses(inputs["root"], result, out,
+        source_registry=inputs["config"].get("source_registry", "configs/pipelines/feature_sources_v1.json"))
+    table = profile_table(result["path"])
+    qualified = [{"profile_id": r["profile_id"], "field": "qualifications." + r["field"],
+                  "value": json.dumps(r["value"]), "status": r["status"], "note": r["note"]}
+                 for r in features.read_jsonl(Path(out) / "qualified_harness_observations.jsonl")]
+    if qualified:
+        table = pd.concat([table, pd.DataFrame(qualified)], ignore_index=True)
+    return result, table
 
 @step(enable_cache=False)
 def prepare_task_profiles(inputs: dict, systems: dict, out: str) -> tuple[Annotated[dict, "task_manifest"], Annotated[pd.DataFrame, "task_preview"]]:
@@ -61,9 +77,16 @@ def prepare_task_profiles(inputs: dict, systems: dict, out: str) -> tuple[Annota
 
 @step(enable_cache=False, experiment_tracker=TRACKER)
 def validate_and_publish(inputs: dict, systems: dict, models: dict, harnesses: dict,
-                         tasks: dict, collection: dict, out: str) -> tuple[Annotated[dict, "feature_summary"], Annotated[HTMLString, "coverage_report"]]:
+                         tasks: dict, collection: dict, annotations: dict, evidence_plan: dict, out: str) -> tuple[Annotated[dict, "feature_summary"], Annotated[HTMLString, "coverage_report"]]:
     from zenml import get_step_context
-    summary = features.finalize_bundle(inputs, systems, models, harnesses, tasks, out, collection=collection)
+    if annotations.get("prepared"):
+        coverage_path = Path(out) / "coverage_audit.json"
+        coverage = json.loads(coverage_path.read_text())
+        coverage["task_annotations"].update(legacy_candidates=coverage["task_annotations"]["candidates"],
+            candidates=annotations["candidate_annotations"], prepared_requests=annotations["tasks"],
+            response_coverage_complete=annotations["response_coverage_complete"], semantic_quality_established=False)
+        features.write_json(coverage_path, coverage)
+    summary = features.finalize_bundle(inputs, systems, models, harnesses, tasks, out, collection=collection, annotations=annotations, evidence_plan=evidence_plan)
     mlflow.log_params({"dataset_revision": inputs["dataset_revision"], "input_manifest_sha256": inputs["manifest_sha256"],
                        "feature_pipeline_version": "feature_preparation_v1", "mode": "preparation_only",
                        "zenml_run_id": str(get_step_context().pipeline_run.id)})
@@ -73,9 +96,21 @@ def validate_and_publish(inputs: dict, systems: dict, models: dict, harnesses: d
                         "harness_profiles": harnesses["profiles"], "unique_task_inputs": tasks["tasks"],
                         **{f"records_{role}": count for role, count in tasks["records_by_role"].items()}})
     mlflow.log_metrics({"collection_requests": collection["collection_requests"], "annotation_candidates": collection["candidate_annotations"]})
+    if annotations.get("prepared"):
+        mlflow.log_metrics({"annotation_requests_v2": annotations["tasks"], "annotation_candidates_v2": annotations["candidate_annotations"]})
+        mlflow.log_artifacts(str(Path(out) / "task_annotations_v2"), "task_annotations_v2")
+    if evidence_plan.get("prepared"):
+        mlflow.log_metrics({"evidence_link_training_rows": evidence_plan["training_rows"],
+                            "evidence_link_scopes": evidence_plan["visible_system_benchmark_scopes"]})
+        mlflow.log_artifacts(str(Path(out) / "evidence_plan_v1"), "evidence_plan_v1")
     for name in ["summary.json", "feature_plan.json", "manifest.json", "report.html", "resolved_config.json",
                  "collection_summary.json", "collection_plan.json", "task_assessment.schema.json", "task_annotation_candidates.jsonl", "collection_review.html",
-                 "source_collection_audit.json", "coverage_audit.json"]:
+                 "source_collection_audit.json", "coverage_audit.json", "source_review_audit.json", "run_setting_review_audit.json",
+                 "qualified_model_observations.jsonl", "source_review_status.jsonl", "run_setting_reviews.jsonl",
+                 "supplemental_sources.jsonl", "supplemented_model_profiles.jsonl",
+                 "harness_source_collection_audit.json", "qualified_harness_observations.jsonl",
+                 "harness_supplemental_sources.jsonl", "supplemented_harness_profiles.jsonl",
+                 "identity_review_audit.json", "identity_review_status.jsonl", "reviewed_static_features.jsonl"]:
         mlflow.log_artifact(str(Path(out) / name), "preparation")
     active = mlflow.active_run()
     log_source(mlflow.MlflowClient(), active.info.run_id, Path(inputs["root"]))
@@ -97,6 +132,37 @@ def prepare_collection_review(inputs: dict, systems: dict, models: dict, harness
     return summary, requests, annotations, HTMLString((Path(out) / "collection_review.html").read_text())
 
 
+@step(enable_cache=False)
+def prepare_task_annotation_requests(inputs: dict, tasks: dict, collection: dict, out: str) -> tuple[Annotated[dict, "annotation_plan"], Annotated[pd.DataFrame, "task_candidates_v2"], Annotated[HTMLString, "task_annotation_review"]]:
+    config = inputs["config"].get("task_annotation_config")
+    if not config:
+        return {"prepared": False}, pd.DataFrame(columns=["task_key", "review_status"]), HTMLString("<p>Task annotation v2 not selected.</p>")
+    from .task_annotation import prepare_pipeline_annotations
+    result = prepare_pipeline_annotations(inputs["root"], tasks, out, config_path=config)
+    table = pd.DataFrame([{"task_key": r["task_key"], "review_status": r["review_status"],
+                           "features": json.dumps(r["feature_projection"], ensure_ascii=False)}
+                          for r in features.read_jsonl(Path(out) / "task_annotations_v2/manual/candidates.jsonl")])
+    return result, table, HTMLString((Path(out) / "task_annotations_v2/review.html").read_text())
+
+
+@step(enable_cache=False)
+def prepare_training_evidence_links(inputs: dict, tasks: dict, out: str) -> Annotated[dict, "training_evidence_plan"]:
+    if not inputs["config"].get("prepare_evidence_links"):
+        return {"prepared": False}
+    from .feature_evidence_plan import prepare_evidence_plan
+    from .head_training import file_hash
+    task_path, example_path = Path(tasks["path"]), Path(out) / "examples.jsonl"
+    result = prepare_evidence_plan(features.read_jsonl(task_path), features.read_jsonl(example_path),
+                                   Path(out) / "evidence_plan_v1")
+    result.update(prepared=True, task_table_sha256=file_hash(task_path),
+                  example_links_sha256=file_hash(example_path), input_manifest_sha256=inputs["manifest_sha256"])
+    # Keep hashes inside the child manifest as well as the final pipeline summary.
+    child = Path(out) / "evidence_plan_v1"
+    features.write_json(child / "summary.json", result)
+    features.write_json(child / "manifest.json", {"artifacts": {p.name: file_hash(p) for p in sorted(child.iterdir()) if p.is_file() and p.name != "manifest.json"}})
+    return result
+
+
 @pipeline(name="laya_feature_preparation", enable_cache=False)
 def laya_feature_preparation(root: str, config: dict, out: str):
     inputs = verify_frozen_inputs(root, config)
@@ -105,4 +171,6 @@ def laya_feature_preparation(root: str, config: dict, out: str):
     harnesses, _ = prepare_harness_and_run_profiles(inputs, systems, out)
     tasks, _ = prepare_task_profiles(inputs, systems, out)
     collection, _, _, _ = prepare_collection_review(inputs, systems, models, harnesses, tasks, out)
-    validate_and_publish(inputs, systems, models, harnesses, tasks, collection, out)
+    annotations, _, _ = prepare_task_annotation_requests(inputs, tasks, collection, out)
+    evidence_plan = prepare_training_evidence_links(inputs, tasks, out)
+    validate_and_publish(inputs, systems, models, harnesses, tasks, collection, annotations, evidence_plan, out)

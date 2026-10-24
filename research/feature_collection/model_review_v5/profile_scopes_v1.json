@@ -1,0 +1,123 @@
+{
+  "model.bedrock-mistral7b-family": [
+    "mistralai-mistral-7b-instruct-v0.2-config.json",
+    "mistralai-mistral-7b-instruct-v0.2-readme.md"
+  ],
+  "model.bedrock-mixtral-family": [
+    "mistralai-mixtral-8x7b-instruct-v0.1-config.json",
+    "mistralai-mixtral-8x7b-instruct-v0.1-readme.md"
+  ],
+  "model.codellama-34b-instruct": [
+    "meta-llama-codellama",
+    "model.codellama-34b-instruct.README.md",
+    "meta-codellama-primary-launch"
+  ],
+  "model.codellama-70b-instruct": [
+    "meta-llama-codellama-70b-instruct-hf-readme.md",
+    "meta-codellama-primary-launch",
+    "model.codellama-70b-instruct.README.md"
+  ],
+  "model.deepseek-r1": [
+    "deepseek-ai-deepseek-r1-config.json",
+    "deepseek-ai-deepseek-r1-readme.md",
+    "model.deepseek-r1.README.md",
+    "deepseek-r1-primary-release"
+  ],
+  "model.deepseek-v4-flash": [
+    "deepseek-ai-deepseek-v4-flash-config.json",
+    "deepseek-ai-deepseek-v4-flash-readme.md",
+    "model.deepseek-v4-flash.README.md"
+  ],
+  "model.deepseek-v4-pro": [
+    "deepseek-ai-deepseek-v4-pro-config.json",
+    "deepseek-ai-deepseek-v4-pro-readme.md",
+    "model.deepseek-v4-pro.README.md"
+  ],
+  "model.gemini1.0-pro-family": [
+    "google-gemini-launch"
+  ],
+  "model.gemini1.5-flash": [
+    "google-gemini15flash"
+  ],
+  "model.gemini3.1-flashlite-preview": [
+    "google-gemini31flashlite-preview"
+  ],
+  "model.gemini3.1-pro-preview": [
+    "google-gemini31pro"
+  ],
+  "model.gpt3.5-turbo-family": [
+    "openai-gpt-3.5-turbo"
+  ],
+  "model.llama2-70b-chat": [
+    "meta-llama2-card",
+    "model.llama2-70b-chat.README.md"
+  ],
+  "model.llama3-8b-family": [
+    "meta-llama-meta-llama-3-8b-instruct-readme.md"
+  ],
+  "model.llama3.1-8b-instruct": [
+    "meta-llama-meta-llama-3.1-8b-instruct-readme.md",
+    "model.llama3.1-8b-instruct.README.md"
+  ],
+  "model.llama4-maverick-fp8": [
+    "meta-llama-llama-4-maverick-17b-128e-instruct-fp8-readme.md",
+    "model.llama4-maverick-fp8.README.md"
+  ],
+  "model.metamath-llama-family": [
+    "metamath-project"
+  ],
+  "model.metamath-mistral-family": [
+    "metamath-project"
+  ],
+  "model.mistral-7b-instruct-v0.1": [
+    "mistralai-mistral-7b-instruct-v0.1-config.json",
+    "mistralai-mistral-7b-instruct-v0.1-readme.md",
+    "model.mistral-7b-instruct-v0.1.README.md",
+    "mistral7b-primary-launch"
+  ],
+  "model.mistral-7b-instruct-v0.2": [
+    "mistralai-mistral-7b-instruct-v0.2-config.json",
+    "mistralai-mistral-7b-instruct-v0.2-readme.md",
+    "model.mistral-7b-instruct-v0.2.README.md"
+  ],
+  "model.mixtral-8x7b-instruct-v0.1": [
+    "mistralai-mixtral-8x7b-instruct-v0.1-config.json",
+    "mistralai-mixtral-8x7b-instruct-v0.1-readme.md",
+    "model.mixtral-8x7b-instruct-v0.1.README.md",
+    "mixtral-primary-launch"
+  ],
+  "model.qwen-7b": [
+    "qwen-qwen-7b-config.json",
+    "qwen-qwen-7b-readme.md"
+  ],
+  "model.qwen3-235b-thinking-2507": [
+    "model.qwen3-235b-thinking-2507.README.md",
+    "qwen-qwen3-235b-a22b-thinking-2507-config.json",
+    "qwen-qwen3-235b-a22b-thinking-2507-readme.md"
+  ],
+  "model.qwen3.5-122b-a10b": [
+    "model.qwen3.5-122b-a10b.README.md",
+    "qwen-qwen3.5-122b-a10b-config.json",
+    "qwen-qwen3.5-122b-a10b-readme.md"
+  ],
+  "model.qwen3.6-35b-a3b": [
+    "model.qwen3.6-35b-a3b.README.md",
+    "qwen-qwen3.6-35b-a3b-config.json",
+    "qwen-qwen3.6-35b-a3b-readme.md"
+  ],
+  "model.sqlcoder-70b-alpha": [
+    "defog-sqlcoder-70b-alpha-config.json",
+    "defog-sqlcoder-70b-alpha-readme.md",
+    "model.sqlcoder-70b-alpha.README.md"
+  ],
+  "model.sqlcoder-7b-2": [
+    "defog-sqlcoder-7b-2-config.json",
+    "defog-sqlcoder-7b-2-readme.md",
+    "model.sqlcoder-7b-2.README.md"
+  ],
+  "model.wizardcoder-33b-v1.1": [
+    "model.wizardcoder-33b-v1.1.README.md",
+    "wizardlm-wizardcoder-33b-v1.1-config.json",
+    "wizardlm-wizardcoder-33b-v1.1-readme.md"
+  ]
+}

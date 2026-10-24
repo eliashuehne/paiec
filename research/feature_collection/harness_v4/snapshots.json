@@ -1,0 +1,42 @@
+[
+  {
+    "source_id": "asprm-readme",
+    "cache_file": "asprm-readme.txt",
+    "sha256": "1cab3a7c9259a608e624f62e6124fec39b03b636afee0ba58857e21c9e638c9f"
+  },
+  {
+    "source_id": "sebastiannagl-benger-platform",
+    "cache_file": "sebastiannagl-benger-platform.txt",
+    "sha256": "1bbd09272e21f589c0c7ae4aefaa7941e45ed1572288038ccfa87062a0a38cf5"
+  },
+  {
+    "source_id": "adamzweiger-fewshot-ttt-readme.md",
+    "cache_file": "adamzweiger-fewshot-ttt-readme.md.txt",
+    "sha256": "676dc671ac74b8ddfc81e7e36a6e7a76472b476781ca209e49f1aa0702ca5cad"
+  },
+  {
+    "source_id": "dilab-kaist-erbench-readme.md",
+    "cache_file": "dilab-kaist-erbench-readme.md.txt",
+    "sha256": "997b7388da2ef3ff0b691d52a889849d0fed3df8505d6894aa4a269a3a542ae9"
+  },
+  {
+    "source_id": "zfkarl-cellverse-readme.md",
+    "cache_file": "zfkarl-cellverse-readme.md.txt",
+    "sha256": "5ae8d9c5d113af0cb5553bd742bbef0866a552064c82027e46baa722020b085a"
+  },
+  {
+    "source_id": "huggingface-lighteval-readme.md",
+    "cache_file": "huggingface-lighteval-readme.md.txt",
+    "sha256": "5147e564c99edeb6cb2c01f34602f05bcdda77bbae5b60f43eb251485e01c056"
+  },
+  {
+    "source_id": "open-compass-opencompass-readme.md",
+    "cache_file": "open-compass-opencompass-readme.md.txt",
+    "sha256": "494f04df6b96a922832a902f4415fee5e240c8a6dba18e999405fde93ebca5e6"
+  },
+  {
+    "source_id": "petavue-nl2sql-benchmark-readme.md",
+    "cache_file": "petavue-nl2sql-benchmark-readme.md.txt",
+    "sha256": "f1141d8e95705bd1af6c10a8b20246449637b4c9a99756973945926a04048cb7"
+  }
+]

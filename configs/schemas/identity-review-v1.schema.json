@@ -1,0 +1,62 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "identity_review_v1",
+      "default": "identity_review_v1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "system_key": {
+      "pattern": "^[a-f0-9]{64}$",
+      "title": "System Key",
+      "type": "string"
+    },
+    "entity_type": {
+      "enum": [
+        "model",
+        "harness"
+      ],
+      "title": "Entity Type",
+      "type": "string"
+    },
+    "checked_subject_sha256": {
+      "pattern": "^[a-f0-9]{64}$",
+      "title": "Checked Subject Sha256",
+      "type": "string"
+    },
+    "disposition": {
+      "enum": [
+        "not_supplied",
+        "reported_private_checkpoint_unverified"
+      ],
+      "title": "Disposition",
+      "type": "string"
+    },
+    "rationale": {
+      "minLength": 1,
+      "title": "Rationale",
+      "type": "string"
+    },
+    "reviewer": {
+      "minLength": 1,
+      "title": "Reviewer",
+      "type": "string"
+    },
+    "independent_review": {
+      "default": false,
+      "title": "Independent Review",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "system_key",
+    "entity_type",
+    "checked_subject_sha256",
+    "disposition",
+    "rationale",
+    "reviewer"
+  ],
+  "title": "IdentityReview",
+  "type": "object"
+}

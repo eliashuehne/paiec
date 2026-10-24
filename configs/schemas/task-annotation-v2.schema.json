@@ -1,0 +1,144 @@
+{
+  "$defs": {
+    "Facet": {
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "enum": [
+            "estimated",
+            "unknown"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "values": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Values",
+          "type": "array"
+        },
+        "evidence": {
+          "items": {
+            "$ref": "#/$defs/Quote"
+          },
+          "title": "Evidence",
+          "type": "array"
+        },
+        "rationale": {
+          "minLength": 1,
+          "title": "Rationale",
+          "type": "string"
+        }
+      },
+      "required": [
+        "status",
+        "values",
+        "evidence",
+        "rationale"
+      ],
+      "title": "Facet",
+      "type": "object"
+    },
+    "Facets": {
+      "additionalProperties": false,
+      "properties": {
+        "language": {
+          "$ref": "#/$defs/Facet"
+        },
+        "domain": {
+          "$ref": "#/$defs/Facet"
+        },
+        "skills": {
+          "$ref": "#/$defs/Facet"
+        },
+        "reasoning_structure": {
+          "$ref": "#/$defs/Facet"
+        },
+        "modalities": {
+          "$ref": "#/$defs/Facet"
+        },
+        "answer_format": {
+          "$ref": "#/$defs/Facet"
+        },
+        "information_needs": {
+          "$ref": "#/$defs/Facet"
+        },
+        "input_issues": {
+          "$ref": "#/$defs/Facet"
+        }
+      },
+      "required": [
+        "language",
+        "domain",
+        "skills",
+        "reasoning_structure",
+        "modalities",
+        "answer_format",
+        "information_needs",
+        "input_issues"
+      ],
+      "title": "Facets",
+      "type": "object"
+    },
+    "Quote": {
+      "additionalProperties": false,
+      "properties": {
+        "field": {
+          "enum": [
+            "item_content",
+            "item_features",
+            "interactors"
+          ],
+          "title": "Field",
+          "type": "string"
+        },
+        "quote": {
+          "minLength": 1,
+          "title": "Quote",
+          "type": "string"
+        },
+        "occurrence": {
+          "minimum": 0,
+          "title": "Occurrence",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "field",
+        "quote",
+        "occurrence"
+      ],
+      "title": "Quote",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "task_annotation_v2",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "task_key": {
+      "pattern": "^[a-f0-9]{64}$",
+      "title": "Task Key",
+      "type": "string"
+    },
+    "facets": {
+      "$ref": "#/$defs/Facets"
+    },
+    "difficulty": {
+      "title": "Difficulty",
+      "type": "null"
+    }
+  },
+  "required": [
+    "schema_version",
+    "task_key",
+    "facets",
+    "difficulty"
+  ],
+  "title": "AnnotationResponse",
+  "type": "object"
+}

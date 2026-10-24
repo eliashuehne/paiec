@@ -14,6 +14,7 @@ options; no command in this catalog is authorization to launch a run.
 | `compare_runs.py` | Compare saved completed predictions without new model inference |
 | `mlflow_ui.py` | Serve the local tracking dashboard |
 | `run_feature_pipeline.py` | Local ZenML/MLflow setup and feature sidecars; no training, APIs or GPU allocation |
+| `run_task_annotations.py` | Offline request export and checked result import; no network calls or training |
 | `fetch_modal_job.py` | Recover existing cloud results and import tracking; no GPU allocation |
 
 ## Data and input inspection

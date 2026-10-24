@@ -1,0 +1,8 @@
+{
+  "version": "task_annotation_plan_v2",
+  "taxonomy": "configs/schemas/task-taxonomy-v2.json",
+  "instructions": "configs/prompts/task_annotation_v2.txt",
+  "manual_candidates": "research/task_features/candidates_v2.jsonl",
+  "proposed_teacher": "gpt-5.4-mini",
+  "max_output_tokens": 4096
+}

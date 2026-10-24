@@ -1,0 +1,108 @@
+{
+  "$defs": {
+    "CheckedDocument": {
+      "additionalProperties": false,
+      "properties": {
+        "source_id": {
+          "minLength": 1,
+          "title": "Source Id",
+          "type": "string"
+        },
+        "sha256": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Sha256",
+          "type": "string"
+        },
+        "reviewed_scope": {
+          "minLength": 1,
+          "title": "Reviewed Scope",
+          "type": "string"
+        }
+      },
+      "required": [
+        "source_id",
+        "sha256",
+        "reviewed_scope"
+      ],
+      "title": "CheckedDocument",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "source_review_v1",
+      "default": "source_review_v1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "entity_type": {
+      "enum": [
+        "model",
+        "harness"
+      ],
+      "title": "Entity Type",
+      "type": "string"
+    },
+    "profile_id": {
+      "minLength": 1,
+      "title": "Profile Id",
+      "type": "string"
+    },
+    "field": {
+      "minLength": 1,
+      "title": "Field",
+      "type": "string"
+    },
+    "fact_value_sha256": {
+      "pattern": "^[a-f0-9]{64}$",
+      "title": "Fact Value Sha256",
+      "type": "string"
+    },
+    "disposition": {
+      "enum": [
+        "value_confirmed",
+        "not_established_in_reviewed_sources",
+        "identity_ambiguous",
+        "conflict_unresolved"
+      ],
+      "title": "Disposition",
+      "type": "string"
+    },
+    "rationale": {
+      "minLength": 1,
+      "title": "Rationale",
+      "type": "string"
+    },
+    "checked_documents": {
+      "items": {
+        "$ref": "#/$defs/CheckedDocument"
+      },
+      "minItems": 1,
+      "title": "Checked Documents",
+      "type": "array"
+    },
+    "reviewer": {
+      "minLength": 1,
+      "title": "Reviewer",
+      "type": "string"
+    },
+    "independent_review": {
+      "default": false,
+      "title": "Independent Review",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "entity_type",
+    "profile_id",
+    "field",
+    "fact_value_sha256",
+    "disposition",
+    "rationale",
+    "checked_documents",
+    "reviewer"
+  ],
+  "title": "SourceReview",
+  "type": "object"
+}

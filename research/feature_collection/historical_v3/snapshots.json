@@ -1,0 +1,17 @@
+[
+  {
+    "source_id": "anthropic-claude3-launch",
+    "cache_file": "anthropic-claude3-launch.html",
+    "sha256": "3c4a6c390aa119ffe4367e8e33bf0de2c248a9fa6d9e2dcce53b0ecd0a5a52e0"
+  },
+  {
+    "source_id": "anthropic-haiku3-launch",
+    "cache_file": "anthropic-haiku3-launch.html",
+    "sha256": "cbf72e2385ac71a2e3d2410c00a535c4ea9bfcaaab7ac05722ef4bece05a2d95"
+  },
+  {
+    "source_id": "databricks-dbrx-launch",
+    "cache_file": "databricks-dbrx-launch.html",
+    "sha256": "fed240218f0add49efad28d9c3334d5fae54f67cd3fbcc3248a2704f4397f8bb"
+  }
+]

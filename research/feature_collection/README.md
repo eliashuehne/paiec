@@ -3,6 +3,14 @@
 Goal: full evidence-backed coverage of the six planned feature buckets.
 This goal is **incomplete**. Unknowns are not counted as collected values.
 
+Latest recipe: `configs/pipelines/feature_preparation_offline_v10.json`, with
+the v6 source registry, identity-review ledger and all selected systems in its
+review scope. All 617 static fields are reviewed; full task-feature collection
+is still incomplete. See
+[the source-review guide](../../docs/feature-source-review.md) for the current
+617-field denominator, reviewed unknowns and qualified context observations.
+The smaller counts below describe the earlier collection passes.
+
 `source_plan_v1.json` identifies 18 named open-model repositories for metadata
 collection. `sources.jsonl` and `snapshots.json` pin 31 retrieved text files by
 repository revision and SHA-256. Four requests failed (DBRX metadata and three
@@ -46,7 +54,10 @@ not systems. The successful combined preparation is
 `runs/feature_pipeline/provider_collection_v1`; successful execution does not
 mean the collection goal is complete.
 
-The 14-task annotation starter has seven candidates, zero independent human
-reviews, and does not cover all task inputs. Learned capability/difficulty,
-system–task compatibility, and episodic evidence remain incomplete. Collection
+The v2 stage prepares all 16,909 task requests and 14 manual candidates, with
+zero independent reviews. The user chose offline preparation; the teacher
+pilot stays unsent. Candidate coverage is incomplete. The pipeline now prepares
+training-only task-group folds and support/query links without reading labels.
+Learned capability/difficulty, system–task compatibility, and outcome-conditioned
+evidence remain incomplete. Collection
 does not authorize a training job; calibration/confirmation stay sealed.

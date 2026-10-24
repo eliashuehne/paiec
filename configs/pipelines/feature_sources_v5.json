@@ -1,0 +1,56 @@
+{
+  "version": "feature_sources_v5",
+  "bundles": [
+    {
+      "catalog": "research/feature_collection",
+      "cache": "runs/feature_sources/primary_v1",
+      "assertions": "assertions_v1.jsonl"
+    },
+    {
+      "catalog": "research/feature_collection/provider_v2",
+      "cache": "runs/feature_sources/provider_v2",
+      "assertions": "assertions_v2.jsonl"
+    },
+    {
+      "catalog": "research/feature_collection/open_models_v3",
+      "cache": "runs/feature_sources/primary_v1",
+      "assertions": "assertions_v2.jsonl"
+    },
+    {
+      "catalog": "research/feature_collection/historical_v3",
+      "cache": "runs/feature_sources/historical_v3",
+      "assertions": "assertions_v2.jsonl"
+    },
+    {
+      "catalog": "research/feature_collection/harness_v4",
+      "cache": "runs/feature_sources/harness_v4",
+      "assertions": "assertions_v1.jsonl"
+    },
+    {
+      "catalog": "research/feature_collection/provider_review_v4",
+      "cache": "runs/feature_sources/provider_review_v4",
+      "assertions": "assertions_v1.jsonl"
+    }
+  ],
+  "review_ledgers": [
+    {
+      "catalog": "research/feature_collection/historical_v3",
+      "cache": "runs/feature_sources/historical_v3",
+      "reviews": "reviews_v2.jsonl"
+    },
+    {
+      "catalog": "research/feature_collection/harness_v4",
+      "cache": "runs/feature_sources/harness_v4",
+      "reviews": "reviews_v1.jsonl"
+    },
+    {
+      "catalog": "research/feature_collection/provider_review_v4",
+      "cache": "runs/feature_sources/provider_review_v4",
+      "reviews": "reviews_v1.jsonl"
+    }
+  ],
+  "nominal_context_ledger": "research/feature_collection/nominal_contexts_v1.jsonl",
+  "observation_ledgers": [
+    "research/feature_collection/harness_v4/observations_v1.jsonl"
+  ]
+}

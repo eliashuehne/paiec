@@ -1,9 +1,30 @@
 # ZenML feature preparation and MLflow
 
+Commit checkpoint, 2026-10-23: offline collection machinery is ready for review;
+the full feature dataset is incomplete. All scoped metadata fields have source
+reviews, but only 14 of 16,909 tasks have candidate annotations and none has an
+independent quality review. Training-only folds and evidence links cover all
+30,000 training records without exported outcomes or fitting. Compatibility,
+learned abilities/difficulty and a new Laya input contract remain unfinished.
+The user chose offline preparation. Resume from the verified run documented in
+[evidence links](feature-evidence-links.md); do not submit the prepared pilot
+or launch fitting as part of committing this checkpoint.
+
+Current preparation recipe: `configs/pipelines/feature_preparation_offline_v10.json`
+(the CLI default), with `feature_sources_v6.json` and an explicit identity-review
+ledger. It audits **all selected roles**:
+176 visible systems, 39 model profiles and eight harness profiles. Earlier
+training-only collection queues did not cover every system in this preparation.
+All 617 requested static fields, 1,584 run-setting fields and ten unresolved
+identity requests now have scoped reviews. Unknowns remain unknown; task
+annotation and the other feature builders remain incomplete. See the
+[source-review status](feature-source-review.md) for the measured gaps and the
+user-approved acceptance rule: complete review, retaining evidenced unknowns.
+
 Primary-source supplementation is now applied in `prepare_model_profiles`.
 The assertion/source ledgers live in `research/feature_collection/`; archived
 text is under `runs/feature_sources/primary_v1` and `provider_v2`. The registry
-`configs/pipelines/feature_sources_v1.json` selects both source bundles. Fresh
+`configs/pipelines/feature_sources_v1.json` selects the first two source bundles. Fresh
 checkouts must restore both pinned archives using the commands in the collection
 README. Source bytes
 and quotations are verified before additive model facts enter the new tables.
@@ -12,15 +33,21 @@ Collection also exports `typed_run_features.jsonl`, matching recorded-run
 facts only by identical visible subject descriptions. Completeness remains
 unproven: successful pipeline execution is not evidence of 100% field coverage.
 
-The pipeline now includes `prepare_collection_review`, before publication.
-It exports a training-only 14-task review set, seven agent-authored candidate
-annotations with exact evidence spans, a task-assessment JSON Schema, and a
-prioritized collection queue. The plan is
-`configs/pipelines/feature_collection_v1.json`; annotation seeds and limitations
-are in `research/task_features/README.md`. ZenML exposes a `collection_review`
-HTML artifact with original task text and candidate claims. These estimates
-are not independently reviewed and do not enter Laya training. No new external
-source collection, teacher API calls or empirical capability fitting is performed.
+`prepare_collection_review` retains the earlier queue and seven v1 starter
+candidates. The subsequent `prepare_task_annotation_requests` stage prepares
+outcome-blind requests for all 16,909 distinct full task inputs, 14 training-only
+manual v2 candidates with exact quotes, and an unsent 14-question Batch pilot.
+All supplied text is preserved. There are 16,895 pending annotations and zero
+independent reviews. These sidecars do not enter Laya training. The offline
+importer checks request binding, provider errors, response completeness and
+quote grounding. See [task annotations](task-annotation-collection.md) for
+commands and limits. The user chose offline collection; no teacher calls or
+empirical capability fitting are performed.
+
+`prepare_training_evidence_links` also prepares outcome-blind collection links
+for all 30,000 training rows: five task-group folds, 850 same-scope support
+pools, and 170 training-only 50/50 evidence splits with nested budgets.
+No outcomes are exported or fitted. See [evidence links](feature-evidence-links.md).
 
 The local ZenML 0.98.0 stack is `paiec_local`, with the `paiec_mlflow`
 experiment tracker. It uses the existing MLflow 3.17.2 SQLite database at
@@ -63,7 +90,7 @@ or container requirement.
 
 ## Execute preparation
 
-The default recipe, `configs/pipelines/feature_preparation_v1.json`, verifies
+The current recipe, `configs/pipelines/feature_preparation_offline_v10.json`, verifies
 the existing expanded compact-v3 bundle: 30,000 training records, 1,000
 task-disjoint monitor records, and the original 963 development records.
 No old preparation is regenerated.
@@ -78,10 +105,10 @@ Use `--out runs/feature_pipeline/NAME` for an explicit fresh directory.
 Existing directories and the immutable source bundle cannot be overwritten.
 Step caching is disabled so unchanged paths cannot bypass hash checks.
 
-The stages are frozen-input verification, system-identity matching,
-model-profile preparation, harness/run preparation, task preparation, and
-validation/publication through the MLflow tracker. Model, harness and task
-stages depend on the system table; publication depends on all stages.
+The nine stages are frozen-input verification, system-identity matching,
+model-profile preparation, harness/run preparation, task preparation,
+collection review, task annotation preparation, training evidence links, and validation/publication
+through the MLflow tracker. Publication depends on all stages.
 
 Outputs include separate system/model/harness/run/task JSONL tables, example
 links, source evidence, a hash manifest, an HTML report, and a feature plan.
@@ -101,12 +128,12 @@ translation/paraphrase independence.
 
 | Bucket | Current output | Remaining work |
 | --- | --- | --- |
-| Model | Existing sourced facts and evidence/status | Review conflicts and missing specialization/language/limit facts |
-| Demonstrated abilities | Pending | Training-only/out-of-fold capability estimates |
-| Harness/run | Existing facts and recorded settings | Typed enabled tools, workflows and budgets |
-| Task requirements | Full allowed inputs and deterministic text observations | Reviewed skill/language/modality/reasoning annotations; learned difficulty |
+| Model | Scoped metadata review complete; confirmed values and evidenced unknowns | Applicability and competition eligibility remain separate |
+| Demonstrated abilities | Five-fold collection links only; no estimates | Training-only/out-of-fold capability estimates |
+| Harness/run | Scoped recorded-setting review complete; unknowns retained | Keep supported capabilities separate from actual settings |
+| Task requirements | Full request plan and 14 unreviewed v2 candidates | Complete and quality-review annotations; learn difficulty separately |
 | Compatibility | Pending | Interactions from verified system/task features |
-| Revealed evidence | Pending in this pipeline | Training-only support/query episodes |
+| Revealed evidence | Training-only support/query links, without outcomes | Materialize eligible evidence and validate its later use |
 
 Character/script/number counts are observations, not difficulty or proficiency
 estimates. Unsupported annotations remain null; unknown settings are not treated

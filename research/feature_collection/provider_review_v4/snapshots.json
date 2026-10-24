@@ -1,0 +1,57 @@
+[
+  {
+    "source_id": "openai-gpt4o",
+    "cache_file": "openai-gpt4o.txt",
+    "sha256": "22950725c1d75a0098d1c5f046f10c946ffdd41e76d37d14b44e80a6dab8abee"
+  },
+  {
+    "source_id": "openai-gpt4omini",
+    "cache_file": "openai-gpt4omini.txt",
+    "sha256": "93e14f848cf90f35dd77a270998a9b2b440ef08d724da11947b0dee26179f09b"
+  },
+  {
+    "source_id": "openai-gpt54mini",
+    "cache_file": "openai-gpt54mini.txt",
+    "sha256": "83625d2f3548c29379b3b2a44b183a26d266d2f5c3ffda7161dd19c9213a9058"
+  },
+  {
+    "source_id": "openai-gpt54",
+    "cache_file": "openai-gpt54.txt",
+    "sha256": "8912cd2f9c517765174dd16d79eec1e63636f37ae765e293a6350fdec9f010a3"
+  },
+  {
+    "source_id": "openai-gpt4preview",
+    "cache_file": "openai-gpt4preview.txt",
+    "sha256": "e5445d7e72dd37f4649a818dad9ecd60309b874d72bc43e4c420a1efd1f36897"
+  },
+  {
+    "source_id": "claude-opus47",
+    "cache_file": "claude-opus47.txt",
+    "sha256": "fac0c55b2537d0288981dcc22e204341a5ced41de139aab69d93318230ffd4cd"
+  },
+  {
+    "source_id": "claude-sonnet46",
+    "cache_file": "claude-sonnet46.txt",
+    "sha256": "9f6905f76eb8534dfbc6de4bd133d9d1ce32496ad865e19d947116d56d69f027"
+  },
+  {
+    "source_id": "openai-launch-gpt4o",
+    "cache_file": "openai-launch-gpt4o.txt",
+    "sha256": "4dd533ef28ec2ce08657373238d82740e2794c05b06c17e8042b291c54a49b16"
+  },
+  {
+    "source_id": "openai-launch-gpt4omini",
+    "cache_file": "openai-launch-gpt4omini.txt",
+    "sha256": "0acbdddb312ab1a7b04d0311ac2eab0574010da86a85caec250a19a5da8ef1f7"
+  },
+  {
+    "source_id": "openai-launch-gpt54",
+    "cache_file": "openai-launch-gpt54.txt",
+    "sha256": "570b8a270a8e3b4a006dd904caf3dc30cfa41e3b07c84c0622abe43a8003cc35"
+  },
+  {
+    "source_id": "openai-launch-gpt54mini",
+    "cache_file": "openai-launch-gpt54mini.txt",
+    "sha256": "af3af12c93ec81a9d20e012f0c327cd4ec22cfbcad3a8d1ee2dff3cc4dfea416"
+  }
+]

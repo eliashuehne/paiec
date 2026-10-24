@@ -11,6 +11,7 @@ from .feature_preparation import read_jsonl, write_json, write_jsonl, stable_has
 from .head_training import file_hash
 from .compact_profiles import CompactProfiles
 from .competition import competition_input
+from .feature_review import audit_source_reviews, audit_recorded_setting_reviews, audit_identity_reviews
 
 
 class Span(BaseModel):
@@ -107,14 +108,17 @@ def build_collection_bundle(inputs, systems, models, harnesses, tasks, out):
     write_json(out / "task_assessment.schema.json", TaskAssessment.model_json_schema())
     records = {r["system_key"]: r for r in read_jsonl(systems["path"])}
     training_keys = {stable_hash(subject) for _, _, subject, _ in source_inputs(inputs["prepared"], ["training"])}
+    scope = inputs["config"].get("collection_scope", "training_only")
+    collection_keys = set(records) if scope == "all_selected_roles" else training_keys
     catalog = CompactProfiles(Path(inputs["prepared"]) / "profile_bundle/policy.json", root=inputs["prepared"])
-    recovered = recover_recorded_run_features({key: records[key] for key in training_keys},
+    recovered = recover_recorded_run_features({key: records[key] for key in collection_keys},
                                               catalog.profiles.values(), plan["run_fields"])
     write_jsonl(out / "typed_run_features.jsonl", recovered)
+    run_reviews = audit_recorded_setting_reviews(recovered, out)
     recovered_by_key = {r["system_key"]: r["features"] for r in recovered}
     queue = []
     for kind, result in [("model", models), ("harness", harnesses)]:
-        used = {records[k]["resolution"][kind + "_profile_id"] for k in training_keys} - {None}
+        used = {records[k]["resolution"][kind + "_profile_id"] for k in collection_keys} - {None}
         for profile in read_jsonl(result["path"]):
             if profile["profile_id"] not in used:
                 continue
@@ -123,7 +127,7 @@ def build_collection_bundle(inputs, systems, models, harnesses, tasks, out):
                 queue.append({"entity_type": kind, "profile_id": profile["profile_id"], "field": field,
                               "fact": fact, "collection_status": "needs_source" if fact["status"] == "unknown" else "needs_applicability_review",
                               "priority": 1, "usage": "research_only"})
-    for key in sorted(training_keys):
+    for key in sorted(collection_keys):
         for field in plan["run_fields"]:
             queue.append({"entity_type": "recorded_run", "system_key": key, "field": field,
                           "collection_status": recovered_by_key[key][field]["collection_status"],
@@ -135,6 +139,10 @@ def build_collection_bundle(inputs, systems, models, harnesses, tasks, out):
                               "collection_status": "unresolved_visible_identity", "priority": 1,
                               "usage": "research_only", "private_identity_lookup_allowed": False})
     write_jsonl(out / "collection_queue.jsonl", queue)
+    source_review = audit_source_reviews(root, queue, out,
+        source_registry=inputs["config"].get("source_registry", "configs/pipelines/feature_sources_v1.json"))
+    identity_review = audit_identity_reviews(root, queue, records, out,
+        ledger=inputs["config"].get("identity_review_ledger"))
 
     provenance = pd.read_parquet(Path(inputs["prepared"]) / "enriched/provenance.parquet",
                                  columns=["role", "jsonl_line", "family"])
@@ -171,22 +179,31 @@ def build_collection_bundle(inputs, systems, models, harnesses, tasks, out):
         candidates.append(assessment.model_dump(mode="json"))
     write_jsonl(out / "task_annotation_candidates.jsonl", candidates)
     summary = {"collection_plan_sha256": file_hash(plan_path), "seed_sha256": file_hash(seeds_path),
+               "collection_scope": scope, "systems_in_collection_scope": len(collection_keys),
                "collection_requests": len(queue), "missing_static_facts": sum(r["collection_status"] == "needs_source" for r in queue),
                "sample_tasks": len(selected), "candidate_annotations": len(candidates), "human_reviewed": 0,
                "selection_is_representative": False, "selection_note": "Length-stratified starter review only; not a representative quality estimate.",
                "source_snapshots_collected": models.get("source_collection", {}).get("source_snapshots", 0),
-               "new_static_facts": models.get("source_collection", {}).get("applied", 0),
+               "new_static_facts": sum(result.get("source_collection", {}).get("applied", 0) for result in [models, harnesses]),
                "annotation_api_calls": 0, "empirical_difficulty_fitted": False,
                "recovered_run_settings": sum(f["status"] != "unknown" for r in recovered for f in r["features"].values()),
                "unresolved_run_settings": sum(f["status"] == "unknown" for r in recovered for f in r["features"].values()),
                "training_ready": False}
+    summary["source_review"] = source_review
+    summary["run_setting_review"] = run_reviews
+    summary["identity_review"] = identity_review
+    summary["metadata_review_complete"] = all(review["complete"] for review in [source_review, run_reviews, identity_review])
     write_json(out / "collection_summary.json", summary)
     static = [r for r in queue if r["entity_type"] in {"model", "harness"} and r["field"] != "identity"]
     write_json(out / "coverage_audit.json", {
         "full_objective_achieved": False,
         "static_fields": {"required": len(static), "missing": sum(r["fact"]["status"] == "unknown" for r in static)},
+        "source_review": source_review,
+        "metadata_review_complete": summary["metadata_review_complete"],
         "unresolved_visible_identities": sum(r["collection_status"] == "unresolved_visible_identity" for r in queue),
+        "identity_review": identity_review,
         "actual_run_fields": {"known": summary["recovered_run_settings"], "missing": summary["unresolved_run_settings"]},
+        "run_setting_review": run_reviews,
         "task_annotations": {"task_inputs": len(task_map), "candidates": len(candidates), "independently_reviewed": 0},
         "demonstrated_abilities": "not_implemented",
         "learned_difficulty": "not_implemented",

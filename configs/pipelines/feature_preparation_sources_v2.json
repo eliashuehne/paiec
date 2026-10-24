@@ -1,0 +1,10 @@
+{
+  "version": "feature_preparation_v1",
+  "prepared": "runs/head_finetuning/enriched_30k_v1",
+  "roles": [
+    "training",
+    "monitor",
+    "development"
+  ],
+  "source_registry": "configs/pipelines/feature_sources_v2.json"
+}

@@ -27,10 +27,26 @@ class FeaturePreparationConfig(BaseModel):
     version: Literal["feature_preparation_v1"] = "feature_preparation_v1"
     prepared: str = "runs/head_finetuning/enriched_30k_v1"
     roles: list[Literal["training", "monitor", "development"]] = ["training", "monitor", "development"]
+    source_registry: str = "configs/pipelines/feature_sources_v1.json"
+    collection_scope: Literal["training_only", "all_selected_roles"] = "training_only"
+    identity_review_ledger: str | None = None
+    task_annotation_config: str | None = None
+    prepare_evidence_links: bool = False
 
     @model_validator(mode="after")
     def valid_paths_and_roles(self):
         relative_run_path(self.prepared)
+        registry = Path(self.source_registry)
+        if registry.is_absolute() or ".." in registry.parts or registry.parts[:2] != ("configs", "pipelines"):
+            raise ValueError("Source registry must be repository-relative under configs/pipelines/")
+        if self.identity_review_ledger:
+            identity = Path(self.identity_review_ledger)
+            if identity.is_absolute() or ".." in identity.parts or identity.parts[0] != "research":
+                raise ValueError("Identity review ledger must be repository-relative under research/")
+        if self.task_annotation_config:
+            annotation = Path(self.task_annotation_config)
+            if annotation.is_absolute() or ".." in annotation.parts or annotation.parts[:2] != ("configs", "pipelines"):
+                raise ValueError("Task annotation configuration must be under configs/pipelines/")
         if not self.roles or len(set(self.roles)) != len(self.roles) or "training" not in self.roles:
             raise ValueError("Use unique preparation roles including training")
         return self
@@ -210,14 +226,23 @@ FEATURE_PLAN = [
 ]
 
 
-def finalize_bundle(inputs, systems, models, harnesses, tasks, out, *, collection=None):
+def finalize_bundle(inputs, systems, models, harnesses, tasks, out, *, collection=None, annotations=None, evidence_plan=None):
     """Publish only a validated preparation, never an implicit training command."""
     out = Path(out)
     # Recheck inputs at publication so paths cannot silently point to changed data.
     fresh = verify_inputs(inputs["root"], FeaturePreparationConfig.model_validate(inputs["config"]))
     if fresh["manifest_sha256"] != inputs["manifest_sha256"]:
         raise ValueError("Preparation manifest changed during the pipeline")
-    plan = {"feature_groups": FEATURE_PLAN, "new_laya_training_ready": False,
+    groups = [dict(group) for group in FEATURE_PLAN]
+    if collection and collection.get("metadata_review_complete"):
+        groups[0].update(status="source_review_complete_with_unknowns", next="Retain confirmed values and evidenced unknowns; applicability and competition eligibility remain separate.")
+        groups[2].update(status="recorded_settings_review_complete_with_unknowns", next="Keep supported capabilities separate from actual run settings; preserve missing settings as unknown.")
+    if annotations and annotations.get("prepared"):
+        groups[3].update(status="full_request_plan_and_unreviewed_candidates", next="Complete annotation responses and independent quality review; empirical difficulty remains unfitted.")
+    if evidence_plan and evidence_plan.get("prepared"):
+        groups[1].update(status="out_of_fold_collection_links_prepared", next="Collect eligible support outcomes and fit capability/difficulty features only with separate authorization.")
+        groups[5].update(status="training_only_episode_links_prepared", next="Materialize permitted support outcomes separately; no correction has been fitted.")
+    plan = {"feature_groups": groups, "new_laya_training_ready": False,
             "remaining": ["Reviewed task annotation and empirical capability builders",
                           "A versioned feature-to-Laya input contract and renderer",
                           "Matched controls and native token/visibility qualification"],
@@ -225,18 +250,23 @@ def finalize_bundle(inputs, systems, models, harnesses, tasks, out, *, collectio
             "sealed_roles_opened": False, "existing_training_contract_changed": False}
     write_json(out / "feature_plan.json", plan)
     summary = {"version": "feature_preparation_v1", "inputs": inputs,
-               "systems": systems, "models": models, "harnesses": harnesses, "tasks": tasks, "collection": collection, **plan}
+               "systems": systems, "models": models, "harnesses": harnesses, "tasks": tasks, "collection": collection,
+               "annotations": annotations, "evidence_plan": evidence_plan, **plan}
     write_json(out / "summary.json", summary)
     report = '<!doctype html><meta charset="utf-8"><title>Laya feature preparation</title><style>body{font:16px system-ui;max-width:1000px;margin:40px auto;padding:0 20px;line-height:1.5}table{border-collapse:collapse;width:100%}td,th{padding:10px;text-align:left;border-bottom:1px solid #ddd}pre{white-space:pre-wrap}</style>'
     report += '<h1>Laya feature preparation</h1><p>Preparation complete. New feature-based Laya training is not ready. Existing checkpoints and inputs are unchanged.</p>'
     report += '<h2>Dataset</h2><pre>' + escape(json.dumps({"records_by_role": tasks["records_by_role"], "systems": systems["systems"], "models": models["profiles"], "harnesses": harnesses["profiles"], "unique_task_inputs": tasks["tasks"], "normalized_contents": tasks["normalized_contents"]}, indent=2)) + '</pre>'
     report += '<h2>Feature buckets</h2><table><tr><th>Bucket</th><th>Current status</th><th>Next work</th></tr>'
-    for row in FEATURE_PLAN:
+    for row in groups:
         report += '<tr>' + ''.join('<td>' + escape(row[key]) + '</td>' for key in ["bucket", "status", "next"]) + '</tr>'
     report += '</table><h2>Next gates</h2><ul>' + ''.join('<li>' + escape(item) + '</li>' for item in plan["remaining"]) + '</ul>'
     if collection:
-        report += '<h2>Collection and review starter</h2><pre>' + escape(json.dumps(collection, indent=2)) + '</pre><p>Candidate annotations are agent-authored estimates with exact task spans. They have not been independently reviewed. Static facts reuse pinned sources; new source collection remains queued.</p>'
+        report += '<h2>Collection and review</h2><pre>' + escape(json.dumps(collection, indent=2)) + '</pre><p>Candidate annotations are agent-authored estimates with exact task spans. They have not been independently reviewed. Collected model facts are checked against pinned primary-source snapshots. The scoped metadata-review completion flag is shown above; task annotation remains incomplete.</p>'
+    if annotations and annotations.get("prepared"):
+        report += '<h2>Task annotation preparation</h2><pre>' + escape(json.dumps(annotations, indent=2)) + '</pre><p><a href="task_annotations_v2/review.html">Review task candidates and the unsent annotation pilot</a></p>'
+    if evidence_plan and evidence_plan.get("prepared"):
+        report += '<h2>Training-only evidence links</h2><pre>' + escape(json.dumps(evidence_plan, indent=2)) + '</pre><p>Collection links only: no outcomes exported, empirical estimates, inference or fitting.</p>'
     (out / "report.html").write_text(report)
     write_json(out / "manifest.json", {"version": "feature_preparation_v1", "input_manifest_sha256": inputs["manifest_sha256"],
-               "artifacts": {p.name: file_hash(p) for p in sorted(out.iterdir()) if p.is_file()}})
+               "artifacts": {str(p.relative_to(out)): file_hash(p) for p in sorted(out.rglob("*")) if p.is_file()}})
     return summary

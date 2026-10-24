@@ -17,7 +17,7 @@ from paiec.zenml_pipeline import configure_environment
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("action", choices=["setup", "run", "ui", "status"])
-    parser.add_argument("--config", default="configs/pipelines/feature_preparation_v1.json")
+    parser.add_argument("--config", default="configs/pipelines/feature_preparation_offline_v10.json")
     parser.add_argument("--out", help="Fresh repository-relative output under runs/")
     parser.add_argument("--port", type=int, default=8237)
     args = parser.parse_args()

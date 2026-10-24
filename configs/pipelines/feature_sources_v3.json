@@ -1,0 +1,33 @@
+{
+  "version": "feature_sources_v3",
+  "bundles": [
+    {
+      "catalog": "research/feature_collection",
+      "cache": "runs/feature_sources/primary_v1",
+      "assertions": "assertions_v1.jsonl"
+    },
+    {
+      "catalog": "research/feature_collection/provider_v2",
+      "cache": "runs/feature_sources/provider_v2",
+      "assertions": "assertions_v2.jsonl"
+    },
+    {
+      "catalog": "research/feature_collection/open_models_v3",
+      "cache": "runs/feature_sources/primary_v1",
+      "assertions": "assertions_v2.jsonl"
+    },
+    {
+      "catalog": "research/feature_collection/historical_v3",
+      "cache": "runs/feature_sources/historical_v3",
+      "assertions": "assertions_v2.jsonl"
+    }
+  ],
+  "review_ledgers": [
+    {
+      "catalog": "research/feature_collection/historical_v3",
+      "cache": "runs/feature_sources/historical_v3",
+      "reviews": "reviews_v2.jsonl"
+    }
+  ],
+  "nominal_context_ledger": "research/feature_collection/nominal_contexts_v1.jsonl"
+}
