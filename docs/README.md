@@ -1,8 +1,9 @@
 # Documentation
 
-For model-independent data and feature reuse, start with
-[shared data and features](shared-data-start.md): data roles, portable starter
-bundle, a verified `X`/`y` loading example, grouping metadata and feature code.
+Start with [collected model and harness information](shared-data-start.md)
+for the main shared handoff: facts, recorded run settings, sources and system
+mappings. Each approach can choose its own representation. Feature matrices
+and Laya inputs remain separate experiment artifacts.
 
 [Current status](current-status.md) records the completed negative Laya result
 and the decision to focus on other approaches. [Workflow organization](workflows.md)

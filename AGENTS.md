@@ -2,6 +2,18 @@
 
 ## Start here
 
+2026-10-24 SHARING DECISION: the user explicitly rejected making the failed
+experiment's feature matrix/training sample the main handoff. Share the
+collected model/harness facts, recorded settings, source evidence and original
+system mappings instead. `docs/shared-data-start.md` is a concise first-person,
+neutral account of that collection. No people's names or failure announcement
+in its opening. New export: `runs/shared_data/system_enrichment_v1.zip`, recipe
+`configs/data/enrichment_handoff_v1.json`, utility `scripts/export_system_enrichment.py`.
+It excludes questions, outcome labels, feature matrices and weights. The earlier
+statistical starter is retained as an experiment artifact, not recommended as
+the main shared dataset. Source facts and frozen renderer/recipe files stay
+unchanged. Use the Google Drive folder from the guide for the shared copy.
+
 2026-10-24 CURRENT DECISION: Laya is no longer the active modeling focus.
 The user requested documenting the completed negative result and preserving
 reusable data/pipelines for other approaches. Do not start further Laya training,
@@ -40,7 +52,7 @@ restart the helper or duplicate either job. Receipts:
 `runs/workflows/grouped_pilot_completion_v1/`.
 
 Reusable dataset: `runs/competition_pipeline/protocol_panel_v2/`, with 34,718
-training rows, seven families and 170 visible scopes. Portable core-only starter:
+training rows, seven families and 170 visible scopes. Retained statistical experiment export:
 `runs/shared_data/statistical_starter_v1.tar.gz` (467 features, separate native
 training targets and family/task grouping; no fitted weights or nontraining
 outcomes). It is Git-ignored. Its matrix matches the current feature source;

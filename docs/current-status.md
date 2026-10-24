@@ -35,17 +35,17 @@ for exact provenance and the cleanup-only recovery.
 | Asset | Reusable purpose |
 | --- | --- |
 | Dataset-only tables | Supplied system/task fields, stable joins and separate native training labels |
-| Portable statistical starter | 34,718 × 467 feature matrix plus family/scope/task grouping metadata |
+| Collected enrichment handoff | Model/base facts, harness capabilities, actual run settings, source evidence and original-system mappings |
+| Historical statistical starter | Optional experiment artifact; not the main sharing recommendation |
 | Frozen assignments and grouping helpers | Shared comparisons with whole-family and overlapping-task exclusions |
 | Scoring utilities | Trial-preserving, equally weighted pair Brier/ALC and calibration diagnostics |
 | ZenML / MLflow | Preparation, explicit execution, integrity manifests and saved experiment evidence |
 | Model/harness research tables | Optional sourced enrichment with unknowns and scope qualifiers; research-only |
 
-Start with [shared data and features](shared-data-start.md). It documents the
-portable archive, a verified `X`/`y` loader and feature source. Reading it needs
-the core package, not a neural runtime. The 467 features are a starting
-representation; prior ridge controls failed their quality gates. Logistic
-regression or other alternatives have not been trained by this documentation work.
+The main handoff is [collected model/harness information](shared-data-start.md),
+not the representation used by a failed experiment. These records let other
+approaches choose their own features. Prior matrices, selected training rows
+and trained weights are preserved separately as experiment artifacts.
 
 ## Protocol for the next approach
 

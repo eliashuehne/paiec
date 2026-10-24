@@ -21,23 +21,23 @@ approaches. Start with [current status](docs/current-status.md) and
 and model-specific limitations remain documented; data preparation alone does
 not establish predictive quality.
 
-## Reuse the data
+## Reuse the collected information
 
-The portable starter has **34,718 training rows**, a **467-feature matrix**,
-separate native binary labels and family/task grouping metadata. Logistic
-regression or another statistical model can read it using the core package;
-no Laya weights, Torch, MLX or GPU are required.
+The main handoff is the [model and harness collection](docs/shared-data-start.md):
+39 model/base profiles, eight harness profiles and 176 recorded system mappings,
+with actual run settings, source evidence, unknowns and scope qualifiers.
+Other approaches can choose their own features and representations from these
+records. No Laya formatting or statistical feature matrix is required.
 
-Local archive: `runs/shared_data/statistical_starter_v1.tar.gz`. Generated data
-is Git-ignored and needs a separate transfer or reconstruction. Optional
-model/harness research facts are separate and are not included in this
-dataset-only bundle; their competition eligibility remains unreviewed.
+The archive `system_enrichment_v1.zip` and guide are in the shared Drive folder
+linked from the collection guide. Locally it is under `runs/shared_data/`;
+generated data stays outside Git. The records are research metadata, with
+external-source competition eligibility still unreviewed.
 
-Use the [workflow map](docs/workflows.md) for ZenML orchestration and
-[data lifecycle](docs/data-lifecycle.md) for retained artifacts. Recipes,
-checkpoints, source snapshots and saved scores stay intact for reproducibility.
-The [completed Laya record](docs/grouped-enriched-training.md) contains exact
-results and artifact paths; the default checkpoint is not silently replaced.
+The earlier dataset-only 467-feature starter, selected training rows and Laya
+checkpoints are retained as experiment artifacts. They are not the primary
+handoff. See [workflows](docs/workflows.md), [data lifecycle](docs/data-lifecycle.md)
+and the [completed Laya record](docs/grouped-enriched-training.md) for provenance.
 
 ## Set up a fresh checkout
 
@@ -56,7 +56,7 @@ scope are documented in [requirements/README.md](requirements/README.md).
 
 | Purpose | Setup and use |
 | --- | --- |
-| Statistical data and features | [Shared starter](docs/shared-data-start.md), core package only |
+| Collected system information | [Model/harness collection](docs/shared-data-start.md), JSONL and CSV |
 | Preparation workflows | [ZenML with MLflow](docs/zenml.md), separate `.venv-pipeline` environment |
 | Public data and EDA | [Data provenance](docs/data-notes.md) |
 | Experiment dashboard | [MLflow](docs/mlflow.md) |

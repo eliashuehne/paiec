@@ -1,8 +1,8 @@
 # Configuration index
 
-For model-independent reuse, see [shared data and features](../docs/shared-data-start.md).
-`pipelines/competition_data_protocol_v2.json` is the dataset-only starting point;
-logistic regression does not need a Laya training recipe or GPU profile.
+For the main shared collection, see [model/harness information](../docs/shared-data-start.md).
+`data/enrichment_handoff_v1.json` exports the existing reviewed facts and system
+mappings. The dataset-only and Laya recipes below describe separate experiments.
 
 `head_finetuning/grouped_enriched_v1.json` binds the enriched-only multilingual
 grouped training recipe to its exact input export and passed qualification.
