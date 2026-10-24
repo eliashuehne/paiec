@@ -1,19 +1,54 @@
 # Shared data and features
 
-Use this data preparation for logistic regression or other predictors. Share
-examples, labels and split assignments; keep model-specific preprocessing separate.
-Laya is on hold after a completed negative result; see [current status](current-status.md).
-The prepared bundle remains available for other approaches. Reading it requires
-the core Python package, without Laya,
-Torch, MLX, a GPU or a running ZenML service.
+For training Laya, I prepared examples from the public measurement database
+that combine a question, the target system's recorded setup and its observed
+outcome. The idea was to predict whether a particular system would succeed on
+a question using information about both the system and the task.
 
-## Get started
+I also collected documented model and harness information, such as architecture,
+parameter counts and supported capabilities, where available. These facts are
+stored separately from the original dataset, with sources and unknown values
+preserved.
 
-Code is on the `laya` branch. Generated datasets are Git-ignored and must be
-transferred separately. The prepared archive is
-`runs/shared_data/statistical_starter_v1.tar.gz` (about 78 MiB); its checksum is
-in `statistical_starter_v1_receipt.json`. The extracted bundle contains an
-artifact hash manifest.
+## What I prepared
+
+The shared dataset contains **34,718 training examples across seven benchmark
+families and 170 system–benchmark combinations**. Several examples can involve
+the same question answered by different systems.
+
+| Data | Contents |
+| --- | --- |
+| System information | Supplied model name, provider, dates, harness and recorded settings |
+| Task information | Full question text, supplied task attributes and interaction context |
+| Outcomes | Original binary observations, stored separately from the inputs; their meaning depends on the dataset |
+| Grouping metadata | Links between examples, systems and tasks, plus family/task groups for validation |
+| Statistical features | A **34,718 × 467** matrix derived from the supplied system and task fields |
+
+The bundle also includes 1,000 monitor and 963 original-development input rows,
+without their outcomes. Calibration and confirmation data are not included.
+
+## How this could help other approaches
+
+The tables and grouping metadata can provide a common starting point for
+logistic regression or other models, without repeating the data preparation.
+Each approach can then choose its own representation and preprocessing.
+
+Alongside the Laya inputs, I built a statistical representation with text
+features, input lengths, dates, nominal model size, missing-value indicators
+and system–task interactions. The 467-feature matrix is ready to load for a
+statistical baseline. Laya used a separate text representation, not this matrix.
+The feature code is in [conditional_features.py](../src/paiec/conditional_features.py).
+
+The shared matrix uses only the original supplied fields. The additional
+model/harness research facts are **not included** in it or the starter bundle;
+they are available separately for research, subject to eligibility review.
+See [collected information](laya-input-contract.md).
+
+## Access and loading
+
+Code is on the `laya` branch. The data is shared separately as
+`statistical_starter_v1.tar.gz` (about 78 MiB), with a checksum receipt and an
+artifact manifest. Reading it requires only the core Python package.
 
 ```bash
 uv venv --python 3.12 .venv-stats
@@ -22,25 +57,13 @@ mkdir -p runs/shared_data
 tar -xzf /path/to/statistical_starter_v1.tar.gz -C runs/shared_data
 ```
 
-## Available data
+The archive contains `dataset/` (system/task tables, example links and training
+labels), `features/` (matrix and feature contract), and `training_metadata.jsonl`
+(grouping information). This example loads the training inputs and labels in
+their verified row order:
 
-| Resource | Contents |
-| --- | --- |
-| `dataset/systems.jsonl` | Eight supplied system fields, keyed by `system_key` |
-| `dataset/tasks.jsonl` | Full question text, supplied attributes and interactors, keyed by `task_key` |
-| `dataset/examples.jsonl` | Row keys, system/task joins, role and grouping metadata |
-| `dataset/training_targets.jsonl` | Native binary training outcomes, keyed by `row_key` |
-| `features/feature_matrix.npy` | **34,718 × 467** numeric/text features; no fitted estimator |
-| `training_metadata.jsonl` | Aligned family, scope and task-group metadata for splitting/weighting; exclude from model features |
-
-The bundle has **34,718 training rows across seven families and 170 scopes**.
-A scope is a target system/configuration paired with a benchmark, not a distinct
-model. It also contains 1,000 monitor and 963 original-development input rows,
-without their outcomes. Calibration/confirmation data is excluded.
-
-## Load training inputs and labels
-
-Run from the repository root after extracting the archive:
+<details>
+<summary>Python loading example</summary>
 
 ```python
 from pathlib import Path
@@ -71,31 +94,13 @@ assert X.shape == (len(y), contract["dimensions"]) == (34718, 467)
 assert np.isin(y, [0, 1]).all()
 ```
 
-## Features and evaluation
+</details>
 
-[conditional_features.py](../src/paiec/conditional_features.py) produces 256
-hashed task-text features, 64 system-text features, 19 numeric/missingness
-features and 128 system–task interactions. It preserves full text and uses no
-external research facts. The matrix matches the encoder hash in its contract.
-The existing [ridge estimator](../src/paiec/conditional_training.py) is not
-logistic regression and failed its quality gates; reuse does not establish
-predictive quality.
+The family/task groups support validation without splitting related questions
+across fitting and validation folds. The helper
+`conditional_analysis.family_training_mask` handles these exclusions. Any
+learned scaling, vocabulary or feature selection belongs inside the fitting
+fold; grouping identifiers stay outside the model inputs.
 
-Keep native label meanings: binary outcomes are not universally correctness.
-Do not fill missing model identities from private display names or use IDs,
-reference answers, grading rules or outcome-derived scores as input features.
-Use family/task-group holdouts, not random row splits; the helper
-`conditional_analysis.family_training_mask` excludes overlapping task groups.
-Fit scaling, vocabularies, feature selection and hyperparameters on fitting
-folds only. Agree on sample weighting and coordinate development evaluation.
-
-Optional documented model/harness facts are a separate **research-only** layer;
-see [collected inputs](laya-input-contract.md). They are excluded from this
-starter. Laya token windows and checkpoints are unnecessary for logistic regression.
-
-For original data, frozen role assignments and reconstruction dependencies, see
-[public data](data-notes.md), [frozen splits](head-data-split.md) and
-[workflows](workflows.md). The canonical table bundle is
-`runs/competition_pipeline/protocol_panel_v2/`. A fresh checkout does not contain
-its generated source dependencies. The portable starter can be read directly;
-some original provenance helpers require the original preparation paths.
+Further details: [data sources](data-notes.md), [split assignments](head-data-split.md),
+[preparation workflows](workflows.md) and [Laya experiment record](grouped-enriched-training.md).
