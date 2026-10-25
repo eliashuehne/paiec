@@ -1,8 +1,10 @@
 import unittest
+from pathlib import Path
 
-from paiec.folds import benchmark_folds
+from paiec.folds import benchmark_folds, grouped_benchmark_folds, load_benchmark_groups
 
 NAMES = [f"bench{i:03d}" for i in range(23)]
+GROUPS_CONFIG = Path(__file__).resolve().parents[1] / "configs" / "lift" / "benchmark_groups.json"
 
 
 class BenchmarkFoldTests(unittest.TestCase):
@@ -33,6 +35,67 @@ class BenchmarkFoldTests(unittest.TestCase):
     def test_at_least_two_folds_are_required(self):
         with self.assertRaises(ValueError):
             benchmark_folds(NAMES, k=1)
+
+
+class GroupedBenchmarkFoldTests(unittest.TestCase):
+    NAMES = [f"bench{i:03d}" for i in range(60)]
+    GROUPS = [["bench000", "bench001", "bench002"], ["bench010", "bench011"]]
+
+    def split(self, **kwargs):
+        return grouped_benchmark_folds(self.NAMES, self.GROUPS, **kwargs)
+
+    def test_groups_are_never_split(self):
+        for seed in range(20):
+            sealed, folds = self.split(seed=seed)
+            for group in self.GROUPS:
+                homes = [test for _, test in folds if set(group) & set(test)]
+                if set(group) <= set(sealed):
+                    self.assertEqual(homes, [])
+                else:
+                    self.assertEqual(len(homes), 1)
+                    self.assertLessEqual(set(group), set(homes[0]))
+
+    def test_sealed_benchmarks_never_appear_in_any_fold(self):
+        sealed, folds = self.split()
+        for train, test in folds:
+            self.assertFalse(set(sealed) & (set(train) | set(test)))
+
+    def test_every_benchmark_is_sealed_or_tested_exactly_once(self):
+        sealed, folds = self.split()
+        tested = [name for _, test in folds for name in test]
+        self.assertEqual(sorted(sealed + tested), self.NAMES)
+
+    def test_sealed_size_follows_fraction(self):
+        sealed, _ = self.split(sealed_fraction=0.2)
+        self.assertGreaterEqual(len(sealed), 12)
+        self.assertLessEqual(len(sealed), 12 + max(map(len, self.GROUPS)) - 1)
+
+    def test_sealed_set_does_not_depend_on_k(self):
+        self.assertEqual(self.split(k=5)[0], self.split(k=3)[0])
+
+    def test_same_seed_gives_same_split(self):
+        self.assertEqual(self.split(seed=3), self.split(seed=3))
+        self.assertNotEqual(self.split(seed=3), self.split(seed=4))
+
+    def test_folds_are_balanced(self):
+        _, folds = self.split()
+        sizes = [len(test) for _, test in folds]
+        self.assertLessEqual(max(sizes) - min(sizes), max(map(len, self.GROUPS)))
+
+    def test_benchmark_in_two_groups_raises(self):
+        with self.assertRaises(ValueError):
+            grouped_benchmark_folds(self.NAMES, [["bench000", "bench001"], ["bench001"]])
+
+    def test_unknown_group_members_are_ignored(self):
+        sealed, folds = grouped_benchmark_folds(self.NAMES, [["bench000", "missing"]])
+        everything = set(sealed) | {name for _, test in folds for name in test}
+        self.assertNotIn("missing", everything)
+
+    def test_shipped_groups_config_is_valid(self):
+        groups = load_benchmark_groups(GROUPS_CONFIG)
+        names = [name for group in groups for name in group]
+        self.assertEqual(len(names), len(set(names)))
+        self.assertIn(["adaptivestep", "felm", "ikp", "pku_saferlhf", "prox"], groups)
 
 
 if __name__ == "__main__":

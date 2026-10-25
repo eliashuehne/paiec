@@ -1,0 +1,8 @@
+{
+  "version": "benchmark_groups_v1",
+  "note": "Benchmarks that share identical item texts (matched on items.content_hash, revision 54074453). Each group must stay in one fold.",
+  "groups": {
+    "adaptivestep_family": ["adaptivestep", "felm", "ikp", "pku_saferlhf", "prox"],
+    "swe_family": ["multi_swebench", "swe_rebench", "swe_smith", "swebench_live", "swepolybench"]
+  }
+}
