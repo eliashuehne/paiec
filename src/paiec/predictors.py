@@ -6,6 +6,8 @@ from collections.abc import Sequence
 import importlib.util
 from pathlib import Path
 
+from .offset import BayesianOffset
+from .prior import LogisticPrior
 from .shrinkage import ShrunkMean
 
 
@@ -39,6 +41,8 @@ REGISTRY = {
     "constant": constant,
     "empirical_mean": empirical_mean,
     "shrunk_mean": ShrunkMean,
+    "logreg_prior": LogisticPrior,
+    "offset": BayesianOffset,
 }
 
 
