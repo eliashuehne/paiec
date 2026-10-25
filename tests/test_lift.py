@@ -3,7 +3,16 @@ import unittest
 import numpy as np
 import pandas as pd
 
-from paiec.lift import fit_predict, fold_splits, join_features, log_loss, run_lift
+from paiec.lift import (
+    BASELINES,
+    fit_predict,
+    fold_splits,
+    group_units,
+    in_fold_ability,
+    join_features,
+    log_loss,
+    run_lift,
+)
 from paiec.lift_sample import SEALED
 
 FOLDS = [str(k) for k in range(5)] * 5 + [SEALED] * 5
@@ -35,7 +44,7 @@ def mean_brier(result):
 
 class FoldSplitTests(unittest.TestCase):
     def test_train_and_test_benchmarks_never_overlap(self):
-        for _fold, train, test in fold_splits(synthetic_sample()):
+        for _, train, test in fold_splits(synthetic_sample()):
             self.assertFalse(set(train["benchmark"]) & set(test["benchmark"]))
 
     def test_each_open_benchmark_is_tested_exactly_once(self):
@@ -44,7 +53,7 @@ class FoldSplitTests(unittest.TestCase):
         self.assertEqual(sorted(tested), sorted(sample.loc[sample["fold"] != SEALED, "benchmark"].unique()))
 
     def test_sealed_rows_are_never_used(self):
-        for _fold, train, test in fold_splits(synthetic_sample()):
+        for _, train, test in fold_splits(synthetic_sample()):
             self.assertNotIn(SEALED, set(train["fold"]) | set(test["fold"]))
 
     def test_sealed_labels_do_not_change_the_scores(self):
@@ -76,6 +85,7 @@ class RunLiftTests(unittest.TestCase):
     def test_result_shape(self):
         result = run_lift(self.sample, ["signal"])
         self.assertEqual(result.columns, ("signal",))
+        self.assertEqual(result.abilities, ())
         self.assertEqual(result.folds["fold"].tolist(), ["0", "1", "2", "3", "4"])
         self.assertEqual(result.folds["benchmarks"].tolist(), [5] * 5)
         self.assertEqual(len(result.benchmarks), 25)
@@ -95,6 +105,168 @@ class RunLiftTests(unittest.TestCase):
     def test_unknown_column_raises(self):
         with self.assertRaises(ValueError):
             run_lift(self.sample, ["missing"])
+
+
+def skill_sample(seed=0):
+    """Systems whose strength carries across benchmarks; one in four has no name."""
+    rng = np.random.default_rng(seed)
+    skill = rng.normal(scale=1.5, size=40)
+    parts = []
+    for number, fold in enumerate(FOLDS):
+        system = rng.integers(0, 40, size=200)
+        label = (rng.random(200) < 1 / (1 + np.exp(-skill[system]))).astype(int)
+        parts.append(pd.DataFrame({
+            "benchmark": f"b{number:02d}",
+            "subject_id": [f"b{number:02d}_m{k}" for k in system],
+            "item_id": [f"b{number:02d}_i{k}" for k in range(200)],
+            "trial": 1,
+            "label": label,
+            "fold": fold,
+            "normalized_name": [f"m{k}" if k % 4 else None for k in system],
+        }))
+    return pd.concat(parts, ignore_index=True)
+
+
+def no_skill_sample(seed=0):
+    """Benchmarks differ a lot in difficulty, systems not at all; each benchmark has 4 systems."""
+    rng = np.random.default_rng(seed)
+    parts = []
+    for number, fold in enumerate(FOLDS):
+        difficulty = rng.normal(scale=2)
+        system = rng.choice(40, size=4, replace=False)[rng.integers(0, 4, size=1000)]
+        parts.append(pd.DataFrame({
+            "benchmark": f"b{number:02d}",
+            "subject_id": [f"m{k}" for k in system],
+            "item_id": [f"b{number:02d}_i{k}" for k in range(1000)],
+            "trial": 1,
+            "label": (rng.random(1000) < 1 / (1 + np.exp(-difficulty))).astype(int),
+            "fold": fold,
+            "normalized_name": [f"m{k}" for k in system],
+        }))
+    return pd.concat(parts, ignore_index=True)
+
+
+class GroupUnitTests(unittest.TestCase):
+    def test_grouped_benchmarks_share_a_unit(self):
+        self.assertEqual(group_units([["y", "x"], ["z"]]), {"x": "x+y", "y": "x+y", "z": "z"})
+
+    def test_benchmark_in_two_groups_raises(self):
+        with self.assertRaises(ValueError):
+            group_units([["x", "y"], ["y"]])
+
+
+class InFoldAbilityTests(unittest.TestCase):
+    # Benchmark rates: x = 1, y = 1/3, z = 1. Excess over them:
+    # x: a 0, a 0;  y: a -1/3, b +2/3, b -1/3;  z: (no name) 0.
+    TRAIN = pd.DataFrame({
+        "benchmark": ["x", "x", "y", "y", "y", "z"],
+        "name": ["a", "a", "a", "b", "b", None],
+        "label": [1, 1, 0, 1, 0, 1],
+    })
+
+    def ability(self, rows, strength=0):
+        return in_fold_ability(self.TRAIN, rows, "name", strength=strength)
+
+    def test_test_rows_use_every_training_benchmark(self):
+        ability = self.ability(pd.DataFrame({"benchmark": ["new"], "name": ["a"]}))
+        self.assertAlmostEqual(ability.loc[0, "name_ability"], -1 / 9)
+        self.assertEqual(ability.loc[0, "name_n"], 3)
+
+    def test_training_rows_leave_out_their_own_benchmark(self):
+        ability = self.ability(self.TRAIN)
+        self.assertAlmostEqual(ability["name_ability"].iloc[0], -1 / 3)  # "a" outside x: only y
+        self.assertEqual(ability["name_n"].iloc[0], 1)
+        self.assertAlmostEqual(ability["name_ability"].iloc[2], 0.0)  # "a" outside y: only x
+        self.assertEqual(ability["name_n"].iloc[2], 2)
+
+    def test_grouped_rows_leave_out_their_whole_group(self):
+        ability = in_fold_ability(self.TRAIN, self.TRAIN, "name", strength=0, units=group_units([["x", "y"]]))
+        np.testing.assert_array_equal(ability["name_n"].iloc[:5], 0)  # "a" and "b" appear only in x and y
+
+    def test_sibling_labels_do_not_change_a_grouped_row(self):
+        units = group_units([["x", "y"]])
+        in_y = self.TRAIN["benchmark"] == "y"
+        flipped = self.TRAIN.assign(label=np.where(in_y, 1 - self.TRAIN["label"], self.TRAIN["label"]))
+        pd.testing.assert_frame_equal(
+            in_fold_ability(self.TRAIN, self.TRAIN, "name", units=units).iloc[:2],
+            in_fold_ability(flipped, flipped, "name", units=units).iloc[:2],
+        )
+
+    def test_duplicate_row_index_raises(self):
+        with self.assertRaises(ValueError):
+            self.ability(pd.DataFrame({"benchmark": ["new", "new"], "name": ["a", "b"]}, index=[0, 0]))
+
+    def test_difficulty_is_removed(self):
+        # "b" is right half the time on y, where the average is 1/3: above average.
+        ability = self.ability(pd.DataFrame({"benchmark": ["new"], "name": ["b"]}))
+        self.assertGreater(ability.loc[0, "name_ability"], 0)
+
+    def test_missing_or_unseen_key_gets_zero(self):
+        rows = pd.DataFrame({"benchmark": ["new", "new", "z"], "name": [None, "unseen", None]})
+        for strength in (0, 20):
+            ability = self.ability(rows, strength)
+            np.testing.assert_array_equal(ability["name_ability"], 0)
+            np.testing.assert_array_equal(ability["name_n"], 0)
+
+    def test_smoothing_pulls_small_counts_toward_zero(self):
+        ability = self.ability(pd.DataFrame({"benchmark": ["new"], "name": ["b"]}), strength=2)
+        self.assertAlmostEqual(ability.loc[0, "name_ability"], (2 / 3 - 1 / 3) / (2 + 2))
+
+    def test_changing_test_fold_labels_leaves_features_unchanged(self):
+        sample = skill_sample()
+        flipped = sample.assign(label=np.where(sample["fold"] == "0", 1 - sample["label"], sample["label"]))
+        _, train, test = next(fold_splits(sample))
+        _, flipped_train, flipped_test = next(fold_splits(flipped))
+        pd.testing.assert_frame_equal(
+            in_fold_ability(train, test, "normalized_name"),
+            in_fold_ability(flipped_train, flipped_test, "normalized_name"),
+        )
+
+    def test_a_training_row_ignores_its_own_benchmark_labels(self):
+        train = skill_sample().query("fold != 'sealed'")
+        own = train["benchmark"] == "b00"
+        flipped = train.assign(label=np.where(own, 1 - train["label"], train["label"]))
+        pd.testing.assert_frame_equal(
+            in_fold_ability(train, train, "normalized_name")[own],
+            in_fold_ability(flipped, flipped, "normalized_name")[own],
+        )
+
+
+class BaselineTests(unittest.TestCase):
+    def test_baselines_use_only_visible_keys(self):
+        self.assertEqual(BASELINES["A"].columns + BASELINES["A"].abilities, ())
+        self.assertEqual(BASELINES["B"].abilities, ("normalized_name",))
+
+    def test_b_beats_a_when_system_strength_transfers(self):
+        sample = skill_sample()
+        a = run_lift(sample, **vars(BASELINES["A"]))
+        b = run_lift(sample, **vars(BASELINES["B"]))
+        self.assertEqual(b.abilities, ("normalized_name",))
+        self.assertTrue((b.folds["brier"] < a.folds["brier"]).all())
+
+    def test_b_does_not_fingerprint_benchmarks(self):
+        # Each (system, benchmark) pair has ~250 rows, enough for a leaf. Exact
+        # ability values and counts would let trees memorise training benchmark
+        # difficulty; B must stay close to A when systems carry no signal.
+        sample = no_skill_sample()
+        a = mean_brier(run_lift(sample, **vars(BASELINES["A"])))
+        self.assertLess(mean_brier(run_lift(sample, **vars(BASELINES["B"]))), a + 0.01)
+        unconstrained = []
+        for _, train, test in fold_splits(sample):
+            train = train.join(in_fold_ability(train, train, "normalized_name"))
+            test = test.join(in_fold_ability(train, test, "normalized_name"))
+            p = fit_predict(train, test, ["normalized_name_ability", "normalized_name_n"])
+            unconstrained.append(np.mean((p - test["label"]) ** 2))
+        self.assertGreater(np.mean(unconstrained), a + 0.02)  # the failure the guard prevents
+
+    def test_duplicate_sample_index_raises(self):
+        sample = skill_sample()
+        with self.assertRaises(ValueError):
+            run_lift(pd.concat([sample, sample]), abilities=["normalized_name"])
+
+    def test_unknown_ability_key_raises(self):
+        with self.assertRaises(ValueError):
+            run_lift(skill_sample(), abilities=["missing"])
 
 
 class JoinFeatureTests(unittest.TestCase):

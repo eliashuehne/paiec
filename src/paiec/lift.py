@@ -5,11 +5,14 @@ LightGBM on four folds and scores the fifth, for each fold in turn; sealed
 benchmarks are never read. Only the feature columns change between runs: the
 sample, the folds and the model settings stay fixed, so two runs differ only by
 what the features add.
+
+Features learned from labels (a system's ability) are rebuilt inside each fold
+from training benchmarks only; see ``in_fold_ability``.
 """
 
 from __future__ import annotations
 
-from collections.abc import Iterable, Iterator, Sequence
+from collections.abc import Iterable, Iterator, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -37,6 +40,8 @@ PARAMS = {
     "verbose": -1,
 }
 ROUNDS = 300
+# Pseudo-responses at zero ability added to every in-fold ability.
+ABILITY_STRENGTH = 20
 
 
 @dataclass(frozen=True)
@@ -44,6 +49,7 @@ class LiftResult:
     """Scores per held-out fold and per benchmark."""
 
     columns: tuple[str, ...]
+    abilities: tuple[str, ...]
     folds: pd.DataFrame
     benchmarks: pd.DataFrame
 
@@ -74,6 +80,87 @@ def load_features(sample: pd.DataFrame, paths: Sequence[Path]) -> pd.DataFrame:
     return join_features(sample, (pd.read_parquet(path) for path in paths))
 
 
+@dataclass(frozen=True)
+class Baseline:
+    """A named reference model: plain columns plus in-fold abilities."""
+
+    columns: tuple[str, ...] = ()
+    abilities: tuple[str, ...] = ()
+
+
+# A: training correct rate only. B: A plus the system's ability on other
+# benchmarks, keyed by the visible ``normalized_name`` (``subject_id`` is not a
+# predictor field). B needs the subject fields joined onto the sample.
+# Abilities enter the model alone and may only raise P(correct); see run_lift.
+BASELINES = {
+    "A": Baseline(),
+    "B": Baseline(abilities=("normalized_name",)),
+}
+
+
+def group_units(groups: Iterable[Sequence[str]]) -> dict[str, str]:
+    """Map each grouped benchmark to one shared unit name; ungrouped ones map to themselves."""
+    units = {}
+    for group in groups:
+        unit = "+".join(sorted(group))
+        for name in group:
+            if name in units:
+                raise ValueError(f"{name} is in more than one group")
+            units[name] = unit
+    return units
+
+
+def in_fold_ability(
+    train: pd.DataFrame,
+    rows: pd.DataFrame,
+    key: str,
+    strength: float = ABILITY_STRENGTH,
+    units: Mapping[str, str] | None = None,
+) -> pd.DataFrame:
+    """How much better than average ``key`` does, for ``rows``, learned from ``train`` only.
+
+    Each training response counts as its label minus its benchmark's training
+    correct rate, so a strong system tested only on hard benchmarks is not
+    mistaken for a weak one; a raw correct rate is confounded that way and
+    scores worse than no subject feature at all. The mean is smoothed toward
+    zero with ``strength`` pseudo-responses.
+
+    Each row's ability leaves out its own unit: its benchmark, or the whole
+    group from ``units`` (see ``group_units``) when its benchmark shares items
+    with others. Folds hold groups out together, so a test row's unit is never
+    in ``train`` and nothing is left out; a training row then sees exactly what
+    a test row sees, and the model cannot learn to trust a value built from its
+    own label or a sibling's. Rows whose key is missing or unseen get zero with
+    zero count.
+
+    Returns ``<key>_ability`` and ``<key>_n`` (responses behind it, for
+    diagnostics), indexed like ``rows``.
+    """
+    if not rows.index.is_unique:
+        raise ValueError("rows must have a unique index")
+    units = units or {}
+
+    def unit(frame):
+        return frame["benchmark"].map(lambda name: units.get(name, name))
+
+    benchmark_rate = train.groupby("benchmark")["label"].mean()
+    known = train.dropna(subset=[key])
+    known = known.assign(
+        excess=known["label"] - known["benchmark"].map(benchmark_rate),
+        unit=unit(known),
+    )
+    total = known.groupby(key)["excess"].agg(["sum", "count"])
+    own = known.groupby([key, "unit"])["excess"].agg(["sum", "count"])
+    own_index = pd.MultiIndex.from_arrays([rows[key], unit(rows)])
+    excess, count = (
+        total.reindex(rows[key]).fillna(0).to_numpy()
+        - own.reindex(own_index).fillna(0).to_numpy()
+    ).T
+    denominator = count + strength
+    ability = np.divide(excess, denominator, out=np.zeros(len(rows)), where=denominator > 0)
+    return pd.DataFrame({f"{key}_ability": ability, f"{key}_n": count}, index=rows.index)
+
+
 def fold_splits(sample: pd.DataFrame) -> Iterator[tuple[str, pd.DataFrame, pd.DataFrame]]:
     """Yield ``(fold, train, test)`` for each numbered fold, never touching sealed rows."""
     open_rows = sample[sample["fold"] != SEALED]
@@ -99,16 +186,25 @@ def _model_frame(train: pd.DataFrame, test: pd.DataFrame, columns: Sequence[str]
     return x_train, x_test
 
 
-def fit_predict(train: pd.DataFrame, test: pd.DataFrame, columns: Sequence[str]) -> np.ndarray:
+def fit_predict(
+    train: pd.DataFrame,
+    test: pd.DataFrame,
+    columns: Sequence[str],
+    increasing: Sequence[str] = (),
+) -> np.ndarray:
     """Train on ``train`` and return P(correct) for each ``test`` row.
 
+    Columns in ``increasing`` may only raise the prediction as they grow.
     With no columns the prediction is the training correct rate, which is the
     floor every feature set is compared against.
     """
     if not columns:
         return np.full(len(test), train["label"].mean())
     x_train, x_test = _model_frame(train, test, columns)
-    model = lgb.train(PARAMS, lgb.Dataset(x_train, label=train["label"]), num_boost_round=ROUNDS)
+    params = PARAMS
+    if increasing:
+        params = {**PARAMS, "monotone_constraints": [int(c in increasing) for c in columns]}
+    model = lgb.train(params, lgb.Dataset(x_train, label=train["label"]), num_boost_round=ROUNDS)
     return model.predict(x_test)
 
 
@@ -127,18 +223,40 @@ def _scores(frame: pd.DataFrame) -> dict:
     }
 
 
-def run_lift(sample: pd.DataFrame, columns: Sequence[str] = ()) -> LiftResult:
+def run_lift(
+    sample: pd.DataFrame,
+    columns: Sequence[str] = (),
+    abilities: Sequence[str] = (),
+    groups: Iterable[Sequence[str]] = (),
+) -> LiftResult:
     """Score ``columns`` on every numbered fold; sealed benchmarks are skipped.
+
+    Each key in ``abilities`` adds a ``<key>_ability`` column, rebuilt in every
+    fold from that fold's training benchmarks, leaving out each row's benchmark
+    group (``groups``, as in ``configs/lift/benchmark_groups.json``). The model
+    sees the ability alone and may only raise P(correct) with it: an exact value
+    or count differs per training benchmark, and trees would use it to memorise
+    that benchmark's difficulty, which never transfers.
 
     Fold rows report row-weighted Brier and log loss plus ``brier_macro``, the
     mean of per-benchmark Brier, so small benchmarks count as much as large ones.
     """
-    missing = sorted(set(columns) - set(sample.columns))
+    missing = sorted((set(columns) | set(abilities)) - set(sample.columns))
     if missing:
         raise ValueError(f"columns not in sample: {missing}")
+    if not sample.index.is_unique:
+        raise ValueError("sample must have a unique index")
+    units = group_units(groups)
+    ability_columns = [f"{key}_ability" for key in abilities]
+    model_columns = [*columns, *ability_columns]
     folds, benchmarks = [], []
     for fold, train, test in fold_splits(sample):
-        scored = test.assign(p=fit_predict(train, test, columns))
+        for key, column in zip(abilities, ability_columns):
+            train, test = (
+                train.assign(**{column: in_fold_ability(train, train, key, units=units)[column]}),
+                test.assign(**{column: in_fold_ability(train, test, key, units=units)[column]}),
+            )
+        scored = test.assign(p=fit_predict(train, test, model_columns, increasing=ability_columns))
         per_benchmark = [
             {"fold": fold, "benchmark": name, **_scores(group)}
             for name, group in scored.groupby("benchmark", sort=True)
@@ -150,16 +268,21 @@ def run_lift(sample: pd.DataFrame, columns: Sequence[str] = ()) -> LiftResult:
             **_scores(scored),
             "brier_macro": float(np.mean([row["brier"] for row in per_benchmark])),
         })
-    return LiftResult(tuple(columns), pd.DataFrame(folds), pd.DataFrame(benchmarks))
+    return LiftResult(tuple(columns), tuple(abilities), pd.DataFrame(folds), pd.DataFrame(benchmarks))
 
 
 __all__ = [
+    "ABILITY_STRENGTH",
+    "BASELINES",
     "KEYS",
     "PARAMS",
     "ROUNDS",
+    "Baseline",
     "LiftResult",
     "fit_predict",
     "fold_splits",
+    "group_units",
+    "in_fold_ability",
     "join_features",
     "load_features",
     "log_loss",
