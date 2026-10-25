@@ -8,17 +8,15 @@ the same call pattern the platform uses, minus the hidden data.
 from __future__ import annotations
 
 import math
-from collections.abc import Callable, Iterable, Sequence
+from collections.abc import Iterable, Sequence
 from dataclasses import dataclass
 
-import numpy as np
 import pandas as pd
 
+from .contracts import Predictor
 from .metrics import BUDGETS, brier, brier_alc, ece
 from .pairs import Pair
 from .split import first_labels, labelled_prefix, make_split
-
-Predict = Callable[[dict, dict, list], float]
 
 
 @dataclass(frozen=True)
@@ -46,7 +44,7 @@ def valid_probability(value, context: str) -> float:
 
 def score_pair(
     pair: Pair,
-    predict: Predict,
+    predict: Predictor,
     *,
     seed: int = 0,
     budgets: Sequence[int] = BUDGETS,
@@ -68,6 +66,7 @@ def score_pair(
         pair.responses["item_id"].isin(evaluation_item_ids)
     ]
 
+    labels = evaluation_responses["label"].to_numpy()
     results = []
     for budget in budgets:
         labeled = labelled_prefix(pair, split, budget, first_response_by_item)
@@ -78,7 +77,7 @@ def score_pair(
                 predict(pair.subject, item, labeled),
                 f"{pair.benchmark}/{pair.subject_id} at budget {budget}",
             )
-        labels = evaluation_responses["label"].to_numpy()
+        # One item prediction can score several response rows (repeated trials).
         probabilities = evaluation_responses["item_id"].map(predictions).to_numpy()
         results.append(
             {
@@ -94,9 +93,14 @@ def score_pair(
     return results
 
 
+def _pair_brier_alc(scores: pd.Series) -> float:
+    budgets = scores.index.get_level_values("budget")
+    return brier_alc(dict(zip(budgets, scores)))
+
+
 def evaluate(
     pairs: Iterable[Pair],
-    predict: Predict,
+    predict: Predictor,
     *,
     seed: int = 0,
     budgets: Sequence[int] = BUDGETS,
@@ -120,11 +124,9 @@ def evaluate(
     if frame.empty:
         raise ValueError("no pairs were scored")
 
-    keyed = frame.set_index(["benchmark", "subject_id", "budget"])
-    pair_alc = (
-        keyed["brier"].groupby(level=["benchmark", "subject_id"]).agg(
-            lambda s: brier_alc(dict(zip(s.index.get_level_values("budget"), s)))
-        )
+    scores = frame.set_index(["benchmark", "subject_id", "budget"])["brier"]
+    pair_alc = scores.groupby(level=["benchmark", "subject_id"]).agg(
+        _pair_brier_alc
     )
     per_budget = frame.groupby("budget")["brier"].mean()
     return EvalResult(
@@ -152,4 +154,4 @@ def format_summary(result: EvalResult, label: str = "") -> str:
     return "\n".join(lines)
 
 
-__all__ = ["EvalResult", "Predict", "evaluate", "format_summary", "score_pair"]
+__all__ = ["EvalResult", "evaluate", "format_summary", "score_pair"]

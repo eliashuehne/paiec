@@ -8,23 +8,53 @@ under ``<data_root>/../cache`` because building them needs the item text.
 
 from __future__ import annotations
 
+from collections.abc import Sequence
+from dataclasses import dataclass
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import numpy as np
-import pandas as pd
 
 from .features import DIM, FEATURE_VERSION, item_vector, subject_vector
 from .folds import benchmark_folds
 from .schema import item_record, load_benchmark, subject_record
 from .split import stable_seed
 
+if TYPE_CHECKING:
+    from scipy.sparse import csr_matrix
+
+
+@dataclass(frozen=True)
+class _TrainingData:
+    """Keep feature rows, labels, weights and benchmark names aligned."""
+
+    matrix: csr_matrix
+    labels: np.ndarray
+    weights: np.ndarray
+    benchmarks: np.ndarray
+
+    def for_benchmarks(self, names: Sequence[str]) -> _TrainingData:
+        selected = np.isin(self.benchmarks, names)
+        return _TrainingData(
+            self.matrix[selected],
+            self.labels[selected],
+            self.weights[selected],
+            self.benchmarks[selected],
+        )
+
 
 def cache_dir(data_root) -> Path:
     return Path(data_root).resolve().parent / "cache" / f"prior_v{FEATURE_VERSION}"
 
 
-def benchmark_rows(data_root, benchmark: str, max_pairs: int = 20, items_per_pair: int = 50,
-                   seed: int = 0, min_items: int = 80) -> dict[str, np.ndarray]:
+def benchmark_rows(
+    data_root,
+    benchmark: str,
+    max_pairs: int = 20,
+    items_per_pair: int = 50,
+    seed: int = 0,
+    min_items: int = 80,
+) -> dict[str, np.ndarray]:
     """Sparse training rows (CSR parts), labels and row weights for one benchmark."""
     name = benchmark.split("/")[0]
     path = cache_dir(data_root) / f"{name}_p{max_pairs}_i{items_per_pair}_s{seed}.npz"
@@ -38,23 +68,38 @@ def benchmark_rows(data_root, benchmark: str, max_pairs: int = 20, items_per_pai
     sizes = responses.groupby("subject_id").size()
     qualifying = sorted(sizes[sizes >= min_items].index)
     rng = np.random.default_rng(stable_seed(seed, name, "prior"))
-    chosen = rng.choice(qualifying, size=min(max_pairs, len(qualifying)), replace=False) if qualifying else []
+    chosen = []
+    if qualifying:
+        chosen = rng.choice(qualifying, size=min(max_pairs, len(qualifying)), replace=False)
 
-    indptr, indices, values, labels, weights = [0], [], [], [], []
+    # CSR stores the start of each sparse row, followed by its columns and values.
+    indptr = [0]
+    indices, values = [], []
+    labels, weights = [], []
     for subject_id in sorted(chosen):
-        subject_idx, subject_val = subject_vector(subject_record(tables.subjects.loc[subject_id]))
-        group = responses[responses["subject_id"] == subject_id]
-        group = group.sample(n=min(items_per_pair, len(group)), random_state=int(rng.integers(2**31)))
-        for row in group.itertuples(index=False):
-            stored = tables.items.loc[row.item_id]
-            item = item_record({"content": stored["content"], "item_features": stored["item_features"],
-                                "interactors": row.interactors}, name)
-            item_idx, item_val = item_vector(item)
-            indices.append(np.concatenate([item_idx, subject_idx]))
-            values.append(np.concatenate([item_val, subject_val]))
+        subject = subject_record(tables.subjects.loc[subject_id])
+        subject_indices, subject_values = subject_vector(subject)
+        subject_responses = responses[responses["subject_id"] == subject_id]
+        sampled = subject_responses.sample(
+            n=min(items_per_pair, len(subject_responses)),
+            random_state=int(rng.integers(2**31)),
+        )
+        for row in sampled.itertuples(index=False):
+            stored_item = tables.items.loc[row.item_id]
+            item = item_record(
+                {
+                    "content": stored_item["content"],
+                    "item_features": stored_item["item_features"],
+                    "interactors": row.interactors,
+                },
+                name,
+            )
+            item_indices, item_values = item_vector(item)
+            indices.append(np.concatenate([item_indices, subject_indices]))
+            values.append(np.concatenate([item_values, subject_values]))
             indptr.append(indptr[-1] + len(indices[-1]))
             labels.append(row.label)
-            weights.append(1.0 / len(group))
+            weights.append(1.0 / len(sampled))
 
     rows = {
         "indptr": np.asarray(indptr, dtype=np.int64),
@@ -70,18 +115,27 @@ def benchmark_rows(data_root, benchmark: str, max_pairs: int = 20, items_per_pai
 
 def training_matrix(data_root, benchmarks):
     """Stack cached rows: (CSR matrix, labels, weights, benchmark of each row)."""
-    from scipy.sparse import csr_matrix
+    from scipy.sparse import csr_matrix, vstack
 
-    parts = [(b, benchmark_rows(data_root, b)) for b in benchmarks]
-    parts = [(b, rows) for b, rows in parts if rows["labels"].size]
-    matrices = [csr_matrix((rows["values"], rows["indices"], rows["indptr"]), shape=(rows["labels"].size, DIM))
-                for _, rows in parts]
-    from scipy.sparse import vstack
+    parts = []
+    matrices = []
+    for benchmark in benchmarks:
+        rows = benchmark_rows(data_root, benchmark)
+        if rows["labels"].size == 0:
+            continue
+        parts.append((benchmark, rows))
+        matrix = csr_matrix(
+            (rows["values"], rows["indices"], rows["indptr"]),
+            shape=(rows["labels"].size, DIM),
+        )
+        matrices.append(matrix)
 
     matrix = vstack(matrices).tocsr()
     labels = np.concatenate([rows["labels"] for _, rows in parts])
     weights = np.concatenate([rows["weights"] for _, rows in parts])
-    groups = np.concatenate([[b] * rows["labels"].size for b, rows in parts])
+    groups = np.concatenate([
+        [benchmark] * rows["labels"].size for benchmark, rows in parts
+    ])
     return matrix, labels, weights, groups
 
 
@@ -110,22 +164,38 @@ class LogisticPrior:
         self._item_cache: dict = {}
         self._subject_cache: dict = {}
 
-    def fit(self, data_root, train_benchmarks):
-        matrix, labels, weights, groups = training_matrix(data_root, train_benchmarks)
-        inner_train, inner_val = benchmark_folds(sorted(set(groups)), k=5, seed=1)[0]
-        fit_rows, val_rows = np.isin(groups, inner_train), np.isin(groups, inner_val)
-        scores = []
-        for regularization in self.REGULARIZATION_GRID:
-            coef, intercept = _fit_logistic(matrix[fit_rows], labels[fit_rows], weights[fit_rows], regularization)
-            scores.append(_weighted_brier(matrix[val_rows], labels[val_rows], weights[val_rows], coef, intercept))
-        self.regularization = float(self.REGULARIZATION_GRID[int(np.argmin(scores))])
-        self.coef, self.intercept = _fit_logistic(matrix, labels, weights, self.regularization)
+    def fit(self, data_root: str | Path, train_benchmarks: Sequence[str]) -> LogisticPrior:
+        data = _TrainingData(*training_matrix(data_root, train_benchmarks))
+        self.regularization = self._choose_regularization(data)
+        self.coef, self.intercept = _fit_logistic(
+            data.matrix, data.labels, data.weights, self.regularization
+        )
         self._item_cache.clear()
         self._subject_cache.clear()
         return self
 
+    def _choose_regularization(self, data: _TrainingData) -> float:
+        # Tune on a held-out subset of the outer fold's training benchmarks.
+        train_names, validation_names = benchmark_folds(
+            sorted(set(data.benchmarks)), k=5, seed=1
+        )[0]
+        train = data.for_benchmarks(train_names)
+        validation = data.for_benchmarks(validation_names)
+        scores = []
+        for regularization in self.REGULARIZATION_GRID:
+            coef, intercept = _fit_logistic(
+                train.matrix, train.labels, train.weights, regularization
+            )
+            score = _weighted_brier(
+                validation.matrix, validation.labels, validation.weights, coef, intercept
+            )
+            scores.append(score)
+        return float(self.REGULARIZATION_GRID[int(np.argmin(scores))])
+
     def logit(self, subject: dict, item: dict) -> float:
-        item_key = (item.get("item_content"), item.get("item_features"), item.get("interactors"))
+        item_key = (
+            item.get("item_content"), item.get("item_features"), item.get("interactors")
+        )
         if item_key not in self._item_cache:
             indices, values = item_vector(item)
             self._item_cache[item_key] = float(self.coef[indices] @ values)

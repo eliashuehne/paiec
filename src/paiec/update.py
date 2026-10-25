@@ -28,12 +28,13 @@ def offset_posterior(prior_logits, labels, tau: float) -> tuple[float, float]:
     precision = 1.0 / (tau * tau)
     shift = 0.0
     for _ in range(NEWTON_STEPS):
-        p = sigmoid(prior_logits + shift)
-        gradient = np.sum(labels - p) - shift * precision
-        curvature = np.sum(p * (1.0 - p)) + precision
+        probabilities = sigmoid(prior_logits + shift)
+        gradient = np.sum(labels - probabilities) - shift * precision
+        curvature = np.sum(probabilities * (1.0 - probabilities)) + precision
         shift += gradient / curvature
-    p = sigmoid(prior_logits + shift)
-    return float(shift), float(1.0 / (np.sum(p * (1.0 - p)) + precision))
+    probabilities = sigmoid(prior_logits + shift)
+    variance = 1.0 / (np.sum(probabilities * (1.0 - probabilities)) + precision)
+    return float(shift), float(variance)
 
 
 def constant_prior_posterior(level: float, correct, revealed: int, tau: float):
@@ -42,10 +43,13 @@ def constant_prior_posterior(level: float, correct, revealed: int, tau: float):
     precision = 1.0 / (tau * tau)
     shift = np.zeros_like(correct)
     for _ in range(NEWTON_STEPS):
-        p = sigmoid(level + shift)
-        shift += (correct - revealed * p - shift * precision) / (revealed * p * (1.0 - p) + precision)
-    p = sigmoid(level + shift)
-    return shift, 1.0 / (revealed * p * (1.0 - p) + precision)
+        probabilities = sigmoid(level + shift)
+        gradient = correct - revealed * probabilities - shift * precision
+        curvature = revealed * probabilities * (1.0 - probabilities) + precision
+        shift += gradient / curvature
+    probabilities = sigmoid(level + shift)
+    variance = 1.0 / (revealed * probabilities * (1.0 - probabilities) + precision)
+    return shift, variance
 
 
 def predictive(prior_logit, shift_mean, shift_variance):
@@ -53,4 +57,49 @@ def predictive(prior_logit, shift_mean, shift_variance):
     return sigmoid((prior_logit + shift_mean) / np.sqrt(1.0 + np.pi * shift_variance / 8.0))
 
 
-__all__ = ["constant_prior_posterior", "offset_posterior", "predictive", "sigmoid"]
+def tag_offset_posterior(level: float, design, labels, tau: float, sigma: float):
+    """Posterior mean and covariance of (pair shift, tag shifts).
+
+    ``design`` columns: 0 = pair shift with prior Normal(0, tau^2); the rest =
+    one tag value each with prior Normal(0, sigma^2). With ``sigma == 0`` only
+    the pair shift is kept, which reduces to ``offset_posterior``.
+    """
+    design = np.asarray(design, dtype=float)
+    labels = np.asarray(labels, dtype=float)
+    if sigma <= 0:
+        design = design[:, :1]
+    tag_precision = 1.0 / (sigma * sigma) if sigma > 0 else 0.0
+    precision = np.full(design.shape[1], tag_precision)
+    precision[0] = 1.0 / (tau * tau)
+    prior_curvature = np.diag(precision)
+    shifts = np.zeros(design.shape[1])
+    for _ in range(NEWTON_STEPS):
+        probabilities = sigmoid(level + design @ shifts)
+        gradient = design.T @ (labels - probabilities) - precision * shifts
+        label_variance = probabilities * (1.0 - probabilities)
+        curvature = (design.T * label_variance) @ design + prior_curvature
+        shifts += np.linalg.solve(curvature, gradient)
+
+    probabilities = sigmoid(level + design @ shifts)
+    label_variance = probabilities * (1.0 - probabilities)
+    covariance = np.linalg.inv((design.T * label_variance) @ design + prior_curvature)
+    return shifts, covariance
+
+
+def tag_predictive(level: float, theta, covariance, columns, unseen: int, sigma: float) -> float:
+    """Predict using known tag shifts and the uncertainty of any unseen values."""
+    indices = [0] + (list(columns) if sigma > 0 else [])
+    mean = float(np.sum(theta[indices]))
+    unseen_variance = unseen * sigma * sigma if sigma > 0 else 0.0
+    variance = float(covariance[np.ix_(indices, indices)].sum()) + unseen_variance
+    return float(predictive(level, mean, variance))
+
+
+__all__ = [
+    "constant_prior_posterior",
+    "offset_posterior",
+    "predictive",
+    "sigmoid",
+    "tag_offset_posterior",
+    "tag_predictive",
+]
