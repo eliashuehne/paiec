@@ -24,12 +24,12 @@ not establish predictive quality.
 ## Reuse the collected information
 
 The main handoff is the [model and harness collection](docs/shared-data-start.md):
-39 model/base profiles, eight harness profiles and 176 recorded system mappings,
+46 model/base/family profiles, eight harness profiles and 189 catalog configurations,
 with actual run settings, source evidence, unknowns and scope qualifiers.
 Other approaches can choose their own features and representations from these
 records. No Laya formatting or statistical feature matrix is required.
 
-The archive `system_enrichment_v1.zip` and guide are in the shared Drive folder
+The archive `system_enrichment_v2.zip` and guide are in the shared Drive folder
 linked from the collection guide. Locally it is under `runs/shared_data/`;
 generated data stays outside Git. The records are research metadata, with
 external-source competition eligibility still unreviewed.

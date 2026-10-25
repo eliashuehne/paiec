@@ -10,7 +10,7 @@ See [current status](current-status.md) and [shared data](shared-data-start.md).
 
 | Data version under `runs/` | Use |
 | --- | --- |
-| `shared_data/system_enrichment_v1` | Main shared collection: model/harness facts, run settings, sources and system mappings |
+| `shared_data/system_enrichment_v2` | Main shared collection: model/harness facts, run settings, sources and system mappings |
 | `shared_data/statistical_starter_v1` | Retained statistical experiment artifact; not the primary handoff |
 | `grouped_enriched/prepared_v1/tokens` | Full grouped training tokens and exact collected-fact snapshot |
 | `workflows/grouped_enriched_training_v1/job/output/final` | Completed fitted checkpoint; preserve hashes and native configuration |

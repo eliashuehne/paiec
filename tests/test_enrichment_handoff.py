@@ -12,6 +12,49 @@ from paiec.head_training import file_hash
 
 
 class EnrichmentHandoffTests(unittest.TestCase):
+    def test_full_collection_preserves_unbound_profiles_history_and_reviewed_unknowns(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            source, guide, digest, _ = self.fixture(root)
+            catalog = root / "research/catalog"
+            catalog.mkdir(parents=True)
+            profiles = list(read_jsonl(source / "supplemented_model_profiles.jsonl"))
+            candidate = dict(profiles[0], profile_id="model.candidate")
+            profiles.append(candidate)
+            profiles[0]["specifications"]["release_date"] = {
+                "value": "2020-01-01", "status": "inferred", "evidence": [], "note": "Unconfirmed older claim"}
+            profiles.append({"profile_id": "run.example", "entity_type": "recorded_run",
+                             "specifications": {"model_profile_id": None}})
+            write_jsonl(catalog / "profiles.jsonl", profiles)
+            write_jsonl(catalog / "subjects.jsonl", [{"profile_id": "run.example",
+                "model_profile_id": None, "harness_profile_id": None,
+                "candidate_model_profile_ids": ["model.candidate"]}])
+            history = root / "research/earlier.jsonl"
+            history.write_text('{"claim":"superseded; retain for reference"}\n')
+            inventory = root / "inventory.json"
+            files = [catalog / "profiles.jsonl", catalog / "subjects.jsonl", history]
+            write_json(inventory, {"artifacts": {str(p.relative_to(root)): file_hash(p) for p in files}})
+            collection = dict(root=root, inventory=inventory, inventory_sha256=file_hash(inventory),
+                              latest_catalog="research/catalog")
+            out = root / "full_export"
+            export_enrichment(source, out, expected_manifest_sha256=digest, guide=guide, collection=collection)
+            manifest = verify_handoff(out)
+            self.assertEqual(manifest["version"], "system_enrichment_handoff_v2")
+            self.assertEqual(manifest["counts"]["models"], 2)
+            self.assertEqual(manifest["counts"]["catalog_system_configurations"], 1)
+            models = {r["profile_id"]: r for r in read_jsonl(out / "models.jsonl")}
+            self.assertIsNone(models["model.example"]["facts"]["release_date"]["value"])
+            self.assertEqual(models["model.candidate"]["identity"]["resolution"], "unresolved")
+            self.assertEqual(models["model.candidate"]["facts"]["unreviewed_inference"]["status"], "inferred")
+            self.assertEqual((out / "provenance/research/earlier.jsonl").read_bytes(), history.read_bytes())
+            self.assertEqual((out / "provenance/research/catalog/profiles.jsonl").read_bytes(), files[0].read_bytes())
+            self.assertIsNone(list(read_jsonl(out / "catalog_systems.jsonl"))[0]["model_profile_id"])
+            history.write_text("changed")
+            with self.assertRaisesRegex(ValueError, "Collection source changed"):
+                export_enrichment(source, root / "changed_export", expected_manifest_sha256=digest,
+                                  guide=guide, collection=collection)
+            self.assertFalse((root / "changed_export").exists())
+
     def fixture(self, root):
         source = root / "source"
         source.mkdir()

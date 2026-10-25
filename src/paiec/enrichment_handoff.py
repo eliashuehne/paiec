@@ -38,7 +38,7 @@ def write_csv(path, fields, rows):
 def verify_handoff(folder):
     folder = Path(folder).resolve()
     manifest = json.loads((folder / "manifest.json").read_text())
-    if manifest.get("version") != "system_enrichment_handoff_v1" or manifest.get("source_policy") != "research_only":
+    if manifest.get("version") not in {"system_enrichment_handoff_v1", "system_enrichment_handoff_v2"} or manifest.get("source_policy") != "research_only":
         raise ValueError("Unknown enrichment handoff")
     for name, digest in manifest["artifacts"].items():
         path = (folder / name).resolve()
@@ -47,7 +47,7 @@ def verify_handoff(folder):
     return manifest
 
 
-def export_enrichment(source, out, *, expected_manifest_sha256, guide):
+def export_enrichment(source, out, *, expected_manifest_sha256, guide, collection=None):
     source, out, guide = Path(source).resolve(), Path(out).resolve(), Path(guide).resolve()
     if out.is_relative_to(source) or source.is_relative_to(out):
         raise ValueError("Keep exports separate from immutable source tables")
@@ -65,6 +65,34 @@ def export_enrichment(source, out, *, expected_manifest_sha256, guide):
         if file_hash(source / name) != source_manifest["artifacts"][name]:
             raise ValueError("Reviewed source table changed: " + name)
         tables[name] = list(read_jsonl(source / name))
+    # The optional full collection supplements the scoped preparation view.
+    # An explicit, hash-pinned inventory prevents unrelated run data entering it.
+    collection_files, catalog_profiles, catalog_systems = {}, [], []
+    if collection is not None:
+        root = Path(collection["root"]).resolve()
+        inventory = Path(collection["inventory"]).resolve()
+        if file_hash(inventory) != collection["inventory_sha256"]:
+            raise ValueError("Collection inventory changed")
+        for name, digest in json.loads(inventory.read_text())["artifacts"].items():
+            if Path(name).is_absolute() or ".." in Path(name).parts:
+                raise ValueError("Collection inventory needs relative paths")
+            path = (root / name).resolve()
+            if (not path.is_relative_to(root) or not path.is_file()
+                    or file_hash(path) != digest):
+                raise ValueError("Collection source changed or escaped its root: " + name)
+            if out.is_relative_to(path) or path.is_relative_to(out):
+                raise ValueError("Keep collection sources separate from the export")
+            collection_files[name] = path
+        latest = collection["latest_catalog"].rstrip("/")
+        catalog_profiles = list(read_jsonl(collection_files[latest + "/profiles.jsonl"]))
+        catalog_systems = list(read_jsonl(collection_files[latest + "/subjects.jsonl"]))
+        ids = {p["profile_id"] for p in catalog_profiles}
+        run_ids = {p["profile_id"] for p in catalog_profiles if p["entity_type"] == "recorded_run"}
+        if len(ids) != len(catalog_profiles) or {r["profile_id"] for r in catalog_systems} != run_ids:
+            raise ValueError("Catalog profiles/system mappings differ")
+        for row in catalog_systems:
+            if any(row.get(k) is not None and row[k] not in ids for k in ["model_profile_id", "harness_profile_id"]):
+                raise ValueError("Catalog system references an absent profile")
     sources = {}
     for name in ["profile_sources.jsonl", "supplemental_sources.jsonl"]:
         for row in tables[name]:
@@ -101,13 +129,31 @@ def export_enrichment(source, out, *, expected_manifest_sha256, guide):
                    "valid_from": profile["valid_from"], "valid_until": profile["valid_until"],
                    "usage": "research_only", "facts": dict(sorted(facts.items()))}
             profiles[key] = row
-            for field, fact in row["facts"].items():
-                if any(e["source_id"] not in sources for e in fact["evidence"]):
-                    raise ValueError("Fact evidence lacks a source record")
-                csv_facts.append({"profile_id": key, "entity_type": kind, "field": field,
-                    "value_json": json.dumps(fact["value"], ensure_ascii=False), "status": fact["status"],
-                    "review_status": fact["review_status"], "review_disposition": fact["review_disposition"],
-                    "note": fact.get("note", ""), "evidence_json": json.dumps(fact["evidence"], ensure_ascii=False)})
+    for profile in catalog_profiles:
+        kind, key = profile["entity_type"], profile["profile_id"]
+        if kind == "recorded_run":
+            continue
+        if kind not in {"model", "harness"}:
+            raise ValueError("Unknown collection entity")
+        if key not in profiles:
+            profiles[key] = {"profile_id": key, "entity_type": kind, "identity": profile["identity"],
+                "valid_from": profile["valid_from"], "valid_until": profile["valid_until"],
+                "usage": "research_only", "facts": {}}
+        # Scoped reviewed values (including reviewed unknowns) take precedence.
+        # Raw originals, rejected claims and earlier versions remain in provenance.
+        for field, fact in flat_facts(profile["specifications"]):
+            if field not in profiles[key]["facts"]:
+                profiles[key]["facts"][field] = dict(copy.deepcopy(fact),
+                    review_status="not_in_scoped_review", review_disposition="catalog_only")
+    for key, row in profiles.items():
+        kind = row["entity_type"]
+        for field, fact in row["facts"].items():
+            if any(e["source_id"] not in sources for e in fact["evidence"]):
+                raise ValueError("Fact evidence lacks a source record")
+            csv_facts.append({"profile_id": key, "entity_type": kind, "field": field,
+                "value_json": json.dumps(fact["value"], ensure_ascii=False), "status": fact["status"],
+                "review_status": fact["review_status"], "review_disposition": fact["review_disposition"],
+                "note": fact.get("note", ""), "evidence_json": json.dumps(fact["evidence"], ensure_ascii=False)})
     if not set(reviewed) <= set(profiles):
         raise ValueError("Scoped facts reference an absent entity")
     systems, runs = {}, {}
@@ -153,6 +199,14 @@ def export_enrichment(source, out, *, expected_manifest_sha256, guide):
     raw.mkdir(parents=True)
     for name in TABLES:
         shutil.copyfile(source / name, raw / name)
+    if collection is not None:
+        for name, path in collection_files.items():
+            target = out / "provenance" / name
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(path, target)
+        shutil.copyfile(inventory, out / "provenance/collection_inventory.json")
+        write_jsonl(out / "catalog_systems.jsonl", catalog_systems)
+        write_jsonl(out / "catalog_runs.jsonl", [p for p in catalog_profiles if p["entity_type"] == "recorded_run"])
     shutil.copyfile(guide, out / "README.md")
     counts = {"models": sum(p["entity_type"] == "model" for p in profiles.values()),
         "harnesses": sum(p["entity_type"] == "harness" for p in profiles.values()), "recorded_systems": len(systems),
@@ -161,11 +215,17 @@ def export_enrichment(source, out, *, expected_manifest_sha256, guide):
         "inferred_additional_fields_excluded": excluded, "populated_facts_by_status": {status: sum(r["status"] == status and r["value_json"] != "null" for r in csv_facts) for status in ["documented", "inferred"]},
         "sources": len(sources), "observations": len(observations),
         "populated_run_settings": sum(f["value"] is not None for r in runs.values() for f in r["features"].values())}
-    manifest = {"version": "system_enrichment_handoff_v1", "source_policy": "research_only", "counts": counts,
+    if collection is not None:
+        counts.update(catalog_system_configurations=len(catalog_systems),
+                      collection_provenance_files=len(collection_files))
+    manifest = {"version": "system_enrichment_handoff_v2" if collection else "system_enrichment_handoff_v1", "source_policy": "research_only", "counts": counts,
         "source_manifest_sha256": expected_manifest_sha256, "source_table_sha256": {n: source_manifest["artifacts"][n] for n in TABLES},
         "exporter_sha256": file_hash(Path(__file__)), "question_inputs_included": False, "outcome_labels_included": False,
         "feature_matrix_included": False, "model_weights_included": False,
         "artifacts": {str(p.relative_to(out)): file_hash(p) for p in sorted(out.rglob("*")) if p.is_file()}}
+    if collection is not None:
+        manifest["collection_inventory_sha256"] = collection["inventory_sha256"]
+        manifest["profile_precedence"] = "scoped reviewed facts, supplemented documented facts, latest catalog; originals retained in provenance"
     write_json(out / "manifest.json", manifest)
     verify_handoff(out)
     with zipfile.ZipFile(archive, "x", compression=zipfile.ZIP_DEFLATED) as zipped:

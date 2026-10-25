@@ -1,80 +1,69 @@
 # Collected model and harness information
 
-For the Laya experiments, I collected additional information about the models,
-harnesses and recorded configurations in the public dataset. This includes
-architecture, parameter counts, dates, documented limits and harness
-capabilities where I could find supporting sources.
+For the Laya experiments, I researched the models, harnesses and recorded
+configurations in our selected dataset systems. I collected architecture,
+parameter counts, dates, documented limits, specialization and harness
+capabilities, together with source evidence and notes about uncertain values.
+These records can also support logistic regression or other approaches.
 
-I’m sharing those records so we can choose which information to use in other
-approaches. The handoff contains the collected facts and their sources, rather
-than a feature matrix or a particular model’s training inputs.
+## Collection scope
 
-## What is included
+The full catalog covers **189 selected configurations**: 170 training candidates
+and 19 systems from the development families. It contains **46 model/base/family
+profiles and eight harness profiles**. Model or base-family information is
+available for 177 configurations, harness information for 182, and both for 170.
+These are profile and coverage counts, not counts of verified exact checkpoints.
+Some profiles describe candidates or base families; unknown identities remain
+unresolved. The collection does not cover every system in the public corpus.
 
-`system_enrichment_v1.zip` contains information for **39 model/base profiles,
-eight harness profiles and 176 recorded system descriptions**. This covers the
-systems reviewed for these experiments, rather than the entire public dataset.
-Some identities and fields remain unresolved.
+`system_enrichment_v2.zip` includes the full catalog and later supplemental
+research, including material that was not used in Laya inputs. It replaces the
+narrower v1 handoff. Earlier collection versions and source-review records are
+preserved alongside the current views.
+
+## Files
 
 | File | Contents |
 | --- | --- |
-| `models.jsonl` | Model/base identities and collected facts, including architecture, capacity and documented limits |
-| `harnesses.jsonl` | Harness identities and documented capabilities |
-| `runs.jsonl` | Settings recovered from the recorded system descriptions |
-| `systems.jsonl` | Original supplied descriptions and their mappings to model/harness profiles |
-| `observations.jsonl` | Additional sourced observations, such as nominal context claims or optional tool support |
-| `sources.jsonl` | Source URLs, revisions, retrieval dates and source hashes |
-| `facts.csv` | The model/harness facts in a table that can be inspected or filtered |
-| `run_settings.csv`, `system_mapping.csv` | Tabular versions of run settings and system mappings |
-| `provenance/` | Original source tables and review records, preserved for reference |
+| `models.jsonl`, `harnesses.jsonl` | All 46 model/base/family profiles and eight harness profiles, with collected facts and evidence |
+| `facts.csv` | Those facts in a table, including values, status, review decisions and source references |
+| `catalog_systems.jsonl`, `catalog_runs.jsonl` | All 189 original configuration mappings and recorded-run profiles |
+| `systems.jsonl`, `runs.jsonl` | The smaller preparation view: 176 distinct supplied descriptions and their typed run settings |
+| `system_mapping.csv`, `run_settings.csv` | Tabular versions of that preparation view |
+| `sources.jsonl`, `observations.jsonl` | Combined preparation source registry and qualified observations |
+| `provenance/research/` | Complete versioned catalogs, supplemental assertions, observations, source registries, review ledgers and unresolved records |
+| `provenance/source_tables/` | Original preparation tables; collection audits are retained under `provenance/runs/` |
+| `manifest.json` | Counts and checksums for every exported file |
 
-There are no question samples, outcome labels, feature vectors or trained
-weights in this bundle. The earlier statistical starter is a separate experiment
-artifact, not the collection handoff.
+## Using the information
 
-## How to use the records
+Profile IDs connect system mappings to model and harness records. The supplied
+system fields are preserved so these mappings can be joined to the original
+dataset. The 189 catalog rows and 176 distinct preparation descriptions use
+different scopes and identifiers; they should not be matched by row order.
 
-The `recorded` object in `systems.jsonl` contains the eight supplied system
-fields. Matching that description connects an original dataset system to its
-`system_key`, `model_profile_id` and `harness_profile_id`. Those profile IDs join
-to `models.jsonl` and `harnesses.jsonl`; `system_key` joins to `runs.jsonl`.
+Each fact retains its value, status, evidence and qualifications. Reviewed facts
+and reviewed unknowns take precedence in the combined profiles; other catalog
+facts are marked `catalog_only`. Earlier or conflicting claims remain in the
+versioned provenance, whose source IDs resolve within each bundle's own registry.
+Unknown is not zero or disabled. A documented harness capability does not mean
+it was enabled in a recorded run. Base-model facts do not establish the exact
+properties of a private fine-tune.
 
-The mapping also records whether the model identification is exact, refers to
-a base/family, or remains unresolved. A documented base-model property is not
-necessarily verified for the evaluated fine-tune.
+For logistic regression, we could select model size, architecture, dates,
+domain specialization or recorded settings, then choose our own encoding.
+Questions and labels can come from the original dataset. This collection does
+not contain question samples, outcome labels, feature matrices or trained weights.
+Source URLs, excerpts and hashes are included; full downloaded web pages remain
+in the local source archive. External-source competition eligibility is unreviewed.
 
-Each fact keeps its value, status, source evidence and notes. `unknown` values
-remain null. Inferred values are marked as inferred. The export distinguishes
-scoped source reviews from additional previously documented facts. Harness
-support is separate from tools/settings recorded as enabled in a run.
+## Access and reproduction
 
-For logistic regression, we could select fields such as model size, dates,
-architecture or recorded settings and decide how to encode them. Another model
-could use a different representation of the same records. The choice of
-features and preprocessing is left to each approach.
-
-## Access
-
-The archive, this guide and a checksum receipt are in the
+The archive, guide and checksum receipt are in the
 [shared Drive folder](https://drive.google.com/drive/folders/1nFZn_2OwsX_RyV1vSA4fGg2395gfNS28).
-The local export is `runs/shared_data/system_enrichment_v1/`; generated data is
-not stored in Git. JSONL files have one record per line and can be read with
-Python’s standard library; the CSV files can be opened directly as tables.
+JSONL files contain one JSON object per line; CSV files can be opened as tables.
+Generated exports remain outside Git at `runs/shared_data/system_enrichment_v2/`.
 
-```python
-import json
-from pathlib import Path
-
-folder = Path("system_enrichment_v1")  # after extracting the ZIP
-models = {r["profile_id"]: r for r in
-          map(json.loads, (folder / "models.jsonl").read_text().splitlines())}
-systems = list(map(json.loads, (folder / "systems.jsonl").read_text().splitlines()))
-model_id = systems[0]["resolution"]["model_profile_id"]
-model = models.get(model_id)  # None when no model profile is established
-```
-
-The export recipe is `configs/data/enrichment_handoff_v1.json`; it packages
-existing reviewed tables using `scripts/export_system_enrichment.py`, without
-collecting new data or training a model. The full research catalog remains in
-[research/system_profiles](../research/system_profiles/README.md).
-External-source competition eligibility has not been reviewed.
+Reproduce with `scripts/export_system_enrichment.py --config
+configs/data/enrichment_handoff_v2.json`. The recipe pins all collection files
+and packages existing data without new collection or training.

@@ -7,8 +7,12 @@ experiment's feature matrix/training sample the main handoff. Share the
 collected model/harness facts, recorded settings, source evidence and original
 system mappings instead. `docs/shared-data-start.md` is a concise first-person,
 neutral account of that collection. No people's names or failure announcement
-in its opening. New export: `runs/shared_data/system_enrichment_v1.zip`, recipe
-`configs/data/enrichment_handoff_v1.json`, utility `scripts/export_system_enrichment.py`.
+in its opening. New export: `runs/shared_data/system_enrichment_v2.zip`, recipe
+`configs/data/enrichment_handoff_v2.json`, utility `scripts/export_system_enrichment.py`.
+V2 includes all versioned system catalogs and feature-source bundles, 46 model/base/
+family profiles, eight harness profiles and all 189 catalog configuration records.
+The 176-description preparation view is retained separately; it is not the full
+collection. Raw/conflicting assertions and unresolved mappings keep their status.
 It excludes questions, outcome labels, feature matrices and weights. The earlier
 statistical starter is retained as an experiment artifact, not recommended as
 the main shared dataset. Source facts and frozen renderer/recipe files stay

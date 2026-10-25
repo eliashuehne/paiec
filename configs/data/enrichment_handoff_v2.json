@@ -1,0 +1,12 @@
+{
+  "version": "system_enrichment_export_v2",
+  "source": "runs/feature_pipeline/offline_evidence_preparation_v1",
+  "source_manifest_sha256": "65d97f41d320f5adad982d21f791485bab6accc522531f0d8a9a652075a2f21f",
+  "out": "runs/shared_data/system_enrichment_v2",
+  "guide": "docs/shared-data-start.md",
+  "collection": {
+    "inventory": "configs/data/enrichment_collection_inventory_v2.json",
+    "inventory_sha256": "6c569f53fdf42d077cafe0d5963a0eeb8c9900b0af4b065e7136ea666e792660",
+    "latest_catalog": "research/system_profiles/collection_v3"
+  }
+}

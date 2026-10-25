@@ -15,7 +15,7 @@ continuation is queued.
 | Script | Purpose / effects |
 | --- | --- |
 | `run_pipeline.py` | Canonical ZenML entry point for research/data/evidence/training/validation/release; plans by default, `--execute` launches |
-| `export_system_enrichment.py` | Package reviewed model/harness facts, recorded settings, sources and mappings as JSONL/CSV; no matrix, labels, inference or fitting |
+| `export_system_enrichment.py` | Package the full versioned model/harness/run collection, supplemental research and reviewed JSONL/CSV views; no matrix, labels, inference or fitting |
 | `manage_data.py` | Data-role audit and verified, reversible retirement/restoration of marked untrained previews |
 | `check_laya_inputs.py` | Cached native tokenizer/target conversion and context-coverage audit, including multilingual; never loads a model |
 | `qualify_multilingual.py` | Local grouped-input preparation with `--prepare`, or a bounded CUDA qualification; disposable training controls, no full pilot |

@@ -4,6 +4,13 @@
   "artifacts": [
     {
       "name": "shared_system_enrichment",
+      "path": "runs/shared_data/system_enrichment_v2",
+      "role": "collected_system_research_facts",
+      "source_policy": "research_enriched",
+      "lifecycle": "protected"
+    },
+    {
+      "name": "shared_system_enrichment_v1",
       "path": "runs/shared_data/system_enrichment_v1",
       "role": "collected_system_research_facts",
       "source_policy": "research_enriched",

@@ -1,8 +1,9 @@
 # Configuration index
 
 For the main shared collection, see [model/harness information](../docs/shared-data-start.md).
-`data/enrichment_handoff_v1.json` exports the existing reviewed facts and system
-mappings. The dataset-only and Laya recipes below describe separate experiments.
+`data/enrichment_handoff_v2.json` exports the full versioned collection, supplemental
+research and reviewed preparation views. Its inventory pins every source file.
+The dataset-only and Laya recipes below describe separate experiments.
 
 `head_finetuning/grouped_enriched_v1.json` binds the enriched-only multilingual
 grouped training recipe to its exact input export and passed qualification.
