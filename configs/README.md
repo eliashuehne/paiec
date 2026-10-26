@@ -161,3 +161,9 @@ registry; runtime prediction uses the shared question and anonymous IDs.
 A training checkpoint bundles its input policy/catalog and renderer hashes.
 Use those bundled files at inference; a newer policy must not silently replace
 what an older head saw during training.
+
+`pipelines/feature_foundation_v1.json` pins the whole downloaded public release,
+shared enrichment v2 and frozen roles for model-independent feature preparation.
+`data/feature_foundation_families_v1.json` records the upstream family groups.
+See [feature foundation](../docs/feature-foundation.md) for the plan, build and
+standalone validation commands. This route never reads response outcomes.

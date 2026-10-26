@@ -1,0 +1,1617 @@
+[
+  {
+    "availability": "supplied_at_prediction",
+    "definition": "Supplied subject.normalized_name, preserved verbatim",
+    "eligibility": "supplied_only",
+    "fit_scope": "none",
+    "grain": "system",
+    "kind": "string",
+    "mechanism_hypothesis": "Candidate model/configuration context; missing identity remains missing.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "system.normalized_name",
+    "quality": "deterministic_observable_not_predictive_validation",
+    "source_fields": [
+      "Supplied subject.normalized_name, preserved verbatim"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "supplied_at_prediction",
+    "definition": "Supplied subject.provider, preserved verbatim",
+    "eligibility": "supplied_only",
+    "fit_scope": "none",
+    "grain": "system",
+    "kind": "string",
+    "mechanism_hypothesis": "Candidate model/configuration context; missing identity remains missing.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "system.provider",
+    "quality": "deterministic_observable_not_predictive_validation",
+    "source_fields": [
+      "Supplied subject.provider, preserved verbatim"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "supplied_at_prediction",
+    "definition": "Supplied subject.release_date, preserved verbatim",
+    "eligibility": "supplied_only",
+    "fit_scope": "none",
+    "grain": "system",
+    "kind": "string",
+    "mechanism_hypothesis": "Candidate model/configuration context; missing identity remains missing.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "system.release_date",
+    "quality": "deterministic_observable_not_predictive_validation",
+    "source_fields": [
+      "Supplied subject.release_date, preserved verbatim"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "supplied_at_prediction",
+    "definition": "Supplied subject.access_date, preserved verbatim",
+    "eligibility": "supplied_only",
+    "fit_scope": "none",
+    "grain": "system",
+    "kind": "string",
+    "mechanism_hypothesis": "Candidate model/configuration context; missing identity remains missing.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "system.access_date",
+    "quality": "deterministic_observable_not_predictive_validation",
+    "source_fields": [
+      "Supplied subject.access_date, preserved verbatim"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "supplied_at_prediction",
+    "definition": "Supplied subject.harness, preserved verbatim",
+    "eligibility": "supplied_only",
+    "fit_scope": "none",
+    "grain": "system",
+    "kind": "string",
+    "mechanism_hypothesis": "Candidate model/configuration context; missing identity remains missing.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "system.harness",
+    "quality": "deterministic_observable_not_predictive_validation",
+    "source_fields": [
+      "Supplied subject.harness, preserved verbatim"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "supplied_at_prediction",
+    "definition": "Supplied subject.harness_version, preserved verbatim",
+    "eligibility": "supplied_only",
+    "fit_scope": "none",
+    "grain": "system",
+    "kind": "string",
+    "mechanism_hypothesis": "Candidate model/configuration context; missing identity remains missing.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "system.harness_version",
+    "quality": "deterministic_observable_not_predictive_validation",
+    "source_fields": [
+      "Supplied subject.harness_version, preserved verbatim"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "supplied_at_prediction",
+    "definition": "Supplied subject.reasoning_effort, preserved verbatim",
+    "eligibility": "supplied_only",
+    "fit_scope": "none",
+    "grain": "system",
+    "kind": "string",
+    "mechanism_hypothesis": "Candidate model/configuration context; missing identity remains missing.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "system.reasoning_effort",
+    "quality": "deterministic_observable_not_predictive_validation",
+    "source_fields": [
+      "Supplied subject.reasoning_effort, preserved verbatim"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "supplied_at_prediction",
+    "definition": "Supplied subject.subject_features_extra, preserved verbatim",
+    "eligibility": "supplied_only",
+    "fit_scope": "none",
+    "grain": "system",
+    "kind": "string",
+    "mechanism_hypothesis": "Candidate model/configuration context; missing identity remains missing.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "system.subject_features_extra",
+    "quality": "deterministic_observable_not_predictive_validation",
+    "source_fields": [
+      "Supplied subject.subject_features_extra, preserved verbatim"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "supplied_at_prediction",
+    "definition": "Recorded setting observations resolved by recorded_settings_v3: few_shot_count",
+    "eligibility": "supplied_only",
+    "fit_scope": "none",
+    "grain": "system",
+    "kind": "integer",
+    "mechanism_hypothesis": "Actual prompting, sampling or resource configuration may affect target-system behavior; ambiguous aliases are withheld.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "run.few_shot_count",
+    "quality": "deterministic_observable_not_predictive_validation",
+    "source_fields": [
+      "Recorded setting observations resolved by recorded_settings_v3: few_shot_count"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "supplied_at_prediction",
+    "definition": "Recorded setting observations resolved by recorded_settings_v3: prompting_method",
+    "eligibility": "supplied_only",
+    "fit_scope": "none",
+    "grain": "system",
+    "kind": "string",
+    "mechanism_hypothesis": "Actual prompting, sampling or resource configuration may affect target-system behavior; ambiguous aliases are withheld.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "run.prompting_method",
+    "quality": "deterministic_observable_not_predictive_validation",
+    "source_fields": [
+      "Recorded setting observations resolved by recorded_settings_v3: prompting_method"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "supplied_at_prediction",
+    "definition": "Recorded setting observations resolved by recorded_settings_v3: selection_method",
+    "eligibility": "supplied_only",
+    "fit_scope": "none",
+    "grain": "system",
+    "kind": "string",
+    "mechanism_hypothesis": "Actual prompting, sampling or resource configuration may affect target-system behavior; ambiguous aliases are withheld.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "run.selection_method",
+    "quality": "deterministic_observable_not_predictive_validation",
+    "source_fields": [
+      "Recorded setting observations resolved by recorded_settings_v3: selection_method"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "supplied_at_prediction",
+    "definition": "Recorded setting observations resolved by recorded_settings_v3: reasoning_effort",
+    "eligibility": "supplied_only",
+    "fit_scope": "none",
+    "grain": "system",
+    "kind": "string",
+    "mechanism_hypothesis": "Actual prompting, sampling or resource configuration may affect target-system behavior; ambiguous aliases are withheld.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "run.reasoning_effort",
+    "quality": "deterministic_observable_not_predictive_validation",
+    "source_fields": [
+      "Recorded setting observations resolved by recorded_settings_v3: reasoning_effort"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "supplied_at_prediction",
+    "definition": "Recorded setting observations resolved by recorded_settings_v3: max_input_tokens",
+    "eligibility": "supplied_only",
+    "fit_scope": "none",
+    "grain": "system",
+    "kind": "integer",
+    "mechanism_hypothesis": "Actual prompting, sampling or resource configuration may affect target-system behavior; ambiguous aliases are withheld.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "run.max_input_tokens",
+    "quality": "deterministic_observable_not_predictive_validation",
+    "source_fields": [
+      "Recorded setting observations resolved by recorded_settings_v3: max_input_tokens"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "supplied_at_prediction",
+    "definition": "Recorded setting observations resolved by recorded_settings_v3: max_output_tokens",
+    "eligibility": "supplied_only",
+    "fit_scope": "none",
+    "grain": "system",
+    "kind": "integer",
+    "mechanism_hypothesis": "Actual prompting, sampling or resource configuration may affect target-system behavior; ambiguous aliases are withheld.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "run.max_output_tokens",
+    "quality": "deterministic_observable_not_predictive_validation",
+    "source_fields": [
+      "Recorded setting observations resolved by recorded_settings_v3: max_output_tokens"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "supplied_at_prediction",
+    "definition": "Recorded setting observations resolved by recorded_settings_v3: max_reasoning_tokens",
+    "eligibility": "supplied_only",
+    "fit_scope": "none",
+    "grain": "system",
+    "kind": "integer",
+    "mechanism_hypothesis": "Actual prompting, sampling or resource configuration may affect target-system behavior; ambiguous aliases are withheld.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "run.max_reasoning_tokens",
+    "quality": "deterministic_observable_not_predictive_validation",
+    "source_fields": [
+      "Recorded setting observations resolved by recorded_settings_v3: max_reasoning_tokens"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "supplied_at_prediction",
+    "definition": "Recorded setting observations resolved by recorded_settings_v3: max_turns",
+    "eligibility": "supplied_only",
+    "fit_scope": "none",
+    "grain": "system",
+    "kind": "integer",
+    "mechanism_hypothesis": "Actual prompting, sampling or resource configuration may affect target-system behavior; ambiguous aliases are withheld.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "run.max_turns",
+    "quality": "deterministic_observable_not_predictive_validation",
+    "source_fields": [
+      "Recorded setting observations resolved by recorded_settings_v3: max_turns"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "supplied_at_prediction",
+    "definition": "Recorded setting observations resolved by recorded_settings_v3: max_tool_calls",
+    "eligibility": "supplied_only",
+    "fit_scope": "none",
+    "grain": "system",
+    "kind": "integer",
+    "mechanism_hypothesis": "Actual prompting, sampling or resource configuration may affect target-system behavior; ambiguous aliases are withheld.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "run.max_tool_calls",
+    "quality": "deterministic_observable_not_predictive_validation",
+    "source_fields": [
+      "Recorded setting observations resolved by recorded_settings_v3: max_tool_calls"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "supplied_at_prediction",
+    "definition": "Recorded setting observations resolved by recorded_settings_v3: max_retries",
+    "eligibility": "supplied_only",
+    "fit_scope": "none",
+    "grain": "system",
+    "kind": "integer",
+    "mechanism_hypothesis": "Actual prompting, sampling or resource configuration may affect target-system behavior; ambiguous aliases are withheld.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "run.max_retries",
+    "quality": "deterministic_observable_not_predictive_validation",
+    "source_fields": [
+      "Recorded setting observations resolved by recorded_settings_v3: max_retries"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "supplied_at_prediction",
+    "definition": "Recorded setting observations resolved by recorded_settings_v3: candidate_count",
+    "eligibility": "supplied_only",
+    "fit_scope": "none",
+    "grain": "system",
+    "kind": "integer",
+    "mechanism_hypothesis": "Actual prompting, sampling or resource configuration may affect target-system behavior; ambiguous aliases are withheld.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "run.candidate_count",
+    "quality": "deterministic_observable_not_predictive_validation",
+    "source_fields": [
+      "Recorded setting observations resolved by recorded_settings_v3: candidate_count"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "supplied_at_prediction",
+    "definition": "Recorded setting observations resolved by recorded_settings_v3: temperature",
+    "eligibility": "supplied_only",
+    "fit_scope": "none",
+    "grain": "system",
+    "kind": "number",
+    "mechanism_hypothesis": "Actual prompting, sampling or resource configuration may affect target-system behavior; ambiguous aliases are withheld.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "run.temperature",
+    "quality": "deterministic_observable_not_predictive_validation",
+    "source_fields": [
+      "Recorded setting observations resolved by recorded_settings_v3: temperature"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "supplied_at_prediction",
+    "definition": "Recorded setting observations resolved by recorded_settings_v3: top_p",
+    "eligibility": "supplied_only",
+    "fit_scope": "none",
+    "grain": "system",
+    "kind": "number",
+    "mechanism_hypothesis": "Actual prompting, sampling or resource configuration may affect target-system behavior; ambiguous aliases are withheld.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "run.top_p",
+    "quality": "deterministic_observable_not_predictive_validation",
+    "source_fields": [
+      "Recorded setting observations resolved by recorded_settings_v3: top_p"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "supplied_at_prediction",
+    "definition": "Recorded setting observations resolved by recorded_settings_v3: enabled_tools",
+    "eligibility": "supplied_only",
+    "fit_scope": "none",
+    "grain": "system",
+    "kind": "string_list",
+    "mechanism_hypothesis": "Actual prompting, sampling or resource configuration may affect target-system behavior; ambiguous aliases are withheld.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "run.enabled_tools",
+    "quality": "deterministic_observable_not_predictive_validation",
+    "source_fields": [
+      "Recorded setting observations resolved by recorded_settings_v3: enabled_tools"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "supplied_at_prediction",
+    "definition": "Recorded setting observations resolved by recorded_settings_v3: quantization",
+    "eligibility": "supplied_only",
+    "fit_scope": "none",
+    "grain": "system",
+    "kind": "string",
+    "mechanism_hypothesis": "Actual prompting, sampling or resource configuration may affect target-system behavior; ambiguous aliases are withheld.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "run.quantization",
+    "quality": "deterministic_observable_not_predictive_validation",
+    "source_fields": [
+      "Recorded setting observations resolved by recorded_settings_v3: quantization"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "supplied_at_prediction",
+    "definition": "Recorded setting observations resolved by recorded_settings_v3: serving_configuration",
+    "eligibility": "supplied_only",
+    "fit_scope": "none",
+    "grain": "system",
+    "kind": "string",
+    "mechanism_hypothesis": "Actual prompting, sampling or resource configuration may affect target-system behavior; ambiguous aliases are withheld.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "run.serving_configuration",
+    "quality": "deterministic_observable_not_predictive_validation",
+    "source_fields": [
+      "Recorded setting observations resolved by recorded_settings_v3: serving_configuration"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "supplied_at_prediction",
+    "definition": "Recorded setting observations resolved by recorded_settings_v3: sampling_enabled",
+    "eligibility": "supplied_only",
+    "fit_scope": "none",
+    "grain": "system",
+    "kind": "boolean",
+    "mechanism_hypothesis": "Actual prompting, sampling or resource configuration may affect target-system behavior; ambiguous aliases are withheld.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "run.sampling_enabled",
+    "quality": "deterministic_observable_not_predictive_validation",
+    "source_fields": [
+      "Recorded setting observations resolved by recorded_settings_v3: sampling_enabled"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "supplied_at_prediction",
+    "definition": "Recorded setting observations resolved by recorded_settings_v3: reported_method",
+    "eligibility": "supplied_only",
+    "fit_scope": "none",
+    "grain": "system",
+    "kind": "string",
+    "mechanism_hypothesis": "Actual prompting, sampling or resource configuration may affect target-system behavior; ambiguous aliases are withheld.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "run.reported_method",
+    "quality": "deterministic_observable_not_predictive_validation",
+    "source_fields": [
+      "Recorded setting observations resolved by recorded_settings_v3: reported_method"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "supplied_at_prediction",
+    "definition": "Full visible task observable: content_characters",
+    "eligibility": "supplied_only",
+    "fit_scope": "none",
+    "grain": "visible_task",
+    "kind": "int64",
+    "mechanism_hypothesis": "Surface structure/resource demand hypothesis; a syntax or script hint is not certified skill, language or difficulty.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "task.content_characters",
+    "quality": "deterministic_observable_not_predictive_validation",
+    "source_fields": [
+      "Full visible task observable: content_characters"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "supplied_at_prediction",
+    "definition": "Full visible task observable: whitespace_words",
+    "eligibility": "supplied_only",
+    "fit_scope": "none",
+    "grain": "visible_task",
+    "kind": "int64",
+    "mechanism_hypothesis": "Surface structure/resource demand hypothesis; a syntax or script hint is not certified skill, language or difficulty.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "task.whitespace_words",
+    "quality": "deterministic_observable_not_predictive_validation",
+    "source_fields": [
+      "Full visible task observable: whitespace_words"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "supplied_at_prediction",
+    "definition": "Full visible task observable: lines",
+    "eligibility": "supplied_only",
+    "fit_scope": "none",
+    "grain": "visible_task",
+    "kind": "int64",
+    "mechanism_hypothesis": "Surface structure/resource demand hypothesis; a syntax or script hint is not certified skill, language or difficulty.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "task.lines",
+    "quality": "deterministic_observable_not_predictive_validation",
+    "source_fields": [
+      "Full visible task observable: lines"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "supplied_at_prediction",
+    "definition": "Full visible task observable: paragraphs",
+    "eligibility": "supplied_only",
+    "fit_scope": "none",
+    "grain": "visible_task",
+    "kind": "int64",
+    "mechanism_hypothesis": "Surface structure/resource demand hypothesis; a syntax or script hint is not certified skill, language or difficulty.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "task.paragraphs",
+    "quality": "deterministic_observable_not_predictive_validation",
+    "source_fields": [
+      "Full visible task observable: paragraphs"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "supplied_at_prediction",
+    "definition": "Full visible task observable: numeric_spans",
+    "eligibility": "supplied_only",
+    "fit_scope": "none",
+    "grain": "visible_task",
+    "kind": "int64",
+    "mechanism_hypothesis": "Surface structure/resource demand hypothesis; a syntax or script hint is not certified skill, language or difficulty.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "task.numeric_spans",
+    "quality": "deterministic_observable_not_predictive_validation",
+    "source_fields": [
+      "Full visible task observable: numeric_spans"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "supplied_at_prediction",
+    "definition": "Full visible task observable: cjk_characters",
+    "eligibility": "supplied_only",
+    "fit_scope": "none",
+    "grain": "visible_task",
+    "kind": "int64",
+    "mechanism_hypothesis": "Surface structure/resource demand hypothesis; a syntax or script hint is not certified skill, language or difficulty.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "task.cjk_characters",
+    "quality": "deterministic_observable_not_predictive_validation",
+    "source_fields": [
+      "Full visible task observable: cjk_characters"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "supplied_at_prediction",
+    "definition": "Full visible task observable: cyrillic_characters",
+    "eligibility": "supplied_only",
+    "fit_scope": "none",
+    "grain": "visible_task",
+    "kind": "int64",
+    "mechanism_hypothesis": "Surface structure/resource demand hypothesis; a syntax or script hint is not certified skill, language or difficulty.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "task.cyrillic_characters",
+    "quality": "deterministic_observable_not_predictive_validation",
+    "source_fields": [
+      "Full visible task observable: cyrillic_characters"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "supplied_at_prediction",
+    "definition": "Full visible task observable: arabic_characters",
+    "eligibility": "supplied_only",
+    "fit_scope": "none",
+    "grain": "visible_task",
+    "kind": "int64",
+    "mechanism_hypothesis": "Surface structure/resource demand hypothesis; a syntax or script hint is not certified skill, language or difficulty.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "task.arabic_characters",
+    "quality": "deterministic_observable_not_predictive_validation",
+    "source_fields": [
+      "Full visible task observable: arabic_characters"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "supplied_at_prediction",
+    "definition": "Full visible task observable: option_marker_count_hint",
+    "eligibility": "supplied_only",
+    "fit_scope": "none",
+    "grain": "visible_task",
+    "kind": "int64",
+    "mechanism_hypothesis": "Surface structure/resource demand hypothesis; a syntax or script hint is not certified skill, language or difficulty.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "task.option_marker_count_hint",
+    "quality": "deterministic_observable_not_predictive_validation",
+    "source_fields": [
+      "Full visible task observable: option_marker_count_hint"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "supplied_at_prediction",
+    "definition": "Full visible task observable: structured_option_count_hint",
+    "eligibility": "supplied_only",
+    "fit_scope": "none",
+    "grain": "visible_task",
+    "kind": "int64",
+    "mechanism_hypothesis": "Surface structure/resource demand hypothesis; a syntax or script hint is not certified skill, language or difficulty.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "task.structured_option_count_hint",
+    "quality": "deterministic_observable_not_predictive_validation",
+    "source_fields": [
+      "Full visible task observable: structured_option_count_hint"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "supplied_at_prediction",
+    "definition": "Full visible task observable: section_count_hint",
+    "eligibility": "supplied_only",
+    "fit_scope": "none",
+    "grain": "visible_task",
+    "kind": "int64",
+    "mechanism_hypothesis": "Surface structure/resource demand hypothesis; a syntax or script hint is not certified skill, language or difficulty.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "task.section_count_hint",
+    "quality": "deterministic_observable_not_predictive_validation",
+    "source_fields": [
+      "Full visible task observable: section_count_hint"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "supplied_at_prediction",
+    "definition": "Full visible task observable: message_count_hint",
+    "eligibility": "supplied_only",
+    "fit_scope": "none",
+    "grain": "visible_task",
+    "kind": "int64",
+    "mechanism_hypothesis": "Surface structure/resource demand hypothesis; a syntax or script hint is not certified skill, language or difficulty.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "task.message_count_hint",
+    "quality": "deterministic_observable_not_predictive_validation",
+    "source_fields": [
+      "Full visible task observable: message_count_hint"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "supplied_at_prediction",
+    "definition": "Full visible task observable: has_code_fence",
+    "eligibility": "supplied_only",
+    "fit_scope": "none",
+    "grain": "visible_task",
+    "kind": "bool",
+    "mechanism_hypothesis": "Surface structure/resource demand hypothesis; a syntax or script hint is not certified skill, language or difficulty.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "task.has_code_fence",
+    "quality": "deterministic_observable_not_predictive_validation",
+    "source_fields": [
+      "Full visible task observable: has_code_fence"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "supplied_at_prediction",
+    "definition": "Full visible task observable: has_math_marker_hint",
+    "eligibility": "supplied_only",
+    "fit_scope": "none",
+    "grain": "visible_task",
+    "kind": "bool",
+    "mechanism_hypothesis": "Surface structure/resource demand hypothesis; a syntax or script hint is not certified skill, language or difficulty.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "task.has_math_marker_hint",
+    "quality": "deterministic_observable_not_predictive_validation",
+    "source_fields": [
+      "Full visible task observable: has_math_marker_hint"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "supplied_at_prediction",
+    "definition": "Full visible task observable: has_table_pipe_hint",
+    "eligibility": "supplied_only",
+    "fit_scope": "none",
+    "grain": "visible_task",
+    "kind": "bool",
+    "mechanism_hypothesis": "Surface structure/resource demand hypothesis; a syntax or script hint is not certified skill, language or difficulty.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "task.has_table_pipe_hint",
+    "quality": "deterministic_observable_not_predictive_validation",
+    "source_fields": [
+      "Full visible task observable: has_table_pipe_hint"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "supplied_at_prediction",
+    "definition": "Full visible task observable: has_supplied_item_features",
+    "eligibility": "supplied_only",
+    "fit_scope": "none",
+    "grain": "visible_task",
+    "kind": "bool",
+    "mechanism_hypothesis": "Surface structure/resource demand hypothesis; a syntax or script hint is not certified skill, language or difficulty.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "task.has_supplied_item_features",
+    "quality": "deterministic_observable_not_predictive_validation",
+    "source_fields": [
+      "Full visible task observable: has_supplied_item_features"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "supplied_at_prediction",
+    "definition": "Full visible task observable: has_supplied_interactors",
+    "eligibility": "supplied_only",
+    "fit_scope": "none",
+    "grain": "visible_task",
+    "kind": "bool",
+    "mechanism_hypothesis": "Surface structure/resource demand hypothesis; a syntax or script hint is not certified skill, language or difficulty.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "task.has_supplied_interactors",
+    "quality": "deterministic_observable_not_predictive_validation",
+    "source_fields": [
+      "Full visible task observable: has_supplied_interactors"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "supplied_at_prediction",
+    "definition": "Full visible task observable: has_visible_asset_reference_hint",
+    "eligibility": "supplied_only",
+    "fit_scope": "none",
+    "grain": "visible_task",
+    "kind": "bool",
+    "mechanism_hypothesis": "Surface structure/resource demand hypothesis; a syntax or script hint is not certified skill, language or difficulty.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "task.has_visible_asset_reference_hint",
+    "quality": "deterministic_observable_not_predictive_validation",
+    "source_fields": [
+      "Full visible task observable: has_visible_asset_reference_hint"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "supplied_at_prediction",
+    "definition": "Full visible task observable: structure_hint",
+    "eligibility": "supplied_only",
+    "fit_scope": "none",
+    "grain": "visible_task",
+    "kind": "string",
+    "mechanism_hypothesis": "Surface structure/resource demand hypothesis; a syntax or script hint is not certified skill, language or difficulty.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "task.structure_hint",
+    "quality": "deterministic_observable_not_predictive_validation",
+    "source_fields": [
+      "Full visible task observable: structure_hint"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "offline_research_join_only",
+    "definition": "Combined shared-export harness fact: context_management",
+    "eligibility": "research_only",
+    "fit_scope": "none",
+    "grain": "system",
+    "kind": "qualified_json",
+    "mechanism_hypothesis": "Candidate functional capacity or architecture context, conditional on identity and historical applicability.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "research.harness.context_management",
+    "quality": "source_and_applicability_qualified",
+    "source_fields": [
+      "Combined shared-export harness fact: context_management"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "offline_research_join_only",
+    "definition": "Combined shared-export harness fact: default_max_retries",
+    "eligibility": "research_only",
+    "fit_scope": "none",
+    "grain": "system",
+    "kind": "qualified_json",
+    "mechanism_hypothesis": "Candidate functional capacity or architecture context, conditional on identity and historical applicability.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "research.harness.default_max_retries",
+    "quality": "source_and_applicability_qualified",
+    "source_fields": [
+      "Combined shared-export harness fact: default_max_retries"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "offline_research_join_only",
+    "definition": "Combined shared-export harness fact: default_max_tool_calls",
+    "eligibility": "research_only",
+    "fit_scope": "none",
+    "grain": "system",
+    "kind": "qualified_json",
+    "mechanism_hypothesis": "Candidate functional capacity or architecture context, conditional on identity and historical applicability.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "research.harness.default_max_tool_calls",
+    "quality": "source_and_applicability_qualified",
+    "source_fields": [
+      "Combined shared-export harness fact: default_max_tool_calls"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "offline_research_join_only",
+    "definition": "Combined shared-export harness fact: default_max_turns",
+    "eligibility": "research_only",
+    "fit_scope": "none",
+    "grain": "system",
+    "kind": "qualified_json",
+    "mechanism_hypothesis": "Candidate functional capacity or architecture context, conditional on identity and historical applicability.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "research.harness.default_max_turns",
+    "quality": "source_and_applicability_qualified",
+    "source_fields": [
+      "Combined shared-export harness fact: default_max_turns"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "offline_research_join_only",
+    "definition": "Combined shared-export harness fact: default_prompting_strategy",
+    "eligibility": "research_only",
+    "fit_scope": "none",
+    "grain": "system",
+    "kind": "qualified_json",
+    "mechanism_hypothesis": "Candidate functional capacity or architecture context, conditional on identity and historical applicability.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "research.harness.default_prompting_strategy",
+    "quality": "source_and_applicability_qualified",
+    "source_fields": [
+      "Combined shared-export harness fact: default_prompting_strategy"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "offline_research_join_only",
+    "definition": "Combined shared-export harness fact: default_timeout_seconds",
+    "eligibility": "research_only",
+    "fit_scope": "none",
+    "grain": "system",
+    "kind": "qualified_json",
+    "mechanism_hypothesis": "Candidate functional capacity or architecture context, conditional on identity and historical applicability.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "research.harness.default_timeout_seconds",
+    "quality": "source_and_applicability_qualified",
+    "source_fields": [
+      "Combined shared-export harness fact: default_timeout_seconds"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "offline_research_join_only",
+    "definition": "Combined shared-export harness fact: supported_tools",
+    "eligibility": "research_only",
+    "fit_scope": "none",
+    "grain": "system",
+    "kind": "qualified_json",
+    "mechanism_hypothesis": "Candidate functional capacity or architecture context, conditional on identity and historical applicability.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "research.harness.supported_tools",
+    "quality": "source_and_applicability_qualified",
+    "source_fields": [
+      "Combined shared-export harness fact: supported_tools"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "offline_research_join_only",
+    "definition": "Combined shared-export harness fact: workflow",
+    "eligibility": "research_only",
+    "fit_scope": "none",
+    "grain": "system",
+    "kind": "qualified_json",
+    "mechanism_hypothesis": "Candidate functional capacity or architecture context, conditional on identity and historical applicability.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "research.harness.workflow",
+    "quality": "source_and_applicability_qualified",
+    "source_fields": [
+      "Combined shared-export harness fact: workflow"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "offline_research_join_only",
+    "definition": "Combined shared-export model fact: architecture.active_parameters_per_token",
+    "eligibility": "research_only",
+    "fit_scope": "none",
+    "grain": "system",
+    "kind": "qualified_json",
+    "mechanism_hypothesis": "Candidate functional capacity or architecture context, conditional on identity and historical applicability.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "research.model.architecture.active_parameters_per_token",
+    "quality": "source_and_applicability_qualified",
+    "source_fields": [
+      "Combined shared-export model fact: architecture.active_parameters_per_token"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "offline_research_join_only",
+    "definition": "Combined shared-export model fact: architecture.attention_direction",
+    "eligibility": "research_only",
+    "fit_scope": "none",
+    "grain": "system",
+    "kind": "qualified_json",
+    "mechanism_hypothesis": "Candidate functional capacity or architecture context, conditional on identity and historical applicability.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "research.model.architecture.attention_direction",
+    "quality": "source_and_applicability_qualified",
+    "source_fields": [
+      "Combined shared-export model fact: architecture.attention_direction"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "offline_research_join_only",
+    "definition": "Combined shared-export model fact: architecture.attention_heads",
+    "eligibility": "research_only",
+    "fit_scope": "none",
+    "grain": "system",
+    "kind": "qualified_json",
+    "mechanism_hypothesis": "Candidate functional capacity or architecture context, conditional on identity and historical applicability.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "research.model.architecture.attention_heads",
+    "quality": "source_and_applicability_qualified",
+    "source_fields": [
+      "Combined shared-export model fact: architecture.attention_heads"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "offline_research_join_only",
+    "definition": "Combined shared-export model fact: architecture.attention_types",
+    "eligibility": "research_only",
+    "fit_scope": "none",
+    "grain": "system",
+    "kind": "qualified_json",
+    "mechanism_hypothesis": "Candidate functional capacity or architecture context, conditional on identity and historical applicability.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "research.model.architecture.attention_types",
+    "quality": "source_and_applicability_qualified",
+    "source_fields": [
+      "Combined shared-export model fact: architecture.attention_types"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "offline_research_join_only",
+    "definition": "Combined shared-export model fact: architecture.backbone",
+    "eligibility": "research_only",
+    "fit_scope": "none",
+    "grain": "system",
+    "kind": "qualified_json",
+    "mechanism_hypothesis": "Candidate functional capacity or architecture context, conditional on identity and historical applicability.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "research.model.architecture.backbone",
+    "quality": "source_and_applicability_qualified",
+    "source_fields": [
+      "Combined shared-export model fact: architecture.backbone"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "offline_research_join_only",
+    "definition": "Combined shared-export model fact: architecture.experts_active_per_token",
+    "eligibility": "research_only",
+    "fit_scope": "none",
+    "grain": "system",
+    "kind": "qualified_json",
+    "mechanism_hypothesis": "Candidate functional capacity or architecture context, conditional on identity and historical applicability.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "research.model.architecture.experts_active_per_token",
+    "quality": "source_and_applicability_qualified",
+    "source_fields": [
+      "Combined shared-export model fact: architecture.experts_active_per_token"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "offline_research_join_only",
+    "definition": "Combined shared-export model fact: architecture.experts_total",
+    "eligibility": "research_only",
+    "fit_scope": "none",
+    "grain": "system",
+    "kind": "qualified_json",
+    "mechanism_hypothesis": "Candidate functional capacity or architecture context, conditional on identity and historical applicability.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "research.model.architecture.experts_total",
+    "quality": "source_and_applicability_qualified",
+    "source_fields": [
+      "Combined shared-export model fact: architecture.experts_total"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "offline_research_join_only",
+    "definition": "Combined shared-export model fact: architecture.family",
+    "eligibility": "research_only",
+    "fit_scope": "none",
+    "grain": "system",
+    "kind": "qualified_json",
+    "mechanism_hypothesis": "Candidate functional capacity or architecture context, conditional on identity and historical applicability.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "research.model.architecture.family",
+    "quality": "source_and_applicability_qualified",
+    "source_fields": [
+      "Combined shared-export model fact: architecture.family"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "offline_research_join_only",
+    "definition": "Combined shared-export model fact: architecture.hidden_size",
+    "eligibility": "research_only",
+    "fit_scope": "none",
+    "grain": "system",
+    "kind": "qualified_json",
+    "mechanism_hypothesis": "Candidate functional capacity or architecture context, conditional on identity and historical applicability.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "research.model.architecture.hidden_size",
+    "quality": "source_and_applicability_qualified",
+    "source_fields": [
+      "Combined shared-export model fact: architecture.hidden_size"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "offline_research_join_only",
+    "definition": "Combined shared-export model fact: architecture.key_value_heads",
+    "eligibility": "research_only",
+    "fit_scope": "none",
+    "grain": "system",
+    "kind": "qualified_json",
+    "mechanism_hypothesis": "Candidate functional capacity or architecture context, conditional on identity and historical applicability.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "research.model.architecture.key_value_heads",
+    "quality": "source_and_applicability_qualified",
+    "source_fields": [
+      "Combined shared-export model fact: architecture.key_value_heads"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "offline_research_join_only",
+    "definition": "Combined shared-export model fact: architecture.layers",
+    "eligibility": "research_only",
+    "fit_scope": "none",
+    "grain": "system",
+    "kind": "qualified_json",
+    "mechanism_hypothesis": "Candidate functional capacity or architecture context, conditional on identity and historical applicability.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "research.model.architecture.layers",
+    "quality": "source_and_applicability_qualified",
+    "source_fields": [
+      "Combined shared-export model fact: architecture.layers"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "offline_research_join_only",
+    "definition": "Combined shared-export model fact: architecture.parameterization",
+    "eligibility": "research_only",
+    "fit_scope": "none",
+    "grain": "system",
+    "kind": "qualified_json",
+    "mechanism_hypothesis": "Candidate functional capacity or architecture context, conditional on identity and historical applicability.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "research.model.architecture.parameterization",
+    "quality": "source_and_applicability_qualified",
+    "source_fields": [
+      "Combined shared-export model fact: architecture.parameterization"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "offline_research_join_only",
+    "definition": "Combined shared-export model fact: architecture.positional_encoding",
+    "eligibility": "research_only",
+    "fit_scope": "none",
+    "grain": "system",
+    "kind": "qualified_json",
+    "mechanism_hypothesis": "Candidate functional capacity or architecture context, conditional on identity and historical applicability.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "research.model.architecture.positional_encoding",
+    "quality": "source_and_applicability_qualified",
+    "source_fields": [
+      "Combined shared-export model fact: architecture.positional_encoding"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "offline_research_join_only",
+    "definition": "Combined shared-export model fact: architecture.tokenizer_identifier",
+    "eligibility": "research_only",
+    "fit_scope": "none",
+    "grain": "system",
+    "kind": "qualified_json",
+    "mechanism_hypothesis": "Candidate functional capacity or architecture context, conditional on identity and historical applicability.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "research.model.architecture.tokenizer_identifier",
+    "quality": "source_and_applicability_qualified",
+    "source_fields": [
+      "Combined shared-export model fact: architecture.tokenizer_identifier"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "offline_research_join_only",
+    "definition": "Combined shared-export model fact: architecture.total_parameters",
+    "eligibility": "research_only",
+    "fit_scope": "none",
+    "grain": "system",
+    "kind": "qualified_json",
+    "mechanism_hypothesis": "Candidate functional capacity or architecture context, conditional on identity and historical applicability.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "research.model.architecture.total_parameters",
+    "quality": "source_and_applicability_qualified",
+    "source_fields": [
+      "Combined shared-export model fact: architecture.total_parameters"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "offline_research_join_only",
+    "definition": "Combined shared-export model fact: base_model",
+    "eligibility": "research_only",
+    "fit_scope": "none",
+    "grain": "system",
+    "kind": "qualified_json",
+    "mechanism_hypothesis": "Candidate functional capacity or architecture context, conditional on identity and historical applicability.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "research.model.base_model",
+    "quality": "source_and_applicability_qualified",
+    "source_fields": [
+      "Combined shared-export model fact: base_model"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "offline_research_join_only",
+    "definition": "Combined shared-export model fact: documented_languages",
+    "eligibility": "research_only",
+    "fit_scope": "none",
+    "grain": "system",
+    "kind": "qualified_json",
+    "mechanism_hypothesis": "Candidate functional capacity or architecture context, conditional on identity and historical applicability.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "research.model.documented_languages",
+    "quality": "source_and_applicability_qualified",
+    "source_fields": [
+      "Combined shared-export model fact: documented_languages"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "offline_research_join_only",
+    "definition": "Combined shared-export model fact: fine_tuning_domains",
+    "eligibility": "research_only",
+    "fit_scope": "none",
+    "grain": "system",
+    "kind": "qualified_json",
+    "mechanism_hypothesis": "Candidate functional capacity or architecture context, conditional on identity and historical applicability.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "research.model.fine_tuning_domains",
+    "quality": "source_and_applicability_qualified",
+    "source_fields": [
+      "Combined shared-export model fact: fine_tuning_domains"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "offline_research_join_only",
+    "definition": "Combined shared-export model fact: input_modalities",
+    "eligibility": "research_only",
+    "fit_scope": "none",
+    "grain": "system",
+    "kind": "qualified_json",
+    "mechanism_hypothesis": "Candidate functional capacity or architecture context, conditional on identity and historical applicability.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "research.model.input_modalities",
+    "quality": "source_and_applicability_qualified",
+    "source_fields": [
+      "Combined shared-export model fact: input_modalities"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "offline_research_join_only",
+    "definition": "Combined shared-export model fact: max_combined_context_tokens",
+    "eligibility": "research_only",
+    "fit_scope": "none",
+    "grain": "system",
+    "kind": "qualified_json",
+    "mechanism_hypothesis": "Candidate functional capacity or architecture context, conditional on identity and historical applicability.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "research.model.max_combined_context_tokens",
+    "quality": "source_and_applicability_qualified",
+    "source_fields": [
+      "Combined shared-export model fact: max_combined_context_tokens"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "offline_research_join_only",
+    "definition": "Combined shared-export model fact: max_input_tokens",
+    "eligibility": "research_only",
+    "fit_scope": "none",
+    "grain": "system",
+    "kind": "qualified_json",
+    "mechanism_hypothesis": "Candidate functional capacity or architecture context, conditional on identity and historical applicability.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "research.model.max_input_tokens",
+    "quality": "source_and_applicability_qualified",
+    "source_fields": [
+      "Combined shared-export model fact: max_input_tokens"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "offline_research_join_only",
+    "definition": "Combined shared-export model fact: max_output_tokens",
+    "eligibility": "research_only",
+    "fit_scope": "none",
+    "grain": "system",
+    "kind": "qualified_json",
+    "mechanism_hypothesis": "Candidate functional capacity or architecture context, conditional on identity and historical applicability.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "research.model.max_output_tokens",
+    "quality": "source_and_applicability_qualified",
+    "source_fields": [
+      "Combined shared-export model fact: max_output_tokens"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "offline_research_join_only",
+    "definition": "Combined shared-export model fact: max_reasoning_tokens",
+    "eligibility": "research_only",
+    "fit_scope": "none",
+    "grain": "system",
+    "kind": "qualified_json",
+    "mechanism_hypothesis": "Candidate functional capacity or architecture context, conditional on identity and historical applicability.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "research.model.max_reasoning_tokens",
+    "quality": "source_and_applicability_qualified",
+    "source_fields": [
+      "Combined shared-export model fact: max_reasoning_tokens"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "offline_research_join_only",
+    "definition": "Combined shared-export model fact: model_type",
+    "eligibility": "research_only",
+    "fit_scope": "none",
+    "grain": "system",
+    "kind": "qualified_json",
+    "mechanism_hypothesis": "Candidate functional capacity or architecture context, conditional on identity and historical applicability.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "research.model.model_type",
+    "quality": "source_and_applicability_qualified",
+    "source_fields": [
+      "Combined shared-export model fact: model_type"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "offline_research_join_only",
+    "definition": "Combined shared-export model fact: output_modalities",
+    "eligibility": "research_only",
+    "fit_scope": "none",
+    "grain": "system",
+    "kind": "qualified_json",
+    "mechanism_hypothesis": "Candidate functional capacity or architecture context, conditional on identity and historical applicability.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "research.model.output_modalities",
+    "quality": "source_and_applicability_qualified",
+    "source_fields": [
+      "Combined shared-export model fact: output_modalities"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "offline_research_join_only",
+    "definition": "Combined shared-export model fact: release_date",
+    "eligibility": "research_only",
+    "fit_scope": "none",
+    "grain": "system",
+    "kind": "qualified_json",
+    "mechanism_hypothesis": "Candidate functional capacity or architecture context, conditional on identity and historical applicability.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "research.model.release_date",
+    "quality": "source_and_applicability_qualified",
+    "source_fields": [
+      "Combined shared-export model fact: release_date"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "offline_research_join_only",
+    "definition": "Combined shared-export model fact: supported_reasoning_settings",
+    "eligibility": "research_only",
+    "fit_scope": "none",
+    "grain": "system",
+    "kind": "qualified_json",
+    "mechanism_hypothesis": "Candidate functional capacity or architecture context, conditional on identity and historical applicability.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "research.model.supported_reasoning_settings",
+    "quality": "source_and_applicability_qualified",
+    "source_fields": [
+      "Combined shared-export model fact: supported_reasoning_settings"
+    ],
+    "status": "implemented",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "supplied_at_prediction",
+    "definition": "Existing task-taxonomy-v2 facet: language",
+    "eligibility": "supplied_only",
+    "fit_scope": "separate_training_only_design_required",
+    "grain": "visible_task",
+    "kind": "candidate_labels",
+    "mechanism_hypothesis": "Reviewed task requirements could support cross-domain transfer; no bulk labels are approved.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "semantic.language",
+    "quality": "deterministic_observable_not_predictive_validation",
+    "source_fields": [
+      "Existing task-taxonomy-v2 facet: language"
+    ],
+    "status": "deferred_unreviewed",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "supplied_at_prediction",
+    "definition": "Existing task-taxonomy-v2 facet: domain",
+    "eligibility": "supplied_only",
+    "fit_scope": "separate_training_only_design_required",
+    "grain": "visible_task",
+    "kind": "candidate_labels",
+    "mechanism_hypothesis": "Reviewed task requirements could support cross-domain transfer; no bulk labels are approved.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "semantic.domain",
+    "quality": "deterministic_observable_not_predictive_validation",
+    "source_fields": [
+      "Existing task-taxonomy-v2 facet: domain"
+    ],
+    "status": "deferred_unreviewed",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "supplied_at_prediction",
+    "definition": "Existing task-taxonomy-v2 facet: skills",
+    "eligibility": "supplied_only",
+    "fit_scope": "separate_training_only_design_required",
+    "grain": "visible_task",
+    "kind": "candidate_labels",
+    "mechanism_hypothesis": "Reviewed task requirements could support cross-domain transfer; no bulk labels are approved.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "semantic.skills",
+    "quality": "deterministic_observable_not_predictive_validation",
+    "source_fields": [
+      "Existing task-taxonomy-v2 facet: skills"
+    ],
+    "status": "deferred_unreviewed",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "supplied_at_prediction",
+    "definition": "Existing task-taxonomy-v2 facet: reasoning_structure",
+    "eligibility": "supplied_only",
+    "fit_scope": "separate_training_only_design_required",
+    "grain": "visible_task",
+    "kind": "candidate_labels",
+    "mechanism_hypothesis": "Reviewed task requirements could support cross-domain transfer; no bulk labels are approved.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "semantic.reasoning_structure",
+    "quality": "deterministic_observable_not_predictive_validation",
+    "source_fields": [
+      "Existing task-taxonomy-v2 facet: reasoning_structure"
+    ],
+    "status": "deferred_unreviewed",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "supplied_at_prediction",
+    "definition": "Existing task-taxonomy-v2 facet: modalities",
+    "eligibility": "supplied_only",
+    "fit_scope": "separate_training_only_design_required",
+    "grain": "visible_task",
+    "kind": "candidate_labels",
+    "mechanism_hypothesis": "Reviewed task requirements could support cross-domain transfer; no bulk labels are approved.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "semantic.modalities",
+    "quality": "deterministic_observable_not_predictive_validation",
+    "source_fields": [
+      "Existing task-taxonomy-v2 facet: modalities"
+    ],
+    "status": "deferred_unreviewed",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "supplied_at_prediction",
+    "definition": "Existing task-taxonomy-v2 facet: answer_format",
+    "eligibility": "supplied_only",
+    "fit_scope": "separate_training_only_design_required",
+    "grain": "visible_task",
+    "kind": "candidate_labels",
+    "mechanism_hypothesis": "Reviewed task requirements could support cross-domain transfer; no bulk labels are approved.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "semantic.answer_format",
+    "quality": "deterministic_observable_not_predictive_validation",
+    "source_fields": [
+      "Existing task-taxonomy-v2 facet: answer_format"
+    ],
+    "status": "deferred_unreviewed",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "supplied_at_prediction",
+    "definition": "Existing task-taxonomy-v2 facet: information_needs",
+    "eligibility": "supplied_only",
+    "fit_scope": "separate_training_only_design_required",
+    "grain": "visible_task",
+    "kind": "candidate_labels",
+    "mechanism_hypothesis": "Reviewed task requirements could support cross-domain transfer; no bulk labels are approved.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "semantic.information_needs",
+    "quality": "deterministic_observable_not_predictive_validation",
+    "source_fields": [
+      "Existing task-taxonomy-v2 facet: information_needs"
+    ],
+    "status": "deferred_unreviewed",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "supplied_at_prediction",
+    "definition": "Existing task-taxonomy-v2 facet: input_issues",
+    "eligibility": "supplied_only",
+    "fit_scope": "separate_training_only_design_required",
+    "grain": "visible_task",
+    "kind": "candidate_labels",
+    "mechanism_hypothesis": "Reviewed task requirements could support cross-domain transfer; no bulk labels are approved.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "semantic.input_issues",
+    "quality": "deterministic_observable_not_predictive_validation",
+    "source_fields": [
+      "Existing task-taxonomy-v2 facet: input_issues"
+    ],
+    "status": "deferred_unreviewed",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "supplied_at_prediction",
+    "definition": "Proposed compatibility/representation/evidence family: language_match",
+    "eligibility": "supplied_only",
+    "fit_scope": "separate_training_only_design_required",
+    "grain": "system_task",
+    "kind": "not_materialized",
+    "mechanism_hypothesis": "Requires reviewed operands, representation choice or separately authorized fitting; no zero stand-in column exists.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "candidate.language_match",
+    "quality": "deterministic_observable_not_predictive_validation",
+    "source_fields": [
+      "Proposed compatibility/representation/evidence family: language_match"
+    ],
+    "status": "deferred",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "supplied_at_prediction",
+    "definition": "Proposed compatibility/representation/evidence family: domain_match",
+    "eligibility": "supplied_only",
+    "fit_scope": "separate_training_only_design_required",
+    "grain": "system_task",
+    "kind": "not_materialized",
+    "mechanism_hypothesis": "Requires reviewed operands, representation choice or separately authorized fitting; no zero stand-in column exists.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "candidate.domain_match",
+    "quality": "deterministic_observable_not_predictive_validation",
+    "source_fields": [
+      "Proposed compatibility/representation/evidence family: domain_match"
+    ],
+    "status": "deferred",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "supplied_at_prediction",
+    "definition": "Proposed compatibility/representation/evidence family: context_to_capacity",
+    "eligibility": "supplied_only",
+    "fit_scope": "separate_training_only_design_required",
+    "grain": "system_task",
+    "kind": "not_materialized",
+    "mechanism_hypothesis": "Requires reviewed operands, representation choice or separately authorized fitting; no zero stand-in column exists.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "candidate.context_to_capacity",
+    "quality": "deterministic_observable_not_predictive_validation",
+    "source_fields": [
+      "Proposed compatibility/representation/evidence family: context_to_capacity"
+    ],
+    "status": "deferred",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "supplied_at_prediction",
+    "definition": "Proposed compatibility/representation/evidence family: required_tool_enabled",
+    "eligibility": "supplied_only",
+    "fit_scope": "separate_training_only_design_required",
+    "grain": "system_task",
+    "kind": "not_materialized",
+    "mechanism_hypothesis": "Requires reviewed operands, representation choice or separately authorized fitting; no zero stand-in column exists.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "candidate.required_tool_enabled",
+    "quality": "deterministic_observable_not_predictive_validation",
+    "source_fields": [
+      "Proposed compatibility/representation/evidence family: required_tool_enabled"
+    ],
+    "status": "deferred",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "supplied_at_prediction",
+    "definition": "Proposed compatibility/representation/evidence family: semantic_embedding",
+    "eligibility": "supplied_only",
+    "fit_scope": "separate_training_only_design_required",
+    "grain": "system_task",
+    "kind": "not_materialized",
+    "mechanism_hypothesis": "Requires reviewed operands, representation choice or separately authorized fitting; no zero stand-in column exists.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "candidate.semantic_embedding",
+    "quality": "deterministic_observable_not_predictive_validation",
+    "source_fields": [
+      "Proposed compatibility/representation/evidence family: semantic_embedding"
+    ],
+    "status": "deferred",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "supplied_at_prediction",
+    "definition": "Proposed compatibility/representation/evidence family: demonstrated_ability",
+    "eligibility": "supplied_only",
+    "fit_scope": "separate_training_only_design_required",
+    "grain": "system_task",
+    "kind": "not_materialized",
+    "mechanism_hypothesis": "Requires reviewed operands, representation choice or separately authorized fitting; no zero stand-in column exists.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "candidate.demonstrated_ability",
+    "quality": "deterministic_observable_not_predictive_validation",
+    "source_fields": [
+      "Proposed compatibility/representation/evidence family: demonstrated_ability"
+    ],
+    "status": "deferred",
+    "version": "feature_foundation_v1"
+  },
+  {
+    "availability": "supplied_at_prediction",
+    "definition": "Proposed compatibility/representation/evidence family: revealed_evidence",
+    "eligibility": "supplied_only",
+    "fit_scope": "separate_training_only_design_required",
+    "grain": "system_task",
+    "kind": "not_materialized",
+    "mechanism_hypothesis": "Requires reviewed operands, representation choice or separately authorized fitting; no zero stand-in column exists.",
+    "missing_behavior": "Raw empty strings stay empty; typed unknown/conflicting values are null with explicit status; zero/false/empty lists remain known.",
+    "name": "candidate.revealed_evidence",
+    "quality": "deterministic_observable_not_predictive_validation",
+    "source_fields": [
+      "Proposed compatibility/representation/evidence family: revealed_evidence"
+    ],
+    "status": "deferred",
+    "version": "feature_foundation_v1"
+  }
+]

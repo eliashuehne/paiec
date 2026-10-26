@@ -15,8 +15,9 @@ holdout constraints. Historical Laya guides are reference material, not queued w
 
 | Guide | Scope |
 | --- | --- |
+| [Feature foundation](feature-foundation.md) | Whole-public-release feature preparation, protected splits, source contracts, coverage and gaps |
 | [Feature foundation PR target](feature-foundation-pr-target.md) | Proposed deliverables, table contracts, source scope, review cases and merge criteria for the next feature layer |
-| [Feature foundation work plan](superpowers/plans/2026-10-25-feature-foundation.md) | Testable implementation sequence for the PR target; no feature implementation yet |
+| [Feature foundation work plan](superpowers/plans/2026-10-25-feature-foundation.md) | Implementation sequence and full-population scope ruling |
 | [Laya input contract](laya-input-contract.md) | Upstream format audit, delivery of collected facts and measured multilingual 8k capacity |
 | [Multilingual qualification](multilingual-qualification.md) | Frozen 8k recipe, grouped overflow policy and bounded learning/hardware gates |
 | [Compact inputs and development](compact-inputs-and-development.md) | Historical compact-v3 recipe, retained task text and missing identities |

@@ -112,3 +112,23 @@ debug/replay tools. Libraries and core tests work without ZenML installed.
 Reports, source downloads, audits, dashboards, retirement/restoration and tests
 remain ordinary utilities. Historical recipe/renderer paths and checkpoint
 contracts were not moved or renamed to achieve this cleanup.
+
+## Full-population feature preparation
+
+The `features` route inventories all downloaded benchmark, subject, item and
+response rows, preserves frozen roles, and builds outcome-independent input
+features. It uses no scorer admission threshold or legacy sample cap. Its graph
+is `verify_feature_sources → prepare_feature_tables → publish_feature_report`.
+The core builder and validator work without tracking packages.
+
+```bash
+PYTHONPATH=src .venv-pipeline/bin/python scripts/run_pipeline.py features \
+  --source-root /absolute/path/to/source-checkout \
+  --out runs/feature_foundation/v1
+```
+
+Add `--execute` to build locally through ZenML and MLflow. Outputs must be fresh;
+source paths and hashes stay bound to the recipe. Protected roles retain
+metadata-only rows, and non-text assets receive partial-support status.
+See [feature foundation](feature-foundation.md) for the table contracts, review
+method, independent validator and measured gaps.

@@ -1,6 +1,7 @@
 # PR target: a model-independent feature foundation
 
-Status: implementation target; full-population scope explicitly approved by the user.
+Status: implemented and locally verified; full-population scope approved by the user.
+See the [usage guide](feature-foundation.md) and [measured coverage](../research/feature_foundation/coverage-and-gaps-v1.md).
 Date: 2026-10-25. Branch: `feature-foundation`, based on `catboost` at `6f78ac6`.
 Proposed PR base: `catboost` (a stacked, feature-only PR). Targeting `main`
 directly would include substantial pre-existing branch work outside this scope.
@@ -105,7 +106,8 @@ PYTHONPATH=src .venv-pipeline/bin/python scripts/validate_feature_foundation.py 
   --bundle runs/feature_foundation/v1
 ```
 
-All commands above are proposed interfaces. They do not exist yet.
+These interfaces are implemented. See [the usage and measured audit](feature-foundation.md)
+for actual results and remaining qualifications.
 
 Execution uses the existing local ZenML/MLflow conventions through thin steps;
 the extraction library and validator must remain callable without those optional
@@ -145,7 +147,8 @@ use a declared `value_type` and canonical JSON strings in `value_json`; unknown
 values have an Arrow null in `value_json` plus an explicit non-known status.
 Do not rely on unstable Python object columns. A typed false, numeric zero or
 known empty list is known and distinct from unknown. Canonical JSON must reject nonfinite numbers.
-Output row order is deterministic by the declared keys.
+Output order follows deterministic source order, with explicit key order for
+interactor variants and normalized-content groups. Trial source order is preserved.
 
 ## Settings that v1 must handle
 
@@ -293,19 +296,19 @@ predictor registries, existing recipes or hash-pinned renderers.
 
 ## Merge acceptance checklist
 
-- [ ] A source-only plan lists exact populations, files, hashes and actions, with all model/API/outcome-access actions false.
-- [ ] The pinned local build completes with the declared populations and validates all output schemas, keys, links and evidence references, including every population row or an explicit metadata-only withheld disposition.
-- [ ] Every supplied field and encountered setting is retained and has a typed/literal/unresolved disposition.
-- [ ] Unknown, known zero/false, conflict, unsupported applicability and absent evidence are distinguishable in tables and reports.
-- [ ] Supplied-only and research-enriched projections obey separate provenance and availability policies.
-- [ ] Every feature is defined, versioned, measurable and traceable; deferred features are identified explicitly.
-- [ ] All 48 training-only audit cases have recorded dispositions; selection is reproducible and review limitations are stated.
-- [ ] Rebuilding identical inputs produces identical logical tables and feature values. Nonvolatile logical digests match; timestamps, absolute roots and execution IDs may differ only in receipts.
-- [ ] Synthetic outcome changes do not change feature values or logical feature digests; changed raw-source hashes may change provenance receipts.
-- [ ] Tests prove no reads of protected content/outcome columns and no model loading, fitting, encoder inference, network access or job dispatch.
-- [ ] Bad hashes, duplicate join keys, mismatched foreign keys, source/output overlap and incompatible schemas fail before final publication.
-- [ ] Targeted feature-foundation tests and the existing source-only suite pass; existing native runtime/renderer/scorer behavior is unchanged.
-- [ ] `git diff --check` passes. Generated data and unrelated facility-text edits are excluded from the PR.
+- [x] A source-only plan lists exact populations, files, hashes and actions, with all model/API/outcome-access actions false.
+- [x] The pinned local build completes with the declared populations and validates all output schemas, keys, links and evidence references, including every population row or an explicit metadata-only withheld disposition.
+- [x] Every supplied field and encountered setting is retained and has a typed/literal/unresolved disposition.
+- [x] Unknown, known zero/false, conflict, unsupported applicability and absent evidence are distinguishable in tables and reports.
+- [x] Supplied-only and research-enriched projections obey separate provenance and availability policies.
+- [x] Every feature is defined, versioned, measurable and traceable; deferred features are identified explicitly.
+- [x] All 48 training-only audit cases have recorded dispositions; selection is reproducible and review limitations are stated.
+- [x] Rebuilding identical inputs produces identical logical tables and feature values. Nonvolatile logical digests match; timestamps, absolute roots and execution IDs may differ only in receipts.
+- [x] Synthetic outcome changes do not change feature values or logical feature digests; changed raw-source hashes may change provenance receipts.
+- [x] Tests prove no reads of protected content/outcome columns and no model loading, fitting, encoder inference, network access or job dispatch.
+- [x] Bad hashes, duplicate join keys, mismatched foreign keys, source/output overlap and incompatible schemas fail before final publication.
+- [x] Targeted feature-foundation tests and the existing source-only suite pass; existing native runtime/renderer/scorer behavior is unchanged.
+- [x] `git diff --check` passes. Generated data and unrelated facility-text edits are excluded from the PR.
 
 ## Evidence the eventual PR description must contain
 

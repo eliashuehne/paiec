@@ -1,0 +1,64 @@
+{
+  "corpus_manifest_sha256": "ca29f094dcc8ed64e8b92d459bfe746798d8cb89c453f156506fda6f3141dc25",
+  "corpus_scope": "paec-public-training",
+  "dataset_revision": "54074453da7b9911be0f48e4c560be547bc84d21",
+  "downloaded_manifest_files": 304,
+  "enrichment_inventory": {
+    "catalog_configurations": 189,
+    "harness_profiles": 8,
+    "model_profiles": 46,
+    "preparation_descriptions": 176
+  },
+  "excluded_tables": {
+    "traces.parquet": {
+      "files": 60,
+      "reason": "excluded execution traces; no reads or feature extraction"
+    }
+  },
+  "feature_source_tables": 244,
+  "frozen_roles": {
+    "calibration": [
+      "afrieval",
+      "causal_axioms"
+    ],
+    "confirmation": [
+      "bertaqa",
+      "evouna"
+    ],
+    "development": [
+      "ceval",
+      "erbench"
+    ],
+    "training": [
+      "abstract_reason",
+      "adaptivestep",
+      "benger",
+      "bird_sql",
+      "cellverse",
+      "clasheval",
+      "critic_discernment_game",
+      "fewshot_ttt_bbh"
+    ]
+  },
+  "hash_bound_source_files": 358,
+  "non_dataset_metadata_files": [
+    "corpus_manifest.json",
+    ".DS_Store"
+  ],
+  "population": {
+    "benchmarks": 61,
+    "items": 1356713,
+    "responses": 16423758,
+    "subjects": 8163
+  },
+  "recipe": "configs/pipelines/feature_foundation_v1.json",
+  "recipe_sha256": "8000ed1153a8a1323598da2967bc98ea49cda61c79d6563280b2964dab0cd21e",
+  "source_family_groups": "configs/data/feature_foundation_families_v1.json",
+  "source_fields": "generated bundle/source_fields.json",
+  "unlisted_downloaded_benchmark_directories": [],
+  "upstream_reuse": {
+    "join_contract": "origin/main:b202afd lift.join_features, adapted for explicit composite keys; no model imports",
+    "source_family_groups": "origin/main:b202afd configs/lift/benchmark_groups.json"
+  },
+  "version": "feature_foundation_source_inventory_v1"
+}
