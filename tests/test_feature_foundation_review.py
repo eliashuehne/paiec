@@ -23,4 +23,3 @@ class ReviewTests(unittest.TestCase):
         case = {"case_id": "a", "input_hash": "hash", "kind": "task", "split": "test"}
         with self.assertRaises(ValueError):
             m.validate_reviews([case], [])
-

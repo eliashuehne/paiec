@@ -87,4 +87,3 @@ class TaskStreamTests(unittest.TestCase):
         messages = m.task_observables({"item_content": '[{"role":"user","content":"Read context.txt"}]', "item_features": "asset_path=context.txt", "interactors": ""})
         self.assertEqual(messages.get("message_count_hint"), 1)
         self.assertTrue(messages.get("has_visible_asset_reference_hint"))
-

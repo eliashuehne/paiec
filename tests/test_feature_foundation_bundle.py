@@ -179,4 +179,3 @@ class BundleTests(unittest.TestCase):
             (out/'manifest.json').write_text(json.dumps(manifest))
             with self.assertRaisesRegex(ValueError, 'variant'):
                 m.validate_bundle(out)
-

@@ -93,4 +93,3 @@ class SettingsTests(unittest.TestCase):
         value = next(r for r in result['resolved'] if r['field']=='few_shot_count')
         self.assertEqual(value['status'], 'invalid')
         self.assertIsNone(value['value_json'])
-

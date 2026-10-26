@@ -35,4 +35,3 @@ class EnrichmentTests(unittest.TestCase):
     def test_supplied_only_does_not_depend_on_match_signals(self):
         m = self.module()
         self.assertEqual(m.feature_projection([{"field": "language", "value_json": '["en"]'}], "supplied_only"), [])
-
