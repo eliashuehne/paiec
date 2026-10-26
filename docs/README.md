@@ -58,6 +58,7 @@ holdout constraints. Historical Laya guides are reference material, not queued w
 | [Conditional control](conditional-control.md) | Whole-family negative result, portable predictor and candidate rejection checks |
 | [CatBoost base](catboost-base.md) | Structured supplied-field features, whole-family and unseen-benchmark results, interval-checked ablations, the additive two-block control, the research-only profile block, and its scrambled single-draw control with the permutation distribution that decides it |
 | [Pair matrix and rate model](competition-pairs.md) | Whole-corpus subject–benchmark pairs, a competition-shaped Brier-ALC scorer that keeps cross-pair evidence, the fixed controls, the two-way ability/difficulty model and its gate |
+| [Item axis](competition-item-axis.md) | Whether item difficulty is shared or model specific, the measured ordering prize, the coverage limit of revealed labels, and why a label-driven Rasch arm is not worth building |
 | [Training-data expansion](training-data-expansion.md) | Measured row-count versus unused-benchmark diversity A/B; no admission decision |
 | [Task annotations](task-annotation-collection.md) | Full-input plans, offline imports, candidate coverage and quality limits |
 | [Feature evidence links](feature-evidence-links.md) | Training-only collection folds and support/query indices; no fitting |

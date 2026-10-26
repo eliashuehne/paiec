@@ -37,6 +37,7 @@ continuation is queued.
 | `build_competition_submission.py` | Deterministic allowlisted local ZIP; never uploads |
 | `qualify_evidence_submission.py` | Isolated exact-package checks on every training scope with global revealed evidence |
 | `analyze_competition_data.py` | Training-only fixed numerical evidence controls; no fitted model or native inference |
+| `analyze_item_axis.py` | Measures whether item difficulty is shared or model specific and prices the ordering prize on the fold draws; fits nothing shippable, no GPU |
 | `analyze_conditional_predictor.py` | CPU ridge fits outside whole training families; no native Laya inference, APIs or GPU |
 | `run_training_data_expansion.py` | CPU ridge A/B of row count versus unused-benchmark diversity; admits no data, fits no candidate, opens no sealed role |
 | `run_catboost_base.py` | CPU CatBoost whole-family base experiment with ablations or a declared feature-group recipe, including the research-only profile recipe and its scrambled control; no native Laya inference, APIs or GPU |

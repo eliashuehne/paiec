@@ -1,0 +1,13 @@
+{
+  "version": "item_axis_v1",
+  "pair_matrix": "runs/competition_pipeline/pair_matrix_v1",
+  "direction": "higher_is_better",
+  "min_items": 80,
+  "folds": 5,
+  "seed": 20261023,
+  "max_pairs_per_draw": 1000,
+  "minimum_item_observations": 2,
+  "prior_strength": 5.0,
+  "transfer_auc_threshold": 0.53,
+  "reliability_threshold": 0.3
+}

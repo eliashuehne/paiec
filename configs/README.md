@@ -42,6 +42,11 @@ only supplied public-data fields and separate training targets. Research model
 profiles and manual annotations are not used. See
 [the competition route](../docs/competition-pipeline.md).
 
+`pipelines/item_axis_v1.json` declares the item-axis diagnostic: the fold, draw
+and prior settings plus the transfer-AUC and reliability thresholds that decide
+the shared-versus-model-specific verdict, fixed before the numbers are read. It
+fits nothing that can be shipped; see [the item axis](../docs/competition-item-axis.md).
+
 `pipelines/competition_pairs_v1.json` declares the whole-public-corpus pair
 matrix: admission rules (binary, item granularity, text-only, 80 items), the
 corpus revision and the recorded label direction. `pipelines/competition_controls_v1.json`
