@@ -60,3 +60,6 @@ before running the full harness. Usage, guards and current baselines are in
 python scripts/lift/build_lift_sample.py
 python scripts/lift/run_lift.py --features runs/features/items.parquet --columns n_chars
 ```
+
+Subject features (identity, release date, size, family, provider) and the
+release-date estimates, with their results, are in [docs/subjects.md](docs/subjects.md).

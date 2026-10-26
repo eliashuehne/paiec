@@ -3,9 +3,12 @@
     python scripts/lift/run_lift.py --base KM --features runs/features/subjects.parquet --columns release_days
     python scripts/lift/run_lift.py --base A --candidate K --name k_vs_a
     python scripts/lift/run_lift.py --budgets --base A --abilities normalized_name --name b_vs_a_budget0
+    python scripts/lift/run_lift.py --base KM --base-columns release_year --columns release_year_filled \
+        --features runs/features/subjects.parquet --name filled_vs_real
 
 The candidate is the base plus the given columns and abilities, or another
-named baseline (--candidate). By default every official budget is scored on
+named baseline (--candidate). --base-columns adds columns to the base only, to
+compare one feature version against another. By default every official budget is scored on
 the same held-out rows and combined with the official weights; --budgets with
 values narrows the list, and --budgets with none runs the original budget-0
 loop on all rows. Prints the comparison and saves it to
@@ -48,6 +51,7 @@ def parse_arguments():
     parser.add_argument("--groups", type=Path, default=ROOT / "configs" / "lift" / "benchmark_groups.json")
     parser.add_argument("--features", type=Path, nargs="*", default=[], help="feature tables to join")
     parser.add_argument("--columns", nargs="*", default=[], help="feature columns added to the base")
+    parser.add_argument("--base-columns", nargs="*", default=[], help="feature columns added to the base only")
     parser.add_argument("--abilities", nargs="*", default=[], help="in-fold ability keys added to the base")
     parser.add_argument("--increasing", nargs="*", default=[],
                         help="candidate columns that may only raise P(correct) (budget mode)")
@@ -83,6 +87,10 @@ def main():
     args = parse_arguments()
     base = BUDGET_BASELINES[args.base]
     candidate = candidate_of(args, base)
+    if args.base_columns:
+        if base.predictor in RULES:
+            sys.exit(f"base {args.base} is a fixed rule; add --base-columns to KM instead")
+        base = BudgetBaseline((*base.columns, *args.base_columns), base.abilities, base.predictor)
     if not set(args.increasing) <= set(args.columns):
         sys.exit("--increasing must name columns passed with --columns")
     if args.increasing and not args.budgets:
@@ -94,8 +102,9 @@ def main():
         tables.append(SUBJECT_FIELDS)  # abilities are keyed by visible subject fields
     sample = load_features(pd.read_parquet(args.sample), tables)
     groups = load_benchmark_groups(args.groups)
-    fingerprints = fingerprint_scores(sample, args.columns)
-    title = (f"{args.name}: base {args.base} vs "
+    fingerprints = fingerprint_scores(sample, [*args.base_columns, *args.columns])
+    base_name = args.base + (f" + {args.base_columns}" if args.base_columns else "")
+    title = (f"{args.name}: base {base_name} vs "
              + (f"baseline {args.candidate}" if args.candidate else
                 f"base + columns {args.columns} + abilities {args.abilities}"))
 
@@ -126,6 +135,7 @@ def main():
         "seconds": round(time.time() - started, 1),
         "base": args.base,
         "candidate": args.candidate,
+        "base_columns": args.base_columns,
         "columns": args.columns,
         "abilities": args.abilities,
         "increasing": args.increasing,

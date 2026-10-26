@@ -5,7 +5,10 @@
 
 Writes runs/features/subjects.parquet (one row per subject_id) and
 runs/features/subjects_manifest.json with the fill rate of every column, by
-subjects and by lift-sample rows.
+subjects and by lift-sample rows. Missing release dates are estimated from
+family, product line and version (src/paiec/subject_dates.py), using
+references from other lift folds only; only sources that pass the back-test
+are kept, and the back-test is recorded in the manifest.
 """
 
 from __future__ import annotations
@@ -21,7 +24,18 @@ import pandas as pd
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "src"))
 
+from paiec.subject_dates import (  # noqa: E402
+    accepted_sources,
+    add_version_columns,
+    backtest,
+    fill_release_dates,
+    subject_folds,
+    summarise_backtest,
+)
 from paiec.subject_features import COLUMNS, build_subject_features, load_families  # noqa: E402
+
+DATE_COLUMNS = ["line", "version", "name_date_days", "release_days_filled", "release_year_filled",
+                "release_lo", "release_hi", "release_source", "release_filled"]
 
 
 def parse_arguments():
@@ -40,8 +54,8 @@ def sha256(path: Path) -> str:
 def fill_rates(table: pd.DataFrame, weights: pd.Series | None) -> dict:
     """Share of subjects, and of sample rows, with each column filled (flags: share set to 1)."""
     rates = {}
-    for column in COLUMNS[1:]:
-        filled = table[column].eq(1) if column.startswith("is_") else table[column].notna()
+    for column in [*COLUMNS[1:], *DATE_COLUMNS]:
+        filled = table[column].eq(1) if column.startswith("is_") or column == "release_filled" else table[column].notna()
         rates[column] = {"subjects": round(float(filled.mean()), 4)}
         if weights is not None:
             rates[column]["sample_rows"] = round(float(weights[filled].sum() / weights.sum()), 4)
@@ -52,11 +66,17 @@ def main():
     args = parse_arguments()
     if not args.fields.is_file():
         sys.exit(f"{args.fields} is missing; run scripts/lift/build_subject_fields.py first")
-    table = build_subject_features(pd.read_parquet(args.fields), load_families(args.families))
-    weights = None
-    if args.sample.is_file():
-        counts = pd.read_parquet(args.sample, columns=["subject_id"])["subject_id"].value_counts()
-        weights = table["subject_id"].map(counts).fillna(0)
+    if not args.sample.is_file():
+        sys.exit(f"{args.sample} is missing; run scripts/lift/build_lift_sample.py first (dates use its folds)")
+    families = load_families(args.families)
+    table = add_version_columns(build_subject_features(pd.read_parquet(args.fields), families), families)
+    sample = pd.read_parquet(args.sample, columns=["subject_id", "fold"])
+    weights = table["subject_id"].map(sample["subject_id"].value_counts()).fillna(0)
+
+    reports = {mode: summarise_backtest(backtest(table, mode)) for mode in ("identity", "signature")}
+    accepted = accepted_sources(reports["identity"])
+    dates = fill_release_dates(table, subject_folds(sample), accepted)
+    table = table.merge(dates, on="subject_id", how="left", validate="one_to_one")
 
     args.out.parent.mkdir(parents=True, exist_ok=True)
     table.to_parquet(args.out, index=False)
@@ -65,11 +85,19 @@ def main():
         "subjects": int(len(table)),
         "fields_sha256": sha256(args.fields),
         "families_sha256": sha256(args.families),
+        "sample_sha256": sha256(args.sample),
+        "accepted_date_sources": accepted,
+        "date_backtest": {mode: report.round(4).to_dict("records") for mode, report in reports.items()},
+        "release_sources": table["release_source"].value_counts().to_dict(),
         "fill_rates": rates,
     }
     args.out.with_name("subjects_manifest.json").write_text(json.dumps(manifest, indent=2))
 
     print(f"{len(table)} subjects -> {args.out}")
+    for mode, report in reports.items():
+        print(f"date back-test, leaving out each {mode}:")
+        print(report.round(3).to_string(index=False))
+    print(f"accepted date sources: {accepted}")
     print(f"{'column':22s} subjects  sample rows")
     for column, rate in rates.items():
         print(f"{column:22s} {rate['subjects']:7.1%}  {rate.get('sample_rows', float('nan')):7.1%}")
