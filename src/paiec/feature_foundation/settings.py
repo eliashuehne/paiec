@@ -12,11 +12,14 @@ FIELDS = {
     "max_reasoning_tokens": "integer", "max_turns": "integer", "max_tool_calls": "integer",
     "max_retries": "integer", "candidate_count": "integer", "temperature": "number", "top_p": "number",
     "enabled_tools": "string_list", "quantization": "string", "serving_configuration": "string",
+    "sampling_enabled": "boolean", "reported_method": "string",
 }
 ALIASES = {**{name: name for name in FIELDS}, "n_shots": "few_shot_count", "shot_size": "few_shot_count",
-           "prompting": "prompting_method", "prompt_style": "prompting_method"}
-CONTAINERS = {"agent_configuration", "tool_configuration", "configuration", "config", "settings", "subject_features_extra"}
-POLICY_VERSION = "recorded_settings_v1"
+           "prompting": "prompting_method", "prompt_style": "prompting_method",
+           "max_new_tokens": "max_output_tokens", "do_sample": "sampling_enabled",
+           "selection": "selection_method", "method": "reported_method"}
+CONTAINERS = {"agent_configuration", "tool_configuration", "configuration", "config", "settings", "subject_features_extra", "released_configuration"}
+POLICY_VERSION = "recorded_settings_v2"
 
 
 def _unique(pairs):
@@ -34,6 +37,10 @@ def _json(text):
 
 
 def _typed(value, kind):
+    if kind == "boolean":
+        if type(value) is not bool:
+            raise ValueError("expected boolean")
+        return value
     if kind == "string":
         if not isinstance(value, str) or not value.strip():
             raise ValueError("expected nonempty string")
@@ -67,7 +74,11 @@ def parse_run_settings(subject, *, max_depth=12, max_nodes=4096):
         row = {"system_key": system_key, "source_field": source_field, "source_path": path,
                "occurrence": occurrence, "raw_key": key, "raw_value": raw,
                "field": ALIASES.get(key), "status": status, "reason": reason,
-               "value_json": None if value is None else canonical_json(value)}
+               "value_json": None if value is None else canonical_json(value),
+               "source_scope": "released_configuration" if "/released_configuration" in path else
+                    "selection_scope_unspecified" if key == "selection" else
+                    "reported_method_label_only" if key == "method" else
+                    "dedicated_subject_field" if source_field == "reasoning_effort" else "supplied_setting"}
         row["observation_id"] = stable_key(row)
         observations.append(row)
         if row["field"]:
@@ -159,6 +170,7 @@ def parse_run_settings(subject, *, max_depth=12, max_nodes=4096):
         resolved.append({"system_key": system_key, "field": field, "value_type": kind,
                          "value_json": next(iter(known)) if status == "known" else None,
                          "status": status, "reason": "not_recorded" if not claims else status,
+                         "source_scope": "not_recorded" if not claims else next(iter({r["source_scope"] for r in claims})) if len({r["source_scope"] for r in claims}) == 1 else "mixed_recorded_scopes",
                          "observation_ids": [row["observation_id"] for row in claims], "policy_version": POLICY_VERSION})
     return {"observations": observations, "resolved": resolved,
             "diagnostics": {"observations": len(observations), "unrecognized": sum(row["field"] is None for row in observations)}}

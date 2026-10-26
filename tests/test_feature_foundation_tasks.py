@@ -79,3 +79,12 @@ class TaskStreamTests(unittest.TestCase):
         content = next("training question " + str(i) for i in range(200) if monitor_key(digest(task_key("training question " + str(i))), 20261023))
         self.assertEqual(m.effective_split(content, {"split": "training", "frozen_role": "training"}, 20261023), "validation")
 
+    def test_structured_options_messages_and_asset_references_are_observed_without_loading(self):
+        m = self.module("tasks")
+        options = m.task_observables({"item_content": '{"question":"Which?","options":["a","b","c"]}', "item_features": "", "interactors": ""})
+        self.assertEqual(options.get("structured_option_count_hint"), 3)
+        self.assertEqual(options.get("section_count_hint"), 2)
+        messages = m.task_observables({"item_content": '[{"role":"user","content":"Read context.txt"}]', "item_features": "asset_path=context.txt", "interactors": ""})
+        self.assertEqual(messages.get("message_count_hint"), 1)
+        self.assertTrue(messages.get("has_visible_asset_reference_hint"))
+

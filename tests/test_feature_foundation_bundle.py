@@ -3,6 +3,7 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 import pyarrow as pa
 import pyarrow.parquet as pq
@@ -11,6 +12,22 @@ from feature_foundation_fixtures import corpus
 
 
 class BundleTests(unittest.TestCase):
+    def test_repository_review_ledger_is_included_without_changing_code_hash_root(self):
+        m, c = self.modules()
+        with tempfile.TemporaryDirectory() as root, tempfile.TemporaryDirectory() as dest:
+            raw = corpus(root)
+            raw["review_ledger"] = "reviews.jsonl"
+            ledger = Path(root) / "reviews.jsonl"
+            ledger.write_text("")
+            original = m.safe_source
+            def source(base, relative):
+                return ledger if relative == "reviews.jsonl" else original(base, relative)
+            with patch.object(m, "safe_source", side_effect=source):
+                bundle = m.build_bundle(c.FeatureFoundationConfig.model_validate(raw), source_root=Path(root), out=Path(dest) / "bundle")
+            self.assertIn("tasks.py", bundle.receipt["code_hashes"])
+            self.assertIn("state_rendering.py", bundle.receipt["dependency_code_hashes"])
+            self.assertIn("pyarrow", bundle.receipt["runtime_versions"])
+
     def modules(self):
         try:
             build = importlib.import_module("paiec.feature_foundation.build")
@@ -97,4 +114,23 @@ class BundleTests(unittest.TestCase):
             (out / "manifest.json").write_text(json.dumps(manifest))
             with self.assertRaises(ValueError):
                 m.validate_bundle(out)
+
+    def test_validator_rejects_orphan_feature_and_eligibility_rows_with_valid_digests(self):
+        m, c = self.modules()
+        from paiec.feature_foundation.tables import write_table
+        for name, column in [('task_features','task_key'), ('training_eligibility','item_key')]:
+            with self.subTest(table=name), tempfile.TemporaryDirectory() as root, tempfile.TemporaryDirectory() as dest:
+                config = c.FeatureFoundationConfig.model_validate(corpus(root))
+                out = Path(dest) / 'bundle'
+                m.build_bundle(config, source_root=Path(root), out=out)
+                path = out / (name+'.parquet')
+                rows = pq.read_table(path).to_pylist()
+                rows[0][column] = 'orphan'
+                metadata = write_table(out, name, rows)
+                manifest = json.loads((out/'manifest.json').read_text())
+                manifest['logical_tables'][name] = metadata
+                manifest['artifacts'][path.name] = {'sha256':c.file_hash(path), 'bytes':path.stat().st_size}
+                (out/'manifest.json').write_text(json.dumps(manifest))
+                with self.assertRaisesRegex(ValueError, 'Orphan|orphan|eligibility'):
+                    m.validate_bundle(out)
 

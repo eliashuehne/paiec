@@ -53,3 +53,15 @@ class SettingsTests(unittest.TestCase):
         self.assertEqual(values["temperature"]["status"], "known")
         self.assertEqual(len(values["temperature"]["observation_ids"]), 2)
 
+    def test_released_configuration_preserves_sampling_false_and_qualified_limits(self):
+        result = self.parse('released_configuration={"generation_parameters":{"do_sample":false,"max_new_tokens":20,"temperature":0.0}};selection=minimum_perplexity;method=ICL_10')
+        values = {r["field"]: r for r in result["resolved"]}
+        self.assertEqual(values["temperature"]["status"], "known")
+        self.assertEqual(values["max_output_tokens"]["value_json"], "20")
+        self.assertEqual(values.get("sampling_enabled", {}).get("value_json"), "false")
+        self.assertEqual(values["max_output_tokens"].get("source_scope"), "released_configuration")
+        self.assertEqual(values["selection_method"]["value_json"], '"minimum_perplexity"')
+        self.assertEqual(values["selection_method"].get("source_scope"), "selection_scope_unspecified")
+        self.assertEqual(values["reported_method"]["value_json"], '"ICL_10"')
+        self.assertIsNone(values["few_shot_count"]["value_json"])
+

@@ -23,11 +23,24 @@ def task_observables(item):
               **{name: len(re.findall(pattern, text)) for name, pattern in PATTERNS.items()},
               "has_code_fence": "```" in text, "has_math_marker_hint": bool(re.search(r"\$|\\frac|\\sum|\\sqrt", text)),
               "has_table_pipe_hint": "|" in text, "has_supplied_item_features": bool(item["item_features"]),
-              "has_supplied_interactors": bool(item["interactors"]), "structure_hint": "literal"}
+              "has_supplied_interactors": bool(item["interactors"]), "structure_hint": "literal",
+              "structured_option_count_hint": 0, "section_count_hint": 0, "message_count_hint": 0,
+              "has_visible_asset_reference_hint": bool(re.search(
+                  r'asset_path|input_files|sensor_files|\.(?:csv|parquet|sqlite|png|jpg|jpeg|mp4|wav|mp3|txt)\b',
+                  text + "\n" + item["item_features"], re.IGNORECASE))}
     if text.lstrip().startswith(("{", "[")):
         try:
             value = json.loads(text)
             result["structure_hint"] = "json_object" if isinstance(value, dict) else "message_list_hint" if isinstance(value, list) else "json_scalar"
+            if isinstance(value, (dict, list)):
+                result["section_count_hint"] = len(value)
+            if isinstance(value, dict):
+                options = value.get("options", value.get("choices"))
+                if isinstance(options, (dict, list)):
+                    result["structured_option_count_hint"] = len(options)
+            messages = value.get("messages", []) if isinstance(value, dict) else value
+            if isinstance(messages, list):
+                result["message_count_hint"] = sum(isinstance(m, dict) and "role" in m and "content" in m for m in messages)
         except (ValueError, RecursionError):
             result["structure_hint"] = "invalid_json_hint"
     return result

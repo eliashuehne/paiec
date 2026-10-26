@@ -8,6 +8,9 @@ from pathlib import Path
 import shutil
 import sqlite3
 import tempfile
+from itertools import zip_longest
+import platform
+from importlib.metadata import version as package_version
 
 import pyarrow.parquet as pq
 
@@ -53,6 +56,10 @@ def build_bundle(config, *, source_root, out, progress=None):
     source_root, out = Path(source_root).resolve(), Path(out).resolve()
     code_root = Path(__file__).parent
     code_hashes = {p.name: file_hash(p) for p in sorted(code_root.glob("*.py"))}
+    dependency_paths = [code_root.parent / name for name in (
+        "competition_fields.py", "state_rendering.py", "compact_profiles.py", "profile_enrichment.py",
+        "system_profiles.py", "head_data.py", "split.py")]
+    dependency_hashes = {p.name: file_hash(p) for p in dependency_paths}
     # Check physical overlap before touching either input or output contents.
     for relative in (config.data_root, config.enrichment_export):
         source = safe_source(source_root, relative)
@@ -100,8 +107,8 @@ def build_bundle(config, *, source_root, out, progress=None):
     jsonl(out / "review_cases.jsonl", [{k: v for k, v in row.items() if k != "input"} for row in cases])
     reviews = []
     if config.review_ledger:
-        code_root = Path(__file__).resolve().parents[3]
-        reviews = list(read_jsonl(safe_source(code_root, config.review_ledger)))
+        repository_root = Path(__file__).resolve().parents[3]
+        reviews = list(read_jsonl(safe_source(repository_root, config.review_ledger)))
     review = validate_reviews(cases, reviews)
     review["expected"] = config.review_cases_per_kind * 2
     review["shortfall"] = max(0, review["expected"] - len(cases))
@@ -123,9 +130,13 @@ def build_bundle(config, *, source_root, out, progress=None):
     (out / "report.html").write_text(render_report(report), encoding="utf-8")
     if code_hashes != {p.name: file_hash(p) for p in sorted(code_root.glob("*.py"))}:
         raise ValueError("Feature implementation changed during the build; retain incomplete output")
+    if dependency_hashes != {p.name: file_hash(p) for p in dependency_paths}:
+        raise ValueError("Feature dependency changed during the build; retain incomplete output")
     receipt = {"version": VERSION, "created_at": datetime.now(timezone.utc).isoformat(), "source_root": str(source_root),
                "config": config.model_dump(), "input_hashes": config.input_hashes,
                "code_hashes": code_hashes,
+               "dependency_code_hashes": dependency_hashes,
+               "runtime_versions": {"python": platform.python_version(), **{name: package_version(name) for name in ("pyarrow", "pydantic")}},
                "matching_policy": resolver.metadata if resolver else None,
                "actions": {"model_fitting": False, "model_inference": False, "network_calls": False,
                            "outcome_columns_deserialized": False, "protected_content_loaded": False,
@@ -196,6 +207,7 @@ def validate_bundle(path, *, require_review=False, allow_incomplete=False):
         db.execute("PRAGMA journal_mode=OFF")
         db.execute("CREATE TABLE items (key TEXT PRIMARY KEY) WITHOUT ROWID")
         db.execute("CREATE TABLE tasks (key TEXT PRIMARY KEY) WITHOUT ROWID")
+        db.execute("CREATE TABLE features (key TEXT PRIMARY KEY) WITHOUT ROWID")
         item_counts = Counter()
         for batch in pq.ParquetFile(path / "items.parquet").iter_batches(batch_size=8192):
             keys = []
@@ -221,11 +233,34 @@ def validate_bundle(path, *, require_review=False, allow_incomplete=False):
                 db.executemany("INSERT INTO tasks VALUES (?)", keys)
             except sqlite3.IntegrityError as error:
                 raise ValueError("Duplicate task key") from error
+        for row in table_rows(path / "task_features.parquet", ["task_key"]):
+            key = row["task_key"]
+            if not db.execute("SELECT 1 FROM tasks WHERE key=?", (key,)).fetchone():
+                raise ValueError("Orphan task feature")
+            try:
+                db.execute("INSERT INTO features VALUES (?)", (key,))
+            except sqlite3.IntegrityError as error:
+                raise ValueError("Duplicate task feature") from error
+        if manifest["logical_tables"]["task_features"]["rows"] != manifest["logical_tables"]["tasks"]["rows"]:
+            raise ValueError("Missing task features")
         for row in table_rows(path / "item_input_links.parquet", ["item_key", "task_key"]):
             if not db.execute("SELECT 1 FROM items WHERE key=?", (row["item_key"],)).fetchone():
                 raise ValueError("Orphan item input link")
             if row["task_key"] and not db.execute("SELECT 1 FROM tasks WHERE key=?", (row["task_key"],)).fetchone():
                 raise ValueError("Orphan task input link")
+        db.execute("CREATE TABLE groups (key TEXT PRIMARY KEY, mask INTEGER) WITHOUT ROWID")
+        db.executemany("INSERT INTO groups VALUES (?,?)", ((r["group_key"], r["split_mask"]) for r in table_rows(path / "content_groups.parquet")))
+        links = table_rows(path / "item_input_links.parquet")
+        eligibility = table_rows(path / "training_eligibility.parquet")
+        for link, row in zip_longest(links, eligibility):
+            fields = ("benchmark", "item_key", "task_key", "split")
+            if link is None or row is None or any(link[k] != row[k] for k in fields):
+                raise ValueError("Orphan or misaligned training eligibility")
+            mask = db.execute("SELECT mask FROM groups WHERE key=?", (link["group_key"],)).fetchone() if link["group_key"] else None
+            conflict = bool(mask and mask[0] & (mask[0] - 1))
+            reason = "cross_split_content" if link["split"] == "training" and conflict else link["feature_status"] if link["feature_status"] != "supported_text" else "nontraining_split" if link["split"] != "training" else "eligible"
+            if row["reason"] != reason or row["eligible"] != (reason == "eligible"):
+                raise ValueError("Invalid training eligibility disposition")
         response_counts = Counter()
         for batch in pq.ParquetFile(path / "response_input_links.parquet").iter_batches(batch_size=65536, columns=["benchmark", "source_row", "system_key", "item_key", "interactor_key", "status"]):
             rows = batch.to_pylist()

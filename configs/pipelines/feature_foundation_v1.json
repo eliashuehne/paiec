@@ -457,6 +457,7 @@
   },
   "legacy_monitor_seed": 20261023,
   "require_enrichment": true,
+  "review_ledger": "research/feature_foundation/reviews_v1.jsonl",
   "seed": 20261025,
   "version": "feature_foundation_v1"
 }

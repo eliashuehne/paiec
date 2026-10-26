@@ -6,8 +6,9 @@ import pyarrow.parquet as pq
 
 from .contracts import SUBJECT_FIELDS, VERSION
 from .review import table_rows
-from .settings import FIELDS
+from .settings import FIELDS, POLICY_VERSION
 from .tables import SCHEMAS
+from .enrichment import read_jsonl
 
 FACETS = ("language", "domain", "skills", "reasoning_structure", "modalities", "answer_format", "information_needs", "input_issues")
 
@@ -24,7 +25,7 @@ def feature_dictionary(facts):
     for field in SUBJECT_FIELDS:
         add("system." + field, "string", "Supplied subject." + field + ", preserved verbatim", "Candidate model/configuration context; missing identity remains missing.")
     for field, kind in FIELDS.items():
-        add("run." + field, kind, "Recorded setting observations resolved by recorded_settings_v1: " + field,
+        add("run." + field, kind, "Recorded setting observations resolved by " + POLICY_VERSION + ": " + field,
             "Actual prompting, sampling or resource configuration may affect target-system behavior; ambiguous aliases are withheld.")
     for field in SCHEMAS["task_features"]:
         if field.name != "task_key":
@@ -66,16 +67,39 @@ def coverage_report(directory, population, facts, review):
             status = "withheld_protected" if subject is None else "nonempty" if subject[field] else "empty"
             bench["supplied_fields"][field][status] += 1
     matched = {entity: Counter() for entity in ("model", "harness")}
+    system_matches = {}
     for row in table_rows(directory / "profile_matches.parquet"):
         matched[row["entity_type"]][row["status"]] += 1
+        system_matches[(row["system_key"], row["entity_type"])] = row["status"]
     research = defaultdict(Counter)
     research_reasons = defaultdict(Counter)
+    system_research = {}
     for row in table_rows(directory / "research_system_features.parquet"):
         key = row["entity_type"] + "." + row["field"]
         research[key][row["status"]] += 1
         research_reasons[key][row["reason"]] += 1
-    for entity, field in {(r["entity_type"], r["field"]) for r in facts}:
-        research[entity + "." + field]["unmatched_systems"] = matched[entity]["unresolved"]
+        system_research[(row["system_key"], key)] = row["status"]
+    research_fields = sorted({(r["entity_type"], r["field"]) for r in facts})
+    for entity, field in research_fields:
+        key = entity + "." + field
+        research[key]["missing_profile_field"] = matched[entity]["matched"] - sum(research[key].values())
+        research[key]["unmatched_systems"] = matched[entity]["unresolved"]
+    for bench in per_benchmark.values():
+        bench["research_features"] = {entity + "." + field: Counter() for entity, field in research_fields}
+    for row in table_rows(directory / "subject_links.parquet"):
+        for entity, field in research_fields:
+            key = entity + "." + field
+            status = "withheld_protected" if row["system_key"] is None else system_research.get(
+                (row["system_key"], key), "missing_profile_field" if system_matches[(row["system_key"], entity)] == "matched" else "unmatched_systems")
+            per_benchmark[row["benchmark"]]["research_features"][key][status] += 1
+    task_population = defaultdict(Counter)
+    for batch in pq.ParquetFile(directory / "items.parquet").iter_batches(batch_size=65536, columns=["split", "status"]):
+        for row in batch.to_pylist():
+            task_population[row["split"]][row["status"]] += 1
+    task_reviews = [r for r in read_jsonl(directory / "reviewed_examples.jsonl") if r["kind"] == "task"]
+    taxonomy = {field: {"candidate": sum(bool(r.get("taxonomy_review", {}).get("candidate_facets", {}).get(field)) for r in task_reviews),
+                        "unknown": sum(not r.get("taxonomy_review", {}).get("candidate_facets", {}).get(field) for r in task_reviews),
+                        "validated": 0} for field in FACETS}
     item_status = counts(directory, "items", "status")
     item_split = counts(directory, "items", "split")
     eligibility = counts(directory, "training_eligibility", "reason")
@@ -107,6 +131,7 @@ def coverage_report(directory, population, facts, review):
         "distinct_processed_visible_systems": len(systems), "distinct_processed_visible_tasks": tasks,
         "denominators": {"population": "Original source rows, including withheld and unsupported records", "run_settings": "One cell per field per distinct processed visible system", "per_benchmark": "Original source subject rows, with protected rows explicit", "research": "Distinct processed visible systems; unmatched and withheld fact values separate", "task_features": "Deduplicated exact visible input variants; not original item rows or response trials"},
         "item_status": item_status, "item_split": item_split, "training_eligibility": eligibility,
+        "task_feature_population": dict(task_population), "taxonomy_audit": taxonomy,
         "response_status": counts(directory, "response_input_links", "status"),
         "run_settings": {k: dict(v) for k, v in run_coverage.items()},
         "profile_matches": {k: dict(v) for k, v in matched.items()},
@@ -127,6 +152,7 @@ def render_report(report):
     html += '<section><h2>Item processing and splits</h2>' + table(['Disposition', 'Item rows'], report['item_status'].items()) + table(['Split', 'Item rows'], report['item_split'].items()) + '<p>The historical training-monitor bucket is preserved at item level. Cross-split content excludes training use without moving frozen roles.</p></section>'
     html += '<section><h2>Recorded run settings</h2><p>Denominator: distinct processed visible systems. Known zero and empty lists are retained.</p>' + table(['Setting', 'Known', 'Unknown', 'Invalid', 'Conflict'], [(k, *(v.get(s, 0) for s in ['known', 'unknown', 'invalid', 'conflict'])) for k, v in report['run_settings'].items()]) + '</section>'
     html += '<section><h2>Reviewed examples</h2>' + table(['Measure', 'Value'], [(k, v) for k, v in report['review'].items() if k != 'selection_limitations']) + '<p>' + escape(report['review']['selection_limitations']) + '</p></section>'
+    html += '<section><h2>Task taxonomy audit</h2><p>Counts describe the small reviewed task sample. Candidate labels are outside the feature tables; zero facets have established semantic quality.</p>' + table(['Facet', 'Candidate', 'Unknown', 'Validated'], [(k, v['candidate'], v['unknown'], v['validated']) for k, v in report['taxonomy_audit'].items()]) + '</section>'
     html += '<section><h2>Prioritized gaps</h2>' + table(['Priority', 'Gap', 'Affected count', 'Next action'], [(r['priority'], r['cause'], r['affected_count'], r['next_action']) for r in report['gaps']]) + '</section>'
     html += '<details><summary>Per-benchmark population and support</summary>' + table(['Benchmark', 'Split', 'Frozen role', 'Items', 'Responses', 'Status'], [(r['benchmark'], r['split'], r['frozen_role'] or '', r['items'], r['responses'], r['feature_status']) for r in report['per_benchmark']]) + '</details>'
     html += '<section><h2>Limits and interpretation</h2><ul>' + ''.join('<li>' + escape(v) + '</li>' for v in report['limitations']) + '</ul><p>Machine-readable definitions, coverage, source hashes and review records accompany this report.</p></section></body></html>'

@@ -10,8 +10,10 @@ from .evidence_workflow import EvidenceWorkflowConfig
 from .feature_preparation import FeaturePreparationConfig, local_path, write_json
 from .release_workflow import ReleaseWorkflowConfig
 from .training_workflow import TrainingWorkflowConfig
+from .feature_foundation.contracts import FeatureFoundationConfig
 
 WORKFLOWS = {
+    "features": (FeatureFoundationConfig, "feature_foundation_v1.json", "paiec.feature_foundation_steps", "feature_foundation_preparation"),
     "inputs": (InputWorkflowConfig, "laya_collected_inputs_v3.json", "paiec.collected_input_steps", "laya_collected_input_preparation"),
     "research": (FeaturePreparationConfig, "feature_preparation_offline_v10.json", "paiec.feature_steps", "laya_feature_preparation"),
     "data": (CompetitionDataConfig, "competition_data_protocol_v2.json", "paiec.competition_steps", "competition_dataset_preparation"),
@@ -22,8 +24,10 @@ WORKFLOWS = {
 }
 
 
-def workflow_plan(root, workflow, config_path, out):
+def workflow_plan(root, workflow, config_path, out, *, source_root=None):
     root = Path(root).resolve()
+    if source_root is not None and workflow != "features":
+        raise ValueError("External --source-root is supported only for features")
     model, default, module, graph = WORKFLOWS[workflow]
     path = (root / (config_path or "configs/pipelines/" + default)).resolve()
     if not path.is_relative_to(root / "configs/pipelines"):
@@ -81,8 +85,11 @@ def workflow_plan(root, workflow, config_path, out):
         command(job, profile, "python")
         config = TrainingWorkflowConfig.model_validate(dict(config.model_dump(), job=job.model_dump()))
     return {"workflow": workflow, "root": str(root), "out": str(destination), "config": config.model_dump(),
+            **({"source_root": str(Path(source_root or root).resolve()), "population_scope": "full_downloaded_public_release",
+                "outcome_columns_read": False, "protected_content_read": False, "model_inference": False} if workflow == "features" else {}),
             "graph_module": module, "graph": graph, "execution_started": False,
             "stages": {"data": ["verify_sources", "prepare_dataset", "publish_dataset"],
+                       "features": ["verify_feature_sources", "prepare_feature_tables", "publish_feature_report"],
                        "inputs": ["compile_collected_inputs", "check_native_input_visibility", "publish_laya_input_audit"],
                        "evidence": ["verify_dataset", "compare_fixed_controls", "select_on_training_families", "publish_candidate"],
                        "research": ["verify_inputs", "prepare_profiles_tasks_evidence", "publish_research"],
@@ -105,10 +112,18 @@ def execute_workflow(plan, *, allow_development=False):
         raise ValueError("New assessment requires --allow-development-evaluation; saved-result review does not")
     from .zenml_pipeline import configure_environment, setup_stack
     configure_environment(plan["root"])
-    setup_stack(plan["root"])
+    setup = setup_stack(plan["root"])
+    if plan["workflow"] == "features":
+        # On first repository initialization ZenML's compiler singleton can
+        # retain the old default-stack config. Select the verified local stack
+        # on that same client before compilation.
+        from zenml.client import Client
+        Client().activate_stack(setup["stack"])
     out = Path(plan["out"])
-    out.mkdir(parents=True, exist_ok=False)
-    write_json(out / "resolved_config.json", plan["config"])
+    if plan["workflow"] != "features":
+        out.mkdir(parents=True, exist_ok=False)
+        write_json(out / "resolved_config.json", plan["config"])
     import importlib
     graph = getattr(importlib.import_module(module), graph_name)
-    graph(root=plan["root"], config=plan["config"], out=plan["out"])
+    graph(root=plan["root"], config=plan["config"], out=plan["out"],
+          **({"source_root": plan["source_root"]} if plan["workflow"] == "features" else {}))
