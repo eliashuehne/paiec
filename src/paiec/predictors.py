@@ -10,7 +10,7 @@ from pathlib import Path
 from .contracts import Predictor
 from .offset import BayesianOffset, TagOffset
 from .prior import LogisticPrior
-from .prior_offset import PriorOffset
+from .prior_offset import GBDTOffset, PriorOffset
 from .shrinkage import ShrunkMean
 
 
@@ -62,6 +62,7 @@ REGISTRY: dict[str, Callable[[], Predictor]] = {
     "offset": BayesianOffset,
     "tag_offset": TagOffset,
     "prior_offset": PriorOffset,
+    "gbdt_offset": GBDTOffset,
 }
 
 

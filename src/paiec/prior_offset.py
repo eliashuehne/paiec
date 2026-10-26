@@ -17,10 +17,12 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 import numpy as np
+from scipy.sparse import csr_matrix
 
 from .episodes import tag_episodes
-from .features import FEATURE_VERSION, item_vector, subject_vector
+from .features import DIM, FEATURE_VERSION, item_vector, subject_vector
 from .folds import benchmark_folds
+from .gbdt_prior import GBDTPrior
 from .groups import TagDesign, parse_tags
 from .metrics import BUDGETS, alc_weights
 from .offset import BayesianOffset, TagPosterior
@@ -97,21 +99,24 @@ def episode_vectors(data_root, benchmark: str) -> tuple[dict, dict]:
     return episode_vectors(data_root, benchmark)
 
 
-def _vector_logit(prior: LogisticPrior, subject_vec, item_vec) -> float:
-    return float(prior.intercept + prior.coef[subject_vec[0]] @ subject_vec[1] + prior.coef[item_vec[0]] @ item_vec[1])
-
-
-def episode_logits(prior: LogisticPrior, vectors: tuple[dict, dict], episodes: Sequence[dict]) -> list:
-    """(revealed prior logits, evaluation prior logits) for each episode."""
+def episode_logits(prior, vectors: tuple[dict, dict], episodes: Sequence[dict]) -> list:
+    """(revealed prior logits, evaluation prior logits) for each episode, scored in one batch."""
     subjects, items = vectors
-    result = []
+    indptr, indices, values, sizes = [0], [], [], []
     for episode in episodes:
         s = episode["subject_id"]
-        result.append(tuple(
-            np.array([_vector_logit(prior, subjects[s], items[(s, i)]) for i in ids])
-            for ids in (episode["revealed_ids"], episode["eval_ids"])
-        ))
-    return result
+        for ids in (episode["revealed_ids"], episode["eval_ids"]):
+            sizes.append(len(ids))
+            for item_id in ids:
+                item_vec = items[(s, item_id)]
+                indices.append(np.concatenate([item_vec[0], subjects[s][0]]))
+                values.append(np.concatenate([item_vec[1], subjects[s][1]]))
+                indptr.append(indptr[-1] + len(indices[-1]))
+    if not indices:
+        return [(np.zeros(0), np.zeros(0)) for _ in episodes]
+    rows = csr_matrix((np.concatenate(values), np.concatenate(indices), indptr), shape=(len(indptr) - 1, DIM))
+    logits = np.split(prior.row_logits(rows), np.cumsum(sizes)[:-1])
+    return list(zip(logits[0::2], logits[1::2]))
 
 
 @dataclass
@@ -172,6 +177,7 @@ def prior_offset_alc(states: list, weights, level: float, shift: float, scale: f
 class PriorOffset:
     """Per-item prior logits (scaled and shifted) under the Bayesian tag offset."""
 
+    PRIOR_CLASS = LogisticPrior
     INNER_FOLDS = 3
     SHIFTS = (-0.2, 0.0, 0.2)
     SCALES = (0.0, 0.25, 0.5, 0.75, 1.0, 1.5)
@@ -185,7 +191,7 @@ class PriorOffset:
     center: float = 0.0
     tau: float = 1.0
     sigma: float = 0.75
-    prior: LogisticPrior | None = field(default=None, repr=False)
+    prior: object = field(default=None, repr=False)
     _posteriors: dict = field(default_factory=dict, init=False, repr=False, compare=False)
 
     def fit(self, data_root, train_benchmarks: Sequence[str]):
@@ -194,7 +200,7 @@ class PriorOffset:
         usable = sorted(b for b, e in episodes.items() if e)
         states, weights, eval_logits = [], [], []
         for inner_train, inner_held in benchmark_folds(usable, k=self.INNER_FOLDS, seed=2):
-            prior = LogisticPrior().fit(data_root, inner_train)
+            prior = self.PRIOR_CLASS().fit(data_root, inner_train)
             for b in inner_held:
                 for episode, (revealed, evaluated) in zip(
                         episodes[b], episode_logits(prior, episode_vectors(data_root, b), episodes[b])):
@@ -202,7 +208,7 @@ class PriorOffset:
                     weights.append(episode["weight"])
                     eval_logits.append(evaluated)
         self.fit_states(states, weights, base.level, base.tau, float(np.mean(np.concatenate(eval_logits))))
-        self.prior = LogisticPrior().fit(data_root, train_benchmarks)
+        self.prior = self.PRIOR_CLASS().fit(data_root, train_benchmarks)
         return self
 
     def fit_states(self, states, weights, level: float, tau: float, center: float):
@@ -239,4 +245,10 @@ class PriorOffset:
         return self._posteriors[key].predict(tags, self._logit(subject, item), self.sigma)
 
 
-__all__ = ["PriorOffset", "episode_logits", "episode_vectors", "prior_offset_alc", "prior_states"]
+class GBDTOffset(PriorOffset):
+    """The same end-to-end model with gradient-boosted trees as the prior."""
+
+    PRIOR_CLASS = GBDTPrior
+
+
+__all__ = ["GBDTOffset", "PriorOffset", "episode_logits", "episode_vectors", "prior_offset_alc", "prior_states"]

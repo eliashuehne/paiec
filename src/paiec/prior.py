@@ -192,6 +192,10 @@ class LogisticPrior:
             scores.append(score)
         return float(self.REGULARIZATION_GRID[int(np.argmin(scores))])
 
+    def row_logits(self, matrix) -> np.ndarray:
+        """Logits for feature rows (item and subject vectors combined), as in training."""
+        return np.asarray(matrix @ self.coef + self.intercept, dtype=float)
+
     def logit(self, subject: dict, item: dict) -> float:
         item_key = (
             item.get("item_content"), item.get("item_features"), item.get("interactors")
