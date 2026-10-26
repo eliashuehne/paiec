@@ -4,9 +4,10 @@ Our entry to the NeurIPS Predictive AI Evaluation Competition: estimate the
 probability that an AI system answers an item correctly, given the system's
 attributes, the item, and a handful of labels revealed during evaluation.
 
-`main` holds only what we share with everyone: the organizers' baseline as a
-submodule, and the links below. The scoring harness and our own predictors are
-on the `laya` branch.
+`main` holds what we share with everyone: the organizers' baseline as a
+submodule, the local scoring harness (`src/paiec/`, `scripts/run_eval.py`), the
+feature lift loop below, and the links. Experimental predictors live on
+their own branches (e.g. `laya`).
 
 ## Links
 
@@ -48,3 +49,14 @@ python baseline/check_submission_zip.py dist/empirical_mean.zip
 
 See `baseline/README.md` for the layout of the archive and the rules their
 predictors follow.
+
+## Feature lift loop
+
+A fast check of whether a feature helps on benchmarks the model has never seen,
+before running the full harness. Usage, guards and current baselines are in
+[docs/lift.md](docs/lift.md).
+
+```bash
+python scripts/lift/build_lift_sample.py
+python scripts/lift/run_lift.py --features runs/features/items.parquet --columns n_chars
+```

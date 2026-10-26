@@ -1,0 +1,64 @@
+{
+  "version": "benchmark_groups_v2",
+  "note": "Benchmarks that must share a fold (and leave each other out of in-fold features). Two reasons count. shared_items: identical item texts (items.content_hash) or near-duplicates (at least 5% of sampled items share distinctive 40-character text pieces). shared_source: the same evaluation run or exam series, so the same systems, harness and format. A name prefix alone is not evidence: helm_afr, helm_bbq and helm_thaiexam share no source, text or system set, and llm_bp_tag and llm_uncertainty_bench are unrelated. Systems shared alone are not evidence either: frontier models appear in many unrelated benchmarks (e.g. ikp and researchcodebench share 25 subjects, 0% text). Percentages are from scripts/lift/scan_benchmark_families.py (smaller benchmark checked against the larger); re-run it on a new data revision. Revision 54074453.",
+  "groups": {
+    "adaptivestep_family": {
+      "members": ["adaptivestep", "felm", "ikp", "pku_saferlhf", "prox"],
+      "reasons": ["shared_items"],
+      "evidence": "1,979 identical item texts, mostly GSM8K problems in adaptivestep and prox"
+    },
+    "swe_family": {
+      "members": ["multi_swebench", "swe_rebench", "swe_smith", "swebench_live", "swepolybench"],
+      "reasons": ["shared_items"],
+      "evidence": "identical SWE task texts across all five"
+    },
+    "medhelm_family": {
+      "members": [
+        "medhelm_ehr_sql", "medhelm_head_qa", "medhelm_med_mcqa", "medhelm_med_qa", "medhelm_medbullets",
+        "medhelm_medcalc_bench", "medhelm_medec", "medhelm_medhallu", "medhelm_pubmed_qa", "medhelm_race_based_med"
+      ],
+      "reasons": ["shared_items", "shared_source"],
+      "evidence": "same source_url (crfm.stanford.edu/helm/medhelm) and paper (arXiv 2505.23802); up to identical system sets; medhelm_medhallu/medhelm_pubmed_qa 27.0% and medhelm_med_qa/medhelm_medbullets 13.4% near-duplicate"
+    },
+    "openvlm_family": {
+      "members": ["ai2d_test", "hallusionbench", "mathvista_mini", "mmbench_v11", "mmmu_dev_val"],
+      "reasons": ["shared_source"],
+      "evidence": "same source_url (huggingface vlmeval/openvlmrecords): one VLMEvalKit run; ai2d_test and mmmu_dev_val share 253 subjects (mmmu_dev_val has no labels, listed for completeness)"
+    },
+    "mmlu_family": {
+      "members": ["mmlu", "mmlupro", "truthfulqa_mc"],
+      "reasons": ["shared_items", "shared_source"],
+      "evidence": "mmlu and truthfulqa_mc: same source (open-llm-leaderboard-old), 150 identical systems; mmlu/mmlupro 7.4% near-duplicate"
+    },
+    "bbq_family": {
+      "members": ["bbq", "helm_bbq"],
+      "reasons": ["shared_items"],
+      "evidence": "60.7% of helm_bbq items near-duplicate bbq (BBQ in a HELM prompt)"
+    },
+    "afr_family": {
+      "members": ["bridging_gap", "helm_afr"],
+      "reasons": ["shared_items", "shared_source"],
+      "evidence": "same paper (arXiv 2412.12417); 15.6% near-duplicate"
+    },
+    "tau_family": {
+      "members": ["tau2_bench", "taubench"],
+      "reasons": ["shared_items"],
+      "evidence": "44.8% near-duplicate (tau2 reuses tau-bench domains)"
+    },
+    "agent_reward_family": {
+      "members": ["visualwebarena", "workarena"],
+      "reasons": ["shared_source"],
+      "evidence": "same source_url (huggingface mcgill-nlp/agent-reward-bench), identical systems"
+    },
+    "korean_eval_family": {
+      "members": ["kmmlu", "kormedmcqa"],
+      "reasons": ["shared_source"],
+      "evidence": "same source_url (github daekeun-ml/evaluate-llm-on-korean-dataset): one evaluation run"
+    },
+    "igakuqa_family": {
+      "members": ["igakuqa", "igakuqa119"],
+      "reasons": ["shared_source"],
+      "evidence": "same exam series (Japanese national medical licensing exam), same language and format; 0.8% near-duplicate"
+    }
+  }
+}
