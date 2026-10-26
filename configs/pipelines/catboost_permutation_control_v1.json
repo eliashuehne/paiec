@@ -1,0 +1,38 @@
+{
+  "version": "catboost_permutation_control_v1",
+  "recipe": "configs/pipelines/catboost_base_v4.json",
+  "unseen_config": "configs/pipelines/catboost_unseen_benchmark_v2.json",
+  "permutation_seeds": [
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20
+  ],
+  "reused_replicates": [
+    {
+      "seed": 1,
+      "panel_run": "runs/competition_analysis/catboost_base_family_v5",
+      "unseen_run": "runs/competition_analysis/catboost_unseen_benchmark_v3"
+    }
+  ],
+  "observed_panel_run": "runs/competition_analysis/catboost_base_family_v4",
+  "observed_unseen_run": "runs/competition_analysis/catboost_unseen_benchmark_v2",
+  "baseline_panel_run": "runs/competition_analysis/catboost_base_family_v3",
+  "baseline_unseen_run": "runs/competition_analysis/catboost_unseen_benchmark_v1",
+  "alpha": 0.05
+}

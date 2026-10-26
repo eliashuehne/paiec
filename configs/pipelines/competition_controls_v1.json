@@ -1,0 +1,12 @@
+{
+  "version": "competition_controls_v1",
+  "pair_matrix": "runs/competition_pipeline/pair_matrix_v1",
+  "seed": 20261025,
+  "draws": 3,
+  "max_pairs_per_draw": 1000,
+  "min_items": 80,
+  "prior_strength": 5.0,
+  "benchmark_evidence_weight": 0.5,
+  "regimes": ["all", "shared_subject", "cold_subject"],
+  "directions": ["higher_is_better"]
+}

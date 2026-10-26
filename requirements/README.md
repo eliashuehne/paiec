@@ -11,6 +11,7 @@ extras; the locks record complete environment snapshots.
 | `torch.lock` | `.venv-laya` | macOS reference PyTorch/MPS environment, training and tracking |
 | `modal-client.lock` | `.venv-modal` | Local Modal SDK and tracking; no GPU framework required |
 | `pipeline.lock` | `.venv-pipeline` | Local ZenML dashboard/pipeline and MLflow integration; no native model framework |
+| `catboost.lock` | `.venv-catboost` | CPU CatBoost predictor, pandas and MLflow; no native Laya framework or GPU |
 | `modal-worker.in` | Modal image | Direct Python 3.12 Linux/CUDA requirements |
 | `modal-worker.lock` | Modal image | Resolved Linux x86_64/CUDA dependencies, installed by the adapter |
 | `archive/laya-pretracking.lock` | Historical only | Earlier Laya snapshot before MLflow dependency adjustments |
@@ -23,9 +24,11 @@ uv pip install --python .venv-laya-mlx/bin/python -r requirements/mlx.lock -e .
 ```
 
 Use `requirements/torch.lock` for the reference environment or
-`requirements/modal-client.lock` for the Modal client. The CUDA worker lock is
-for its Linux image; do not install it on a Mac. The archived lock is retained
-for historical reproduction and is not the current Torch environment.
+`requirements/modal-client.lock` for the Modal client. `requirements/catboost.lock`
+reproduces the CPU CatBoost environment used by the base predictor; it is
+Mac/Linux CPU only and needs no GPU stack. The CUDA worker lock is for its Linux
+image; do not install it on a Mac. The archived lock is retained for historical
+reproduction and is not the current Torch environment.
 
 For core development on a fresh checkout, install `-e '.[test,tracking]'` in a
 separate environment. The optional `test` extra enables SciPy comparison checks.

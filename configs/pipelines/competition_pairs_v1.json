@@ -1,0 +1,10 @@
+{
+  "version": "competition_pairs_v1",
+  "data_root": "payload/data",
+  "dataset_revision": "54074453da7b9911be0f48e4c560be547bc84d21",
+  "min_items": 80,
+  "require_binary": true,
+  "require_item_granularity": true,
+  "require_text_modality": true,
+  "keep_lower_is_better": true
+}

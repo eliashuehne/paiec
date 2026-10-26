@@ -1,0 +1,23 @@
+{
+  "version": "additive_logit_v1",
+  "prepared": "runs/competition_pipeline/protocol_panel_v2",
+  "feature_groups": ["system_attributes", "system_missingness", "task_structure", "item_supplied"],
+  "penalty_grid": [
+    {"l2_system": 10.0, "l2_task": 10.0},
+    {"l2_system": 100.0, "l2_task": 10.0},
+    {"l2_system": 10.0, "l2_task": 100.0},
+    {"l2_system": 100.0, "l2_task": 100.0}
+  ],
+  "max_iterations": 60,
+  "tolerance": 1e-8,
+  "prior_strength": 5.0,
+  "offset_regularization": 1.0,
+  "unseen_benchmark": {
+    "data_root": "payload/data",
+    "seed": 20261024,
+    "min_pair_items": 20,
+    "rows_per_system": 100,
+    "benchmark_cap": 6000,
+    "max_panel_group_overlap": 0.0
+  }
+}

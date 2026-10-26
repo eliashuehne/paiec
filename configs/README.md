@@ -42,6 +42,15 @@ only supplied public-data fields and separate training targets. Research model
 profiles and manual annotations are not used. See
 [the competition route](../docs/competition-pipeline.md).
 
+`pipelines/competition_pairs_v1.json` declares the whole-public-corpus pair
+matrix: admission rules (binary, item granularity, text-only, 80 items), the
+corpus revision and the recorded label direction. `pipelines/competition_controls_v1.json`
+declares the fixed-control draws and their evidence weights;
+`pipelines/rate_model_v1.json` declares the benchmark folds, shrinkage, difficulty
+penalty, evidence weights and the optional CatBoost item term. See
+[pair matrix and rate model](../docs/competition-pairs.md). None of the three
+authorizes a GPU job, a sealed role or an upload.
+
 `pipelines/competition_panel_v1.json` fixes the outcome-blind source augmentation.
 All original rows remain, with 4,718 additional training records to give all
 170 visible scopes full-budget coverage. Historical data recipes stay unchanged.
@@ -49,6 +58,43 @@ All original rows remain, with 4,718 additional training records to give all
 `pipelines/conditional_control_v1.json` fixes the initial CPU-only conditional
 predictor comparison. Its fitted variants were rejected by the first training-
 family quality checks; see [the measured control result](../docs/conditional-control.md).
+
+`pipelines/training_data_expansion_v1.json` fixes the unused-benchmark expansion
+A/B: seven predeclared text-only `higher_is_better` benchmarks, per-benchmark row
+caps, repeat count and the fixed ridge L2. It admits nothing and promotes nothing;
+see [the measured study](../docs/training-data-expansion.md).
+
+`pipelines/catboost_base_v1.json` and `pipelines/catboost_base_v2.json` fix the
+CPU CatBoost base experiment: six declared depth/learning-rate/L2 configurations,
+maximum tree count, early-stopping patience, seed, thread count and evidence
+controls. v2 changes only the iteration floor after v1 showed it binding every
+fold. `pipelines/catboost_base_v3.json` adds the declared
+`feature_groups: ["task_structure"]` recipe, which fits only those columns and
+records `ablations_run: false`. All panel runs are reported in
+[the CatBoost result](../docs/catboost-base.md).
+
+`pipelines/catboost_base_v4.json` adds the research-only `system_profile` group
+with its documented catalog and enrichment policy; `pipelines/catboost_base_v5.json`
+is the same recipe with the system-to-fact link scrambled, so the profile block's
+effect can be separated from the extra columns alone. Neither is a release
+candidate: external profile sources remain unreviewed for competition
+eligibility.
+
+`pipelines/catboost_unseen_benchmark_v1.json` fixes the competition-shaped
+evaluation: which panel run is scored, the hashed row sampling limits, the
+minimum items per subject and the zero-tolerance rule for shared task content
+with the panel. It fits no new model. `pipelines/catboost_unseen_benchmark_v2.json`
+and `_v3.json` score the profile and scrambled-control panel runs on the same
+rows. `pipelines/additive_logit_v1.json` fixes
+the additive two-block model's feature groups, penalty grid, convergence limits
+and the same unseen-benchmark settings. See
+[the CatBoost document](../docs/catboost-base.md) for all results.
+
+`pipelines/catboost_permutation_control_v1.json` declares the permutation study
+that turns the single scrambled control into a distribution: the unpermuted
+recipe, the evaluation recipe, 19 fresh seeds, the already-run seed-1 replicate
+and the observed and task-structure reference arms. It fits exactly those
+declared recipes and adds no feature, row or role.
 
 Local feature preparation: `pipelines/feature_preparation_offline_v10.json` selects the
 existing expanded bundle and unsealed roles for the preparation-only ZenML

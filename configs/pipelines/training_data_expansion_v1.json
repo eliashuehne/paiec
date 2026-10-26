@@ -1,0 +1,20 @@
+{
+  "version": "training_data_expansion_v1",
+  "prepared": "runs/competition_pipeline/protocol_panel_v2",
+  "data_root": "payload/data",
+  "l2": 100.0,
+  "interactions": true,
+  "rows_per_system": 100,
+  "min_pair_items": 80,
+  "repeats": 3,
+  "seed": 20261024,
+  "added_benchmarks": [
+    {"name": "bridging_gap", "cap": 2000, "domain": "multi-hop reasoning with bridges"},
+    {"name": "babilong", "cap": 2000, "domain": "long-context recall"},
+    {"name": "cmmlu", "cap": 2000, "domain": "Chinese subject knowledge"},
+    {"name": "cruxeval", "cap": 2000, "domain": "code execution reasoning"},
+    {"name": "afrimedqa", "cap": 2000, "domain": "medical QA"},
+    {"name": "bbq", "cap": 2000, "domain": "social bias QA"},
+    {"name": "editbench", "cap": 2000, "domain": "text editing"}
+  ]
+}

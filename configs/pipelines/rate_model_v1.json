@@ -1,0 +1,21 @@
+{
+  "version": "rate_model_v1",
+  "pair_matrix": "runs/competition_pipeline/pair_matrix_v1",
+  "folds": 5,
+  "seed": 20261023,
+  "max_pairs_per_draw": 1000,
+  "min_items": 80,
+  "name_shrinkage": 2.0,
+  "benchmark_shrinkage": 2.0,
+  "ability_direction": "higher_is_better",
+  "difficulty_alpha": 3.0,
+  "prior_strength": 5.0,
+  "benchmark_evidence_weight": 0.5,
+  "item_block": "catboost",
+  "items_per_cell": 100,
+  "threads": 8,
+  "item_block_iterations": 300,
+  "item_block_depth": 4,
+  "item_block_learning_rate": 0.05,
+  "regime": "all"
+}

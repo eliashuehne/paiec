@@ -36,6 +36,16 @@ continuation is queued.
 | `qualify_evidence_submission.py` | Isolated exact-package checks on every training scope with global revealed evidence |
 | `analyze_competition_data.py` | Training-only fixed numerical evidence controls; no fitted model or native inference |
 | `analyze_conditional_predictor.py` | CPU ridge fits outside whole training families; no native Laya inference, APIs or GPU |
+| `run_training_data_expansion.py` | CPU ridge A/B of row count versus unused-benchmark diversity; admits no data, fits no candidate, opens no sealed role |
+| `run_catboost_base.py` | CPU CatBoost whole-family base experiment with ablations or a declared feature-group recipe, including the research-only profile recipe and its scrambled control; no native Laya inference, APIs or GPU |
+| `analyze_catboost_uncertainty.py` | Paired scope bootstrap and family jackknife over a finished run's saved predictions; refits nothing |
+| `run_catboost_unseen_benchmark.py` | Scores panel fold models on unused public benchmarks with name-matched subjects; fits nothing on evaluation rows |
+| `run_catboost_permutations.py` | Fits the declared scrambled-profile permutations and reports the null distribution, path-only effect and residual gain; resumable, `--aggregate-only` re-reads hash-verified replicates |
+| `run_additive_logit.py` | CPU additive two-block logistic control on the same folds, episodes and unseen rows; no native Laya inference |
+| `build_competition_pairs.py` | Build subject–benchmark pair cells over the whole public corpus at the platform's 80-item threshold; records direction, keeps native labels, no fitting |
+| `run_competition_controls.py` | Score constant, revealed-label, smoothed and same-benchmark-evidence controls on pair draws; fits nothing |
+| `run_rate_model.py` | Benchmark-fold two-way ability/difficulty fit with task-text difficulty regression and an optional CatBoost item term; writes a fail-closed gate verdict |
+| `build_rate_model_submission.py` | Self-contained ZIP inputs for a gate-clearing rate model; refuses a rejected gate, never uploads |
 | `qualify_conditional_control.py` | Isolated standard-library loading/parity checks and initial candidate release audit |
 | `run_task_annotations.py` | Offline request export and checked result import; no network calls or training |
 | `fetch_modal_job.py` | Recover existing cloud results and import tracking; no GPU allocation |

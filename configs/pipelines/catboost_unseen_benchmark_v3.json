@@ -1,0 +1,10 @@
+{
+  "version": "catboost_unseen_benchmark_v1",
+  "panel_run": "runs/competition_analysis/catboost_base_family_v5",
+  "data_root": "payload/data",
+  "seed": 20261024,
+  "min_pair_items": 20,
+  "rows_per_system": 100,
+  "benchmark_cap": 6000,
+  "max_panel_group_overlap": 0.0
+}

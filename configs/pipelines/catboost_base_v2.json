@@ -1,0 +1,19 @@
+{
+  "version": "catboost_base_v2",
+  "prepared": "runs/competition_pipeline/protocol_panel_v2",
+  "threads": 8,
+  "seed": 7,
+  "max_iterations": 400,
+  "early_stopping_rounds": 40,
+  "min_iterations": 1,
+  "prior_strength": 5.0,
+  "offset_regularization": 1.0,
+  "fit_configs": [
+    {"depth": 2, "learning_rate": 0.05, "l2_leaf_reg": 10.0},
+    {"depth": 2, "learning_rate": 0.10, "l2_leaf_reg": 50.0},
+    {"depth": 3, "learning_rate": 0.05, "l2_leaf_reg": 10.0},
+    {"depth": 4, "learning_rate": 0.05, "l2_leaf_reg": 3.0},
+    {"depth": 6, "learning_rate": 0.05, "l2_leaf_reg": 10.0},
+    {"depth": 6, "learning_rate": 0.10, "l2_leaf_reg": 3.0}
+  ]
+}

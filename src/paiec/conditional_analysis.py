@@ -7,14 +7,13 @@ import time
 import numpy as np
 import pandas as pd
 
-from .competition_analysis import verify_competition_bundle, numeric_evidence_predictions
+from .budget_evaluation import curve_scores, full_protocol_episodes
+from .competition_analysis import verify_competition_bundle
 from .conditional_features import VERSION, DIMS, feature_vector, task_features, system_features
-from .conditional_predictor import evidence_logit_offset, logit, logistic
 from .conditional_training import fit_conditional_ridge, predict_matrix
 from .conditional_gate import assess_conditional_controls
 from .feature_preparation import read_jsonl, stable_hash, write_json, write_jsonl
 from .head_training import file_hash
-from .metrics import BUDGETS, brier_alc
 
 
 def family_training_mask(families, task_groups, held_family):
@@ -107,7 +106,6 @@ def evaluate_conditional_controls(prepared, out, *, l2=100., prior_strength=5., 
     scopes = np.asarray([r["scope_key"] for r in rows])
     family = np.asarray([r["validation_family"] for r in rows])
     groups = np.asarray([r["task_group"] for r in rows])
-    row_index = {row["row_key"]: i for i, row in enumerate(rows)}
     predictions = {"additive": np.empty(len(rows)), "conditional": np.empty(len(rows))}
     fold_reports = []
     for held_family in sorted(set(family)):
@@ -137,39 +135,10 @@ def evaluate_conditional_controls(prepared, out, *, l2=100., prior_strength=5., 
         for scope in sorted(set(scopes)):
             selected = scopes == scope
             all_scope_errors[name].append(float(np.mean((values[selected] - labels[selected]) ** 2)))
-    episodes = list(read_jsonl(prepared / "evidence_plan_v1/evidence_episode_links.jsonl"))
-    scored, excluded = [], []
-    for episode in episodes:
-        if len(episode["acquisition_task_groups"]) + len(episode["query_task_groups"]) < 80 or len(episode["support_order_row_keys"]) < 31:
-            excluded.append(episode["scope_key"])
-            continue
-        support = [row_index[k] for k in episode["support_order_row_keys"]]
-        query = [row_index[k] for k in episode["query_row_keys"]]
-        if (set(support) & set(query) or len({family[i] for i in support + query}) != 1 or
-            any(scopes[i] != episode["scope_key"] for i in support + query)):
-            raise ValueError("Episode violates held-family/scope isolation")
-        for budget in BUDGETS:
-            revealed = support[:budget]
-            observed = [int(labels[i]) for i in revealed]
-            methods = {name: np.full(len(query), value) for name, value in numeric_evidence_predictions(observed).items()}
-            for variant, values in predictions.items():
-                base = values[query]
-                methods[variant + "/none"] = base
-                methods[variant + "/beta_mean"] = (prior_strength * base + sum(observed)) / (prior_strength + budget)
-                # Same scalar offset applies to every query in the scope.
-                if observed:
-                    shift = evidence_logit_offset(values[revealed].tolist(), observed, offset_regularization)
-                    methods[variant + "/logit_shift"] = np.asarray([logistic(logit(float(p)) + shift) for p in base])
-                else:
-                    methods[variant + "/logit_shift"] = base
-            for name, values in methods.items():
-                scored.append({"scope_key": episode["scope_key"], "validation_family": str(family[query[0]]),
-                    "method": name, "budget": budget, "brier": float(np.mean((values - labels[query]) ** 2)),
-                    "query_rows": len(query)})
-    curves, alc = {}, {}
-    for method in sorted({r["method"] for r in scored}):
-        curves[method] = {b: float(np.mean([r["brier"] for r in scored if r["method"] == method and r["budget"] == b])) for b in BUDGETS}
-        alc[method] = brier_alc(curves[method])
+    # Shared full-protocol scorer: identical episodes, query rows and fixed controls.
+    episodes, excluded = full_protocol_episodes(prepared, rows, scopes, family)
+    scored, curves, alc = curve_scores(episodes, labels, predictions, prior_strength=prior_strength,
+                                       offset_regularization=offset_regularization)
     report = {"version": "conditional_training_family_analysis_v1", "source_policy": "provided_dataset_only",
         "feature_version": VERSION, "dimensions": DIMS, "l2_fixed_before_analysis": l2,
         "evidence_prior_strength": prior_strength, "offset_regularization": offset_regularization,
@@ -177,7 +146,7 @@ def evaluate_conditional_controls(prepared, out, *, l2=100., prior_strength=5., 
         "family_provenance": provenance, "training_rows": len(rows), "training_families": len(fold_reports),
         "visible_scopes": len(set(scopes)), "folds": fold_reports,
         "zero_budget_brier_all_held_rows_equal_scope": {k: float(np.mean(v)) for k, v in all_scope_errors.items()},
-        "full_budget_eligible_scopes": len(episodes) - len(excluded), "excluded_small_scopes": len(excluded),
+        "full_budget_eligible_scopes": len(episodes), "excluded_small_scopes": len(excluded),
         "per_budget_on_common_eligible_queries": curves, "brier_alc_on_common_eligible_scopes": alc,
         "model_selection_performed": False, "final_all_training_model_fitted": False,
         "original_development_outcomes_used": False, "monitor_outcomes_used": False, "sealed_roles_opened": False,

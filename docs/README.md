@@ -56,6 +56,9 @@ holdout constraints. Historical Laya guides are reference material, not queued w
 | [Competition pipeline](competition-pipeline.md) | Dataset-only route, training evidence diagnostics and remaining runtime requirements |
 | [Protocol panel and policy](protocol-panel-and-policy.md) | Full 170-scope coverage, nested evidence selection and locally checked candidate ZIP |
 | [Conditional control](conditional-control.md) | Whole-family negative result, portable predictor and candidate rejection checks |
+| [CatBoost base](catboost-base.md) | Structured supplied-field features, whole-family and unseen-benchmark results, interval-checked ablations, the additive two-block control, the research-only profile block, and its scrambled single-draw control with the permutation distribution that decides it |
+| [Pair matrix and rate model](competition-pairs.md) | Whole-corpus subject–benchmark pairs, a competition-shaped Brier-ALC scorer that keeps cross-pair evidence, the fixed controls, the two-way ability/difficulty model and its gate |
+| [Training-data expansion](training-data-expansion.md) | Measured row-count versus unused-benchmark diversity A/B; no admission decision |
 | [Task annotations](task-annotation-collection.md) | Full-input plans, offline imports, candidate coverage and quality limits |
 | [Feature evidence links](feature-evidence-links.md) | Training-only collection folds and support/query indices; no fitting |
 | [Dependency locks](../requirements/README.md) | Platform-specific environments and historical lock |
