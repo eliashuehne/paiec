@@ -18,8 +18,8 @@ from .contracts import VERSION, SUBJECT_FIELDS, canonical_json, file_hash, stabl
 from .enrichment import load_export, read_jsonl, resolve_enrichment
 from .report import coverage_report, feature_dictionary, render_report
 from .review import select_review_cases, table_rows, validate_reviews
-from .settings import parse_run_settings, POLICY_VERSION, FIELDS, ALIASES, CONTAINERS
-from .sources import inventory_population, safe_source
+from .settings import parse_run_settings, POLICY_VERSION, FIELDS, ALIASES, CONTAINERS, SETTING_BRANCHES
+from .sources import inventory_population, safe_source, verify_sources
 from .streaming import stream_population
 from .tables import SCHEMAS, write_table
 
@@ -115,7 +115,7 @@ def build_bundle(config, *, source_root, out, progress=None):
     review["complete"] = review["complete"] and not review["shortfall"]
     jsonl(out / "reviewed_examples.jsonl", reviews)
     write_json(out / "feature_dictionary.json", feature_dictionary(enriched["facts"]))
-    write_json(out / "settings_policy.json", {"version": POLICY_VERSION, "fields": FIELDS, "aliases": ALIASES, "containers": sorted(CONTAINERS),
+    write_json(out / "settings_policy.json", {"version": POLICY_VERSION, "fields": FIELDS, "aliases": ALIASES, "containers": sorted(CONTAINERS), "trusted_nested_branches": sorted(SETTING_BRANCHES),
         "ambiguities": "Generic max_tokens and method names remain literal; support/defaults do not establish enabled settings"})
     fields = source_field_inventory(config, source_root, population)
     write_json(out / "source_fields.json", fields)
@@ -128,6 +128,9 @@ def build_bundle(config, *, source_root, out, progress=None):
         "catalog_configurations": len(export["catalog_mappings"]), "preparation_descriptions": len(export["recorded_runs"])}
     write_json(out / "coverage.json", report)
     (out / "report.html").write_text(render_report(report), encoding="utf-8")
+    # Inputs are immutable by contract. Refuse persistent changes between the
+    # verified reads and publication rather than certifying stale provenance.
+    verify_sources(config, source_root)
     if code_hashes != {p.name: file_hash(p) for p in sorted(code_root.glob("*.py"))}:
         raise ValueError("Feature implementation changed during the build; retain incomplete output")
     if dependency_hashes != {p.name: file_hash(p) for p in dependency_paths}:
@@ -243,11 +246,16 @@ def validate_bundle(path, *, require_review=False, allow_incomplete=False):
                 raise ValueError("Duplicate task feature") from error
         if manifest["logical_tables"]["task_features"]["rows"] != manifest["logical_tables"]["tasks"]["rows"]:
             raise ValueError("Missing task features")
-        for row in table_rows(path / "item_input_links.parquet", ["item_key", "task_key"]):
+        db.execute("CREATE TABLE variants (item TEXT, interactor TEXT, PRIMARY KEY(item,interactor)) WITHOUT ROWID")
+        for row in table_rows(path / "item_input_links.parquet", ["item_key", "task_key", "interactor_key"]):
             if not db.execute("SELECT 1 FROM items WHERE key=?", (row["item_key"],)).fetchone():
                 raise ValueError("Orphan item input link")
             if row["task_key"] and not db.execute("SELECT 1 FROM tasks WHERE key=?", (row["task_key"],)).fetchone():
                 raise ValueError("Orphan task input link")
+            try:
+                db.execute("INSERT INTO variants VALUES (?,?)", (row["item_key"], row["interactor_key"] or ""))
+            except sqlite3.IntegrityError as error:
+                raise ValueError("Duplicate item input variant") from error
         db.execute("CREATE TABLE groups (key TEXT PRIMARY KEY, mask INTEGER) WITHOUT ROWID")
         db.executemany("INSERT INTO groups VALUES (?,?)", ((r["group_key"], r["split_mask"]) for r in table_rows(path / "content_groups.parquet")))
         links = table_rows(path / "item_input_links.parquet")
@@ -276,6 +284,10 @@ def validate_bundle(path, *, require_review=False, allow_incomplete=False):
             for key in {row["item_key"] for row in rows if row["item_key"]}:
                 if not db.execute("SELECT 1 FROM items WHERE key=?", (key,)).fetchone():
                     raise ValueError("Orphan response item link")
+            for item, interactor in {(r["item_key"], r["interactor_key"]) for r in rows
+                                     if r["item_key"] and not pop[r["benchmark"]]["protected"]}:
+                if not interactor or not db.execute("SELECT 1 FROM variants WHERE item=? AND interactor=?", (item, interactor)).fetchone():
+                    raise ValueError("Orphan response input variant")
         for benchmark, row in pop.items():
             if (subject_counts[benchmark], item_counts[benchmark], response_counts[benchmark]) != (row["subjects"], row["items"], row["responses"]):
                 raise ValueError("Population record accounting mismatch")
@@ -299,7 +311,7 @@ def validate_bundle(path, *, require_review=False, allow_incomplete=False):
         if key in run_keys or row["system_key"] not in system_keys or row["field"] not in FIELDS:
             raise ValueError("Duplicate or orphan resolved setting")
         run_keys.add(key)
-        if any(observed.get(ref) != key for ref in row["observation_ids"]):
+        if any(observed.get(ref) != key and not (row["reason"] == "unresolved_container" and observed.get(ref) == (row["system_key"], None)) for ref in row["observation_ids"]):
             raise ValueError("Resolved setting has orphan or foreign observations")
         if (row["status"] == "known") != (row["value_json"] is not None):
             raise ValueError("Setting null/status mismatch")

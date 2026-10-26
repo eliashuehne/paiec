@@ -35,6 +35,25 @@ def verify_sources(config, root):
                 for directory in manifest["eligible_dirs"] for name in ("benchmarks", "subjects", "items", "response")}
     if not required <= set(config.input_hashes):
         raise ValueError("Every population source table must be hash-bound")
+    export = safe_source(root, config.enrichment_export)
+    if export.exists() or config.require_enrichment:
+        required = {config.enrichment_export.rstrip('/') + '/' + filename for filename in (
+            "models.jsonl", "harnesses.jsonl", "sources.jsonl", "catalog_systems.jsonl", "runs.jsonl")}
+        # Resolve individual files too: an export directory can contain symlinks.
+        for relative in required:
+            safe_source(root, relative)
+        if not required <= set(config.input_hashes):
+            raise ValueError("Every consumed enrichment file must be hash-bound")
+    if config.require_enrichment:
+        policy_path = safe_source(root, config.profile_policy)
+        if config.profile_policy not in config.input_hashes:
+            raise ValueError("Matching policy must be hash-bound")
+        catalog = json.loads(policy_path.read_text())["catalog"].rstrip('/')
+        required = {catalog + '/' + filename for filename in ("profiles.jsonl", "sources.jsonl")}
+        for relative in required:
+            safe_source(root, relative)
+        if not required <= set(config.input_hashes):
+            raise ValueError("Every consumed matching catalog file must be hash-bound")
     return manifest
 
 

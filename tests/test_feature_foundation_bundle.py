@@ -134,3 +134,49 @@ class BundleTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, 'Orphan|orphan|eligibility'):
                     m.validate_bundle(out)
 
+    def test_source_change_after_verification_cannot_publish_a_completed_bundle(self):
+        m, c = self.modules()
+        with tempfile.TemporaryDirectory() as root, tempfile.TemporaryDirectory() as dest:
+            config = c.FeatureFoundationConfig.model_validate(corpus(root))
+            out = Path(dest) / 'bundle'
+            def mutate(progress):
+                if progress['benchmark'] == 'alpha':
+                    path = Path(root)/'payload/data/beta/formatted_tables/items.parquet'
+                    rows = pq.read_table(path).to_pylist(); rows[0]['content']='Changed after verification'
+                    pq.write_table(pa.Table.from_pylist(rows), path)
+            with self.assertRaisesRegex(ValueError, 'hash|changed'):
+                m.build_bundle(config, source_root=Path(root), out=out, progress=mutate)
+            self.assertTrue((out/'INCOMPLETE').exists())
+            self.assertFalse((out/'manifest.json').exists())
+
+    def test_unpinned_or_escaping_optional_enrichment_is_refused(self):
+        m, c = self.modules()
+        for escape in [False, True]:
+            with self.subTest(escape=escape), tempfile.TemporaryDirectory() as root, tempfile.TemporaryDirectory() as dest:
+                raw = corpus(root)
+                export = Path(root)/raw.get('enrichment_export','runs/shared_data/system_enrichment_v2')
+                export.mkdir(parents=True)
+                outside = Path(dest)/'outside.jsonl'; outside.write_text('')
+                for name in ['models','harnesses','sources','catalog_systems','runs']:
+                    (export/(name+'.jsonl')).write_text('')
+                if escape:
+                    (export/'models.jsonl').unlink(); (export/'models.jsonl').symlink_to(outside)
+                with self.assertRaisesRegex(ValueError, 'root|hash-bound|pinned'):
+                    m.build_bundle(c.FeatureFoundationConfig.model_validate(raw), source_root=Path(root), out=Path(dest)/'bundle')
+
+    def test_validator_checks_composite_response_variant_reference(self):
+        m, c = self.modules()
+        from paiec.feature_foundation.tables import write_table
+        with tempfile.TemporaryDirectory() as root, tempfile.TemporaryDirectory() as dest:
+            out = Path(dest)/'bundle'
+            m.build_bundle(c.FeatureFoundationConfig.model_validate(corpus(root)),source_root=Path(root),out=out)
+            rows = pq.read_table(out/'response_input_links.parquet').to_pylist()
+            rows[0]['interactor_key']='NO_SUCH_INPUT_VARIANT'
+            metadata=write_table(out,'response_input_links',rows)
+            path=out/'response_input_links.parquet'; manifest=json.loads((out/'manifest.json').read_text())
+            manifest['logical_tables']['response_input_links']=metadata
+            manifest['artifacts'][path.name]={'sha256':c.file_hash(path),'bytes':path.stat().st_size}
+            (out/'manifest.json').write_text(json.dumps(manifest))
+            with self.assertRaisesRegex(ValueError, 'variant'):
+                m.validate_bundle(out)
+

@@ -43,7 +43,11 @@ class SettingsTests(unittest.TestCase):
         for extra in ['configuration={"temperature":0,"temperature":1}', 'temperature=NaN', 'n_shots=5;unparseable remainder']:
             with self.subTest(extra=extra):
                 result = self.parse(extra)
-                self.assertTrue(any(r["status"] in {"invalid", "literal"} for r in result["observations"]))
+                if extra.startswith('configuration='):
+                    self.assertEqual(sum(r['raw_key']=='temperature' for r in result['observations']), 2)
+                    self.assertEqual(next(r for r in result['resolved'] if r['field']=='temperature')['status'], 'conflict')
+                else:
+                    self.assertTrue(any(r["status"] in {"invalid", "literal"} for r in result["observations"]))
                 self.assertTrue(all(r["status"] != "known" for r in result["resolved"]))
 
     def test_bad_numeric_types_and_repeated_identical_claims(self):
@@ -64,4 +68,23 @@ class SettingsTests(unittest.TestCase):
         self.assertEqual(values["selection_method"].get("source_scope"), "selection_scope_unspecified")
         self.assertEqual(values["reported_method"]["value_json"], '"ICL_10"')
         self.assertIsNone(values["few_shot_count"]["value_json"])
+
+    def test_nested_duplicates_quoted_containers_and_unresolved_containers_block_false_certainty(self):
+        for nested in ['{"n_shots":2,"n_shots":3}', '"{\\"n_shots\\":2}"', '{broken}']:
+            with self.subTest(nested=nested):
+                result = self.parse('n_shots=5;configuration='+nested)
+                value = next(r for r in result['resolved'] if r['field']=='few_shot_count')
+                self.assertNotEqual(value['status'], 'known')
+                self.assertIsNone(value['value_json'])
+        result = self.parse('configuration={"n_shots":2,"n_shots":3}')
+        self.assertEqual(sum(r['raw_key']=='n_shots' for r in result['observations']), 2)
+
+    def test_aliases_under_examples_defaults_and_other_components_do_not_establish_run_settings(self):
+        for branch in ['examples','defaults','other_model']:
+            with self.subTest(branch=branch):
+                result = self.parse('configuration={"'+branch+'":{"n_shots":2},"temperature":0}')
+                values = {r['field']:r for r in result['resolved']}
+                self.assertEqual(values['few_shot_count']['status'], 'unknown')
+                self.assertEqual(values['temperature']['status'], 'known')
+                self.assertTrue(any(r['raw_key']=='n_shots' for r in result['observations']))
 

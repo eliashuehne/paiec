@@ -19,20 +19,25 @@ ALIASES = {**{name: name for name in FIELDS}, "n_shots": "few_shot_count", "shot
            "max_new_tokens": "max_output_tokens", "do_sample": "sampling_enabled",
            "selection": "selection_method", "method": "reported_method"}
 CONTAINERS = {"agent_configuration", "tool_configuration", "configuration", "config", "settings", "subject_features_extra", "released_configuration"}
-POLICY_VERSION = "recorded_settings_v2"
+SETTING_BRANCHES = CONTAINERS | {"llm", "generation_parameters", "generation_config", "sampling_params"}
+POLICY_VERSION = "recorded_settings_v3"
 
 
-def _unique(pairs):
-    result = {}
-    for key, value in pairs:
-        if key in result:
-            raise ValueError("duplicate JSON key")
-        result[key] = value
-    return result
+class _ObservedObject(dict):
+    """A JSON object retaining repeated members for observation/conflict checks."""
+    def __init__(self, pairs):
+        super().__init__(pairs)
+        self.pairs = pairs
+
+    def items(self):
+        return self.pairs
+
+    def values(self):
+        return [value for _, value in self.pairs]
 
 
 def _json(text):
-    return json.loads(text, object_pairs_hook=_unique,
+    return json.loads(text, object_pairs_hook=_ObservedObject,
                       parse_constant=lambda _: (_ for _ in ()).throw(ValueError("nonfinite number")))
 
 
@@ -61,7 +66,7 @@ def _typed(value, kind):
 def parse_run_settings(subject, *, max_depth=12, max_nodes=4096):
     """Preserve raw occurrences; duplicate contradictions abstain per field.
 
-    Generic max_tokens/method names are deliberately not interpreted. Only
+    Generic max_tokens stays ambiguous; method is only a reported label. Only
     explicitly named containers are decoded; no task text is accepted here.
     """
     subject = project_subject(subject)
@@ -85,9 +90,12 @@ def parse_run_settings(subject, *, max_depth=12, max_nodes=4096):
             candidates[row["field"]].append(row)
         return row
 
-    def visit(key, raw, source_field, path, depth=0, decoded_value=None):
+    def visit(key, raw, source_field, path, depth=0, decoded_value=None, trusted_path=True):
         nonlocal visited
         visited += 1
+        if not trusted_path:
+            observe(key, raw, source_field, path, reason="unsupported_setting_path")
+            return
         if depth > max_depth or visited > max_nodes:
             observe(key, raw, source_field, path, status="invalid", reason="decoding_limit")
             return
@@ -99,7 +107,13 @@ def parse_run_settings(subject, *, max_depth=12, max_nodes=4096):
                     if re.search(r"%(?![a-fA-F0-9]{2})", candidate):
                         raise ValueError("invalid URL encoding")
                     candidate = unquote(candidate, errors="strict")
-                parsed = _json(candidate)
+                for _ in range(max_depth):
+                    parsed = _json(candidate)
+                    if not isinstance(parsed, str):
+                        break
+                    candidate = parsed
+                else:
+                    raise ValueError("quoted container decoding limit")
                 if not isinstance(parsed, (dict, list)):
                     raise ValueError("expected JSON container")
                 # Check the entire shape before emitting trusted leaves.
@@ -114,16 +128,16 @@ def parse_run_settings(subject, *, max_depth=12, max_nodes=4096):
                 if check(parsed) + visited > max_nodes:
                     raise ValueError("decoding_limit")
                 observe(key, raw, source_field, path, status="container", reason="decoded_settings")
-                def flatten(node, prefix):
+                def flatten(node, prefix, trusted_path=True):
                     if isinstance(node, dict):
                         for child_key, child in node.items():
                             child_path = prefix + "/" + child_key.replace("~", "~0").replace("/", "~1")
                             if isinstance(child, dict):
-                                flatten(child, child_path)
+                                flatten(child, child_path, trusted_path and child_key in SETTING_BRANCHES)
                             else:
-                                visit(child_key, canonical_json(child), source_field, child_path, depth + 1, child)
+                                visit(child_key, canonical_json(child), source_field, child_path, depth + 1, child, trusted_path)
                     else:
-                        observe(key, canonical_json(node), source_field, prefix, reason="uninterpreted_container_list")
+                        observe(key, canonical_json(node), source_field, prefix, status="invalid", reason="uninterpreted_container_list")
                 flatten(parsed, path)
             except (ValueError, TypeError, UnicodeError, RecursionError):
                 observe(key, raw, source_field, path, status="invalid", reason="invalid_or_oversized_container")
@@ -163,14 +177,15 @@ def parse_run_settings(subject, *, max_depth=12, max_nodes=4096):
             for index, (key, value) in enumerate(pairs):
                 visit(key, value, "subject_features_extra", "/" + str(index) + "/" + key)
     resolved = []
+    blockers = [row for row in observations if row["raw_key"] in CONTAINERS and row["status"] == "invalid"]
     for field, kind in FIELDS.items():
         claims = candidates[field]
         known = {row["value_json"] for row in claims if row["status"] == "known"}
-        status = "unknown" if not claims else "invalid" if any(row["status"] == "invalid" for row in claims) else "conflict" if len(known) > 1 else "known" if known else "unknown"
+        status = "invalid" if blockers else "unknown" if not claims else "invalid" if any(row["status"] == "invalid" for row in claims) else "conflict" if len(known) > 1 else "known" if known else "unknown"
         resolved.append({"system_key": system_key, "field": field, "value_type": kind,
                          "value_json": next(iter(known)) if status == "known" else None,
-                         "status": status, "reason": "not_recorded" if not claims else status,
+                         "status": status, "reason": "unresolved_container" if blockers else "not_recorded" if not claims else status,
                          "source_scope": "not_recorded" if not claims else next(iter({r["source_scope"] for r in claims})) if len({r["source_scope"] for r in claims}) == 1 else "mixed_recorded_scopes",
-                         "observation_ids": [row["observation_id"] for row in claims], "policy_version": POLICY_VERSION})
+                         "observation_ids": [row["observation_id"] for row in claims + blockers], "policy_version": POLICY_VERSION})
     return {"observations": observations, "resolved": resolved,
             "diagnostics": {"observations": len(observations), "unrecognized": sum(row["field"] is None for row in observations)}}
