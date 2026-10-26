@@ -1,6 +1,6 @@
 """List benchmark pairs that may belong in the same family group.
 
-    python scripts/scan_benchmark_families.py
+    python scripts/lift/scan_benchmark_families.py
 
 Cheap signals pick candidate pairs: a shared source_url or paper_url, similar
 names (digits and separators removed, one contained in the other, or a shared
@@ -20,7 +20,7 @@ from pathlib import Path
 
 import pandas as pd
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "src"))
 
 from paiec.folds import load_benchmark_groups  # noqa: E402

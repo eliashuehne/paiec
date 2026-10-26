@@ -1,6 +1,6 @@
 """Build the fixed lift sample: capped responses per benchmark, with folds.
 
-    python scripts/build_lift_sample.py
+    python scripts/lift/build_lift_sample.py
 
 Writes runs/lift/sample.parquet and runs/lift/sample_manifest.json.
 """
@@ -14,7 +14,7 @@ import sys
 import time
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "src"))
 
 from paiec.folds import grouped_benchmark_folds, load_benchmark_groups  # noqa: E402

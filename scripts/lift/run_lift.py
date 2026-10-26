@@ -1,7 +1,7 @@
 """Score feature columns against a baseline on held-out benchmarks.
 
-    python scripts/lift.py --base A --abilities normalized_name --name b_vs_a
-    python scripts/lift.py --features runs/features/items.parquet --columns n_chars has_code
+    python scripts/lift/run_lift.py --base A --abilities normalized_name --name b_vs_a
+    python scripts/lift/run_lift.py --features runs/features/items.parquet --columns n_chars has_code
 
 The candidate is the base plus the given columns and abilities. Prints the
 comparison and saves it to runs/lift/<time>_<name>/; every run is appended to
@@ -18,7 +18,7 @@ from pathlib import Path
 
 import pandas as pd
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "src"))
 
 from paiec.folds import load_benchmark_groups  # noqa: E402

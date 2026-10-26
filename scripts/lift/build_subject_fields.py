@@ -1,6 +1,6 @@
 """Write the predictor-visible subject fields for every training benchmark.
 
-    python scripts/build_subject_fields.py
+    python scripts/lift/build_subject_fields.py
 
 Writes runs/features/subject_fields.parquet, keyed by subject_id.
 """
@@ -13,7 +13,7 @@ from pathlib import Path
 
 import pandas as pd
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "src"))
 
 from paiec.schema import benchmark_dir, training_benchmarks  # noqa: E402
