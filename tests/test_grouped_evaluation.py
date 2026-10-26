@@ -44,7 +44,7 @@ class GroupedEvaluationTests(unittest.TestCase):
             root = Path(tmp)
             prepared, config, predictions = self.fixture(root)
             result = score_development(prepared, predictions, root / "scores", checkpoint_manifest_sha256=config.checkpoint_manifest_sha256)
-            self.assertEqual(result["brier_alc"], .25)
+            self.assertAlmostEqual(result["brier_alc"], .25, places=12)
             self.assertEqual(result["n_responses"], 963)
             self.assertEqual(result["n_eval_inputs"], 960)
             self.assertEqual(result["n_pairs"], 8)

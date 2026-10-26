@@ -49,7 +49,7 @@ class CompetitionAnalysisTests(unittest.TestCase):
             self.assertNotEqual(before["brier_alc_equal_visible_scope"]["beta_k5"], after["brier_alc_equal_visible_scope"]["beta_k5"])
             self.assertEqual(before["fully_eligible_retained_scopes"], 1)
             self.assertEqual(before["excluded_small_retained_scopes"], 1)
-            self.assertEqual(before["brier_alc_equal_visible_scope"]["constant"], .25)
+            self.assertAlmostEqual(before["brier_alc_equal_visible_scope"]["constant"], .25, places=12)
 
     def test_research_enrichment_and_unpinned_targets_fail_closed(self):
         with tempfile.TemporaryDirectory() as temporary:

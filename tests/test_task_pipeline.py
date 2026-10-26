@@ -150,7 +150,7 @@ class TaskPipelineTests(unittest.TestCase):
             seen.append(labeled)
             return .5
         result=evaluate(pairs,predictor,shared_evidence=True,acquisition_items=31,evaluation_items=1)
-        self.assertEqual(result.brier_alc,.25)
+        self.assertAlmostEqual(result.brier_alc,.25,places=12)
         self.assertEqual(len(seen[1]),2)
         self.assertEqual({entry[1] for entry in seen[1]},{0,1})
         self.assertEqual(seen[1],seen[7])
