@@ -10,6 +10,7 @@ from paiec.lift_report import is_label_free
 from paiec.subject_features import (
     COLUMNS,
     build_subject_features,
+    extra_identity,
     family_of,
     identity_key,
     load_families,
@@ -84,6 +85,44 @@ class ParserTests(unittest.TestCase):
         }
         for name, expected in cases.items():
             self.assertEqual(tier_of(name), expected, name)
+
+
+class ExtraIdentityTests(unittest.TestCase):
+    def test_any_key_naming_a_model_counts(self):
+        cases = {
+            "source_model=Qwen/Qwen2.5-72B-Instruct": ("Qwen/Qwen2.5-72B-Instruct", "source_model"),
+            "recorded_model_label=gpt-5.4;settings_status=not logged": ("gpt-5.4", "recorded_model_label"),
+            "declared_model=BioMistral/BioMistral-7B-DARE": ("BioMistral/BioMistral-7B-DARE", "declared_model"),
+            'model_identifiers=["glm-5.1"]': ("glm-5.1", "model_identifiers"),
+        }
+        for text, expected in cases.items():
+            self.assertEqual(extra_identity(parse_extra(text)), expected, text)
+
+    def test_model_name_inside_a_configuration(self):
+        found = extra_identity(parse_extra("source_configuration={'model_name': 'EleutherAI/pythia-160m', 'dtype': 'f16'}"))
+        self.assertEqual(found, ("EleutherAI/pythia-160m", "source_configuration.model_name"))
+
+    def test_keys_about_something_else_are_ignored(self):
+        for text in (
+            "historical_model_revision=abc123",        # a revision
+            "model_run=models/adacos/s005-rope-s42",   # a run path
+            "input_mode=single_image",                 # "mode" is not "model"
+            "source_model=not_recorded",               # empty value
+            "source_model=The model weights were never released by the authors",  # a sentence
+            "lalm=qwen3omni",                          # key does not say "model": left out on purpose
+        ):
+            self.assertEqual(extra_identity(parse_extra(text)), (None, None), text)
+
+    def test_priority_name_then_label_then_extra(self):
+        extra = "source_model_label=Yi-6B;source_model=other-model"
+        named = subject_row(fields(subject_features_extra=extra).iloc[0], FAMILIES)
+        self.assertEqual((named["identity"], named["identity_source"]), ("Meta Llama 3 8B", "name"))
+        labelled = subject_row(fields(normalized_name=np.nan, subject_features_extra=extra).iloc[0], FAMILIES)
+        self.assertEqual((labelled["identity"], labelled["identity_source"]), ("Yi-6B", "label"))
+        found = subject_row(fields(normalized_name=np.nan, subject_features_extra="source_model=Pixtral-12B").iloc[0], FAMILIES)
+        self.assertEqual((found["identity"], found["identity_source"], found["identity_extra_key"]),
+                         ("Pixtral-12B", "extra", "source_model"))
+        self.assertEqual(found["family"], "mistral")
 
 
 class FamilyTableTests(unittest.TestCase):

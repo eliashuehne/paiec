@@ -16,6 +16,8 @@ that the model did not see, at all six official budgets.
 
 - The feature table is correct and you can use it again.
 - The release-date estimates are accurate.
+- A general rule recovers the identity of most unnamed systems. Identity
+  coverage increases from 65.1% to 89.4% of rows.
 - No subject feature makes the result better than baseline KM. KM uses the
   revealed labels.
 - Newer systems get higher scores in each benchmark. But this effect is
@@ -32,7 +34,7 @@ that the model did not see, at all six official budgets.
    `python scripts/subjects/build_subject_features.py`
 
 NOTE: Step 3 takes approximately 30 seconds. It includes the back-test of the
-release dates (section 6).
+release dates (section 7).
 
 The procedure writes two files:
 - `runs/features/subjects.parquet`: one row for each `subject_id`.
@@ -48,23 +50,24 @@ The fill rate is the percentage of lift-sample rows that have a value
 
 | Column | Meaning | Rows |
 | --- | --- | ---: |
-| `identity` | `normalized_name`. If it is empty: `source_model_label` from `subject_features_extra` | 65.1% |
-| `identity_source` | `name` or `label` | 65.1% |
-| `identity_key` | lowercase letters and digits. The provider prefix and the organization path are removed | 65.1% |
+| `identity` | `normalized_name`. If it is empty: `source_model_label`. If it is empty: a model name in `subject_features_extra` (section 5) | 89.4% |
+| `identity_source` | `name`, `label` or `extra` | 89.4% |
+| `identity_extra_key` | the key in `subject_features_extra` that gave the model name | 24.3% |
+| `identity_key` | lowercase letters and digits. The provider prefix and the organization path are removed | 89.4% |
 | `release_days`, `release_year` | real `release_date`, as days after 2020-01-01 and as calendar year | 52.0% |
 | `release_precision` | `day` or `month` | 52.0% |
-| `log_params_b`, `log_active_params_b` | log10 of the parameters in billions, from the name. "8x7B" gives 56. "30B A3B" gives 30 total and 3 active | 23.8% |
-| `family` | model family, from name patterns in `configs/subjects/model_families.json` | 58.5% |
-| `provider_filled` | `provider`, without placeholder values. If it is empty: the provider of the family | 60.4% |
-| `tier` | `small` (mini, flash, haiku, lite) or `large` (pro, opus, max). For closed models that have no parameter count | 16.6% |
+| `log_params_b`, `log_active_params_b` | log10 of the parameters in billions, from the name. "8x7B" gives 56. "30B A3B" gives 30 total and 3 active | 33.4% |
+| `family` | model family, from name patterns in `configs/subjects/model_families.json` | 77.8% |
+| `provider_filled` | `provider`, without placeholder values. If it is empty: the provider of the family | 77.6% |
+| `tier` | `small` (mini, flash, haiku, lite) or `large` (pro, opus, max). For closed models that have no parameter count | 20.2% |
 | `is_instruct`, `is_vision`, `is_reasoning`, `is_moe`, `is_agent` | flags from the name | 0.1 to 4.0% set |
 | `subject_kind` | `human`, `llm_configuration` and other values, from `subject_features_extra` | 1.5% |
-| `line`, `version` | product line and version from the name. "Claude3-5V_Sonnet" gives sonnet and 3.5 | 26.6%, 47.7% |
-| `name_date_days` | a date in the name. This date is only a latest limit (section 5) | 2.0% |
-| `release_days_filled`, `release_year_filled` | real date. If there is no real date: an accepted estimate | 57.4% |
-| `release_lo`, `release_hi` | earliest and latest possible release date | 57.4% |
-| `release_source` | `field`, or the source of the estimate | 57.4% |
-| `release_filled` | 1 if the date is an estimate | 5.4% set |
+| `line`, `version` | product line and version from the name. "Claude3-5V_Sonnet" gives sonnet and 3.5 | 32.8%, 60.8% |
+| `name_date_days` | a date in the name. This date is only a latest limit (section 6) | 2.0% |
+| `release_days_filled`, `release_year_filled` | real date. If there is no real date: an accepted estimate | 66.4% |
+| `release_lo`, `release_hi` | earliest and latest possible release date | 66.4% |
+| `release_source` | `field`, or the source of the estimate | 66.4% |
+| `release_filled` | 1 if the date is an estimate | 14.4% set |
 
 WARNING: DO NOT USE `display_name`, LABELS OR DATA FROM OUTSIDE THE RELEASE.
 THE PREDICTOR DOES NOT RECEIVE THEM.
@@ -72,11 +75,46 @@ THE PREDICTOR DOES NOT RECEIVE THEM.
 Rules for the table:
 1. Each row uses the fields of one subject only.
 2. Exception: a date estimate uses the visible release dates of other
-   subjects. These subjects must be in other folds (section 5).
+   subjects. These subjects must be in other folds (section 6).
 3. The tests make sure that the builders do not read `display_name`.
 4. The tests make sure that the builders do not use labels.
 
-## 5. Estimate missing release dates
+## 5. Recover the identity
+
+Many subjects have no `normalized_name` and no `source_model_label`. But
+78.8% of these rows have a model name in another key of
+`subject_features_extra`. Each benchmark uses a different key, for example
+`source_model`, `recorded_model_label`, `model_identifier` or
+`source_configuration`.
+
+The code (`extra_identity` in `src/paiec/subject_features.py`) uses a general
+rule:
+1. Use a key whose name contains "model".
+2. Do not use the key if one of its words is: revision, setting, config,
+   status, scope, run, seed, sha, scale, mode, type, style or length. For
+   example, `historical_model_revision` and `input_mode` are not used.
+3. Do not use an empty value, a value that starts with "not", or a sentence.
+4. If a value is a configuration with a `model_name` or `model` entry, use
+   that entry.
+5. If a value is a list, use its first item.
+
+CAUTION: DO NOT ADD KEY NAMES THAT ARE SPECIFIC TO ONE BENCHMARK (FOR
+EXAMPLE `lalm`). THE HIDDEN BENCHMARKS USE OTHER KEY NAMES. A GENERAL RULE
+WORKS ON NEW BENCHMARKS. A LIST OF KNOWN KEYS DOES NOT.
+
+The rule found 19 different keys. Five of these keys were not in the first
+manual analysis (`declared_model`, `model_banner`, `recorded_agent_model`,
+`reported_api_model`, `reported_model_id`). This shows that the rule works on
+keys that it did not see.
+
+Effect on the sample rows:
+- `identity`: 65.1% before, 89.4% after (open folds: 67.2% to 90.8%).
+- `family`: 58.5% to 77.8%. `log_params_b`: 23.8% to 33.4%.
+- Release date with estimates: 57.4% to 66.4%.
+- 4.5% of the rows without identity are humans. The rows that stay without
+  identity have no model name in any field.
+
+## 6. Estimate missing release dates
 
 The code is in `src/paiec/subject_dates.py`.
 
@@ -98,7 +136,7 @@ The estimate uses the first source that applies:
 | `same_version` | the same family, line and version have dates | the range of these dates |
 | `interpolated` | dated versions are below and above | the nearest dated version below and above |
 | `one_sided` | dated versions are only below or only above | one side is the limit of the data |
-| `family`, `provider` | only the family or the provider is known | their range of dates. Not accepted (section 6) |
+| `family`, `provider` | only the family or the provider is known | their range of dates. Not accepted (section 7) |
 
 CAUTION: A DATE IN A NAME IS NOT A RELEASE DATE. NAMES SUCH AS
 `gpt-4o-2025-12-11` CONTAIN THE DATE OF THE EVALUATION. GPT-4o WAS RELEASED IN
@@ -108,7 +146,7 @@ WARNING: USE REFERENCE DATES FROM OTHER FOLDS ONLY. AT EVALUATION, THE
 PREDICTOR CAN GET DATES ONLY FROM PUBLIC DATA. THUS, A SUBJECT DOES NOT USE A
 DATE FROM A BENCHMARK IN ITS OWN FOLD. SEALED SUBJECTS ARE NOT REFERENCES.
 
-## 6. Back-test of the estimates
+## 7. Back-test of the estimates
 
 The back-test removes the date of each dated system. Then it estimates the
 date again from the other systems.
@@ -141,13 +179,15 @@ percentage of true dates between the earliest and latest date.
 
 Effect on the fill rate of sample rows:
 - Real dates: 52.0%.
-- Real dates and accepted estimates: **57.4%**.
-- The increase comes from: same version 2.9%, same signature 1.6%, one-sided
-  0.6%, interpolated 0.3%.
-- 43% of rows have no estimate. These rows have no identity, or no version
-  and no accepted source.
+- Real dates and accepted estimates: **57.4%** with the first identity rule,
+  **66.4%** after the identity recovery (section 5).
+- With the first identity rule, the increase came from: same version 2.9%,
+  same signature 1.6%, one-sided 0.6%, interpolated 0.3%.
+- The other rows have no identity, or no version and no accepted source.
+- The identity recovery does not change the back-test. The recovered systems
+  have no real dates, thus they are not references.
 
-## 7. Results in the lift loop
+## 8. Results in the lift loop
 
 Conditions for all runs:
 - Base: KM, the baseline with revealed labels (ALC 0.2034).
@@ -157,7 +197,7 @@ Conditions for all runs:
 - The runs are in `runs/lift/history.jsonl` or `runs/lift/dev/`.
 - For comparison, a column of random noise costs +0.0003 [+0.0002, +0.0004].
 
-### 7.1 Each column alone
+### 8.1 Each column alone
 
 No column gets a change of 0.001 or more in 4 of 5 folds.
 
@@ -172,7 +212,7 @@ No column gets a change of 0.001 or more in 4 of 5 folds.
 | all columns above together | +0.0040 [+0.0023, +0.0057] | 0/5 | +0.0052 | | HURTS |
 | subject ability (`normalized_name`) | +0.0001 [-0.0003, +0.0004] | 2/5 | +0.0002 | | no clear effect |
 
-### 7.2 Forms of the release date
+### 8.2 Forms of the release date
 
 | Variant | ALC change | Folds better | Verdict |
 | --- | ---: | ---: | --- |
@@ -180,7 +220,7 @@ No column gets a change of 0.001 or more in 4 of 5 folds.
 | `release_year`, monotone (`--increasing`) | +0.0002 [-0.0003, +0.0007] | 2/5 | no clear effect |
 | `release_days`, monotone | +0.0002 | 1/5 | no clear effect |
 
-### 7.3 Filled dates against real dates
+### 8.3 Filled dates against real dates
 
 Command: `--base-columns release_year --columns release_year_filled`.
 
@@ -190,7 +230,16 @@ Command: `--base-columns release_year --columns release_year_filled`.
 | filled with the `release_filled` flag against real only | +0.0004 [+0.0001, +0.0007] | 0/5 | no clear effect |
 | filled against KM | +0.0002 [-0.0003, +0.0007] | 2/5 | no clear effect |
 
-## 8. Why subject features do not help
+### 8.4 After the identity recovery (89.4% of rows have an identity)
+
+| Comparison | ALC change | Folds better | Verdict |
+| --- | ---: | ---: | --- |
+| subject ability (`identity_key`) against KM | +0.0003 [-0.0001, +0.0007] | 1/5 | no clear effect |
+| `family` and `provider_filled` against KM | +0.0005 [-0.0003, +0.0014] | 3/5 | no clear effect |
+
+A higher identity coverage does not change the result.
+
+## 9. Why subject features do not help
 
 1. **The revealed labels show the strength of the system.** K pulls the rate
    of each pair toward the rate of its benchmark. From budget 1, the labels
@@ -209,24 +258,24 @@ Command: `--base-columns release_year --columns release_year_filled`.
    that test newer systems are more difficult (correlation -0.11). Thus,
    subject features give incorrect information before the first label.
 
-## 9. Limits
+## 10. Limits
 
 - The results are predictive relations on public benchmarks. They are not
   causes.
 - The hidden benchmarks can contain systems from many years. In this case,
-  the maximum gain in section 8 is higher. The result can then be different.
+  the maximum gain in section 9 is higher. The result can then be different.
 - The result applies to KM: LightGBM that corrects K. One method is not
   tested: subject features that change the prior of each pair.
-- Parameter counts are available for 23.8% of rows only. Closed models have
+- Parameter counts are available for 33.4% of rows only. Closed models have
   no parameter count. `tier` gives an approximate size for these models.
 - The limits of 180 days and 75% are decisions, not measurements. The manifest
   keeps the back-test that supports them.
 
-## 10. Files
+## 11. Files
 
 | Path | Function |
 | --- | --- |
-| `src/paiec/subject_features.py` | parsers and the feature table |
+| `src/paiec/subject_features.py` | parsers, identity recovery (`extra_identity`) and the feature table |
 | `src/paiec/subject_dates.py` | version parsing, references from other folds, estimates, back-test, acceptance |
 | `configs/subjects/model_families.json` | family patterns, providers, version patterns and product lines (v2), with examples that the tests check |
 | `scripts/subjects/build_subject_features.py` | makes the table and the manifest |

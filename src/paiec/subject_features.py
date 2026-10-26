@@ -3,12 +3,14 @@
 Everything here reads only the fields a predictor receives (see
 ``schema.SUBJECT_FIELDS``) and works on one subject at a time, so the table
 carries no label information and needs no fitting. Identity falls back from
-``normalized_name`` to ``source_model_label`` inside ``subject_features_extra``,
-which raises identity coverage from 53% to 67% of sample rows.
+``normalized_name`` to ``source_model_label`` and then to any model name in
+``subject_features_extra`` (see ``extra_identity``), which raises identity
+coverage from 53% to about 93% of sample rows.
 """
 
 from __future__ import annotations
 
+import ast
 import json
 import math
 import re
@@ -19,6 +21,12 @@ import pandas as pd
 
 # Placeholder providers that say nothing about the system.
 NO_PROVIDER = {"unknown", "(agent scaffold)"}
+# Words in a subject_features_extra key that mean its value is not a model name
+# (historical_model_revision, model_run, input_mode). Whole words only: "mode"
+# must not match inside "model".
+_NOT_A_NAME_WORDS = {"revision", "setting", "settings", "config", "configuration", "status", "scope", "run",
+                     "seed", "sha", "sha256", "scale", "mode", "type", "style", "length"}
+_EMPTY_VALUES = {"", "none", "null", "unknown", "n/a", "na", "not_recorded", "not recorded"}
 DATE_ORIGIN = pd.Timestamp("2020-01-01")
 
 _MIXTURE = re.compile(r"(?<![\w.])(\d+)\s*x\s*(\d+(?:\.\d+)?)\s*b(?![a-z])", re.IGNORECASE)
@@ -46,6 +54,7 @@ COLUMNS = [
     "subject_id",
     "identity",
     "identity_source",
+    "identity_extra_key",
     "identity_key",
     "release_days",
     "release_year",
@@ -135,11 +144,55 @@ def tier_of(identity) -> str | None:
     return None
 
 
+def _model_name(value: str) -> str | None:
+    """A usable model name from a raw value: not empty, not a sentence, first item of a JSON list."""
+    text = value.strip()
+    if text.startswith("["):
+        try:
+            items = json.loads(text)
+        except ValueError:
+            return None
+        text = str(items[0]).strip() if items else ""
+    if text.lower() in _EMPTY_VALUES or text.lower().startswith("not ") or len(text) > 100 or len(text.split()) > 6:
+        return None
+    return text
+
+
+def extra_identity(extra: dict[str, str]) -> tuple[str | None, str | None]:
+    """A model name in ``subject_features_extra``, by a general rule, and the key it came from.
+
+    Benchmarks name this key differently (source_model, recorded_model_label,
+    model_identifier, ...), so any key whose name contains "model" counts,
+    except keys about revisions, settings and the like. A configuration
+    dictionary with a ``model_name`` or ``model`` entry counts too. Keys that
+    do not say "model" (lalm, upstream_profile) are left out on purpose: a
+    rule built from known key names would fail on new benchmarks.
+    """
+    for key, value in extra.items():
+        words = set(re.split(r"[^a-z0-9]+", key.lower()))
+        if "model" in key.lower() and not words & _NOT_A_NAME_WORDS:
+            name = _model_name(value)
+            if name:
+                return name, key
+    for key, value in extra.items():
+        if value.lstrip().startswith("{") and "model" in value:
+            try:
+                config = ast.literal_eval(value)
+            except (ValueError, SyntaxError):
+                continue
+            if isinstance(config, dict):
+                name = config.get("model_name") or config.get("model")
+                if isinstance(name, str) and _model_name(name):
+                    return _model_name(name), f"{key}.model_name"
+    return None, None
+
+
 def subject_row(row: pd.Series, families: list[dict]) -> dict:
     """All features for one subject from its visible fields."""
     extra = parse_extra(row.get("subject_features_extra"))
     name, label = row.get("normalized_name"), extra.get("source_model_label") or None
-    identity = name if isinstance(name, str) else label
+    found, found_key = extra_identity(extra)
+    identity = name if isinstance(name, str) else (label or found)
     provider = row.get("provider")
     provider = provider if isinstance(provider, str) and provider.lower() not in NO_PROVIDER else None
     family = family_of(identity, families)
@@ -149,7 +202,8 @@ def subject_row(row: pd.Series, families: list[dict]) -> dict:
     return {
         "subject_id": row["subject_id"],
         "identity": identity,
-        "identity_source": "name" if isinstance(name, str) else ("label" if label else None),
+        "identity_source": "name" if isinstance(name, str) else ("label" if label else ("extra" if found else None)),
+        "identity_extra_key": None if isinstance(name, str) or label else found_key,
         "identity_key": identity_key(identity, row.get("provider")),
         "release_days": release_days,
         # Coarse on purpose: exact days are nearly unique per system, and trees
@@ -181,6 +235,7 @@ __all__ = [
     "COLUMNS",
     "FLAGS",
     "build_subject_features",
+    "extra_identity",
     "family_of",
     "identity_key",
     "load_families",
