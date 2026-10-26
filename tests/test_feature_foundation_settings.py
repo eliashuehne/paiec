@@ -88,3 +88,9 @@ class SettingsTests(unittest.TestCase):
                 self.assertEqual(values['temperature']['status'], 'known')
                 self.assertTrue(any(r['raw_key']=='n_shots' for r in result['observations']))
 
+    def test_typed_setting_with_object_value_is_invalid_even_when_an_outer_claim_is_valid(self):
+        result = self.parse('n_shots=5;configuration={"n_shots":{}}')
+        value = next(r for r in result['resolved'] if r['field']=='few_shot_count')
+        self.assertEqual(value['status'], 'invalid')
+        self.assertIsNone(value['value_json'])
+

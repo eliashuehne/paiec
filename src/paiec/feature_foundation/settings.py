@@ -132,7 +132,7 @@ def parse_run_settings(subject, *, max_depth=12, max_nodes=4096):
                     if isinstance(node, dict):
                         for child_key, child in node.items():
                             child_path = prefix + "/" + child_key.replace("~", "~0").replace("/", "~1")
-                            if isinstance(child, dict):
+                            if isinstance(child, dict) and child_key not in ALIASES:
                                 flatten(child, child_path, trusted_path and child_key in SETTING_BRANCHES)
                             else:
                                 visit(child_key, canonical_json(child), source_field, child_path, depth + 1, child, trusted_path)
