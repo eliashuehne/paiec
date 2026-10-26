@@ -172,12 +172,15 @@ def _sample_subjects(
 
 
 def _tag_record(
-    episode: _SubjectEpisode, item_tags: pd.Series, evaluation_items: int
+    episode: _SubjectEpisode, subject_id: str, item_tags: pd.Series, evaluation_items: int
 ) -> dict:
     evaluation = episode.evaluation_responses(limit=evaluation_items)
     scores = evaluation.groupby("item_id")["response"].agg(["size", "sum"])
     return {
         "weight": 1.0,
+        "subject_id": str(subject_id),
+        "revealed_ids": list(episode.revealed_items),
+        "eval_ids": list(scores.index),
         "revealed_tags": [item_tags[item_id] for item_id in episode.revealed_items],
         "revealed_labels": episode.revealed_labels,
         "eval_tags": [item_tags[item_id] for item_id in scores.index],
@@ -217,7 +220,7 @@ def tag_episodes(
             subject_responses, benchmark_name, subject_id, seed, min_items
         )
         if episode is not None:
-            episodes.append(_tag_record(episode, item_tags, evaluation_items))
+            episodes.append(_tag_record(episode, subject_id, item_tags, evaluation_items))
     return tuple(episodes)
 
 
