@@ -1,3 +1,5 @@
+import json
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -96,6 +98,43 @@ class GroupedBenchmarkFoldTests(unittest.TestCase):
         names = [name for group in groups for name in group]
         self.assertEqual(len(names), len(set(names)))
         self.assertIn(["adaptivestep", "felm", "ikp", "pku_saferlhf", "prox"], groups)
+        self.assertEqual(json.loads(GROUPS_CONFIG.read_text())["version"], "benchmark_groups_v2")
+
+    def test_shipped_families_land_in_one_fold_or_wholly_sealed(self):
+        groups = load_benchmark_groups(GROUPS_CONFIG)
+        members = {name for group in groups for name in group}
+        names = sorted(members) + [f"other{i:03d}" for i in range(120)]
+        for seed in range(10):
+            sealed, folds = grouped_benchmark_folds(names, groups, seed=seed)
+            for group in groups:
+                homes = {"sealed" if name in sealed else next(
+                    number for number, (_, test) in enumerate(folds) if name in test
+                ) for name in group}
+                self.assertEqual(len(homes), 1, f"seed {seed}: {group} split over {homes}")
+
+
+class LoadBenchmarkGroupTests(unittest.TestCase):
+    def load(self, groups):
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "groups.json"
+            path.write_text(json.dumps({"groups": groups}))
+            return load_benchmark_groups(path)
+
+    def test_plain_lists_and_objects_both_load(self):
+        groups = self.load({
+            "plain": ["b", "a"],
+            "documented": {"members": ["d", "c"], "reasons": ["shared_source"], "evidence": "same run"},
+        })
+        self.assertEqual(groups, [["a", "b"], ["c", "d"]])
+
+    def test_object_without_evidence_or_valid_reasons_raises(self):
+        for group in (
+            {"members": ["a"], "reasons": ["shared_source"]},
+            {"members": ["a"], "reasons": [], "evidence": "x"},
+            {"members": ["a"], "reasons": ["same_prefix"], "evidence": "x"},
+        ):
+            with self.assertRaises(ValueError):
+                self.load({"g": group})
 
 
 if __name__ == "__main__":

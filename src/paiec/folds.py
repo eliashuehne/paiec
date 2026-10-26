@@ -37,9 +37,24 @@ def benchmark_folds(
     ]
 
 
+GROUP_REASONS = ("shared_items", "shared_source")
+
+
 def load_benchmark_groups(path: str | Path) -> list[list[str]]:
-    """Read the benchmark groups that must share a fold from a JSON config."""
-    return [sorted(members) for members in json.loads(Path(path).read_text())["groups"].values()]
+    """Read the benchmark groups that must share a fold from a JSON config.
+
+    Each group is either a plain list of members or an object with
+    ``members``, ``reasons`` (from ``GROUP_REASONS``) and ``evidence``.
+    """
+    groups = []
+    for name, group in json.loads(Path(path).read_text())["groups"].items():
+        if isinstance(group, dict):
+            reasons = group.get("reasons") or ()
+            if not reasons or set(reasons) - set(GROUP_REASONS) or not group.get("evidence"):
+                raise ValueError(f"group {name} needs reasons from {GROUP_REASONS} and evidence")
+            group = group["members"]
+        groups.append(sorted(group))
+    return groups
 
 
 def grouped_benchmark_folds(
@@ -96,4 +111,4 @@ def grouped_benchmark_folds(
     return sorted(sealed), folds
 
 
-__all__ = ["benchmark_folds", "grouped_benchmark_folds", "load_benchmark_groups"]
+__all__ = ["GROUP_REASONS", "benchmark_folds", "grouped_benchmark_folds", "load_benchmark_groups"]
