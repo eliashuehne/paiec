@@ -12,7 +12,7 @@ from training benchmarks only; see ``in_fold_ability``.
 
 from __future__ import annotations
 
-from collections.abc import Iterable, Iterator, Mapping, Sequence
+from collections.abc import Callable, Iterable, Iterator, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -191,21 +191,29 @@ def fit_predict(
     test: pd.DataFrame,
     columns: Sequence[str],
     increasing: Sequence[str] = (),
+    offset: tuple[np.ndarray, np.ndarray] | None = None,
 ) -> np.ndarray:
     """Train on ``train`` and return P(correct) for each ``test`` row.
 
     Columns in ``increasing`` may only raise the prediction as they grow.
-    With no columns the prediction is the training correct rate, which is the
-    floor every feature set is compared against.
+    ``offset`` gives starting log-odds for the train and test rows; the trees
+    then learn corrections to it. With no columns the prediction is the offset,
+    or else the training correct rate, the floor every feature set is compared
+    against.
     """
     if not columns:
+        if offset is not None:
+            return 1 / (1 + np.exp(-offset[1]))
         return np.full(len(test), train["label"].mean())
     x_train, x_test = _model_frame(train, test, columns)
     params = PARAMS
     if increasing:
         params = {**PARAMS, "monotone_constraints": [int(c in increasing) for c in columns]}
-    model = lgb.train(params, lgb.Dataset(x_train, label=train["label"]), num_boost_round=ROUNDS)
-    return model.predict(x_test)
+    init = None if offset is None else offset[0]
+    model = lgb.train(params, lgb.Dataset(x_train, label=train["label"], init_score=init), num_boost_round=ROUNDS)
+    if offset is None:
+        return model.predict(x_test)
+    return 1 / (1 + np.exp(-(model.predict(x_test, raw_score=True) + offset[1])))
 
 
 def log_loss(labels: Sequence[float], probabilities: Sequence[float]) -> float:
@@ -228,6 +236,10 @@ def run_lift(
     columns: Sequence[str] = (),
     abilities: Sequence[str] = (),
     groups: Iterable[Sequence[str]] = (),
+    prepare: Callable[[pd.DataFrame], pd.DataFrame] | None = None,
+    prepared_columns: Sequence[str] = (),
+    increasing: Sequence[str] = (),
+    predict: Callable[..., np.ndarray] | None = None,
 ) -> LiftResult:
     """Score ``columns`` on every numbered fold; sealed benchmarks are skipped.
 
@@ -238,10 +250,16 @@ def run_lift(
     or count differs per training benchmark, and trees would use it to memorise
     that benchmark's difficulty, which never transfers.
 
+    ``prepare`` turns each fold's train and test rows into the rows to fit and
+    score, after abilities are built from the full training rows; budget-k mode
+    (``lift_budget``) uses it to reveal labels and add the ``prepared_columns``.
+    Columns in ``increasing`` may only raise P(correct). ``predict`` replaces
+    ``fit_predict`` (same arguments), for rule or offset baselines.
+
     Fold rows report row-weighted Brier and log loss plus ``brier_macro``, the
     mean of per-benchmark Brier, so small benchmarks count as much as large ones.
     """
-    missing = sorted((set(columns) | set(abilities)) - set(sample.columns))
+    missing = sorted((set(columns) | set(abilities)) - set(sample.columns) - set(prepared_columns))
     if missing:
         raise ValueError(f"columns not in sample: {missing}")
     if not sample.index.is_unique:
@@ -249,6 +267,8 @@ def run_lift(
     units = group_units(groups)
     ability_columns = [f"{key}_ability" for key in abilities]
     model_columns = [*columns, *ability_columns]
+    monotone = [*ability_columns, *increasing]
+    predict = predict or fit_predict
     folds, benchmarks = [], []
     for fold, train, test in fold_splits(sample):
         for key, column in zip(abilities, ability_columns):
@@ -256,7 +276,9 @@ def run_lift(
                 train.assign(**{column: in_fold_ability(train, train, key, units=units)[column]}),
                 test.assign(**{column: in_fold_ability(train, test, key, units=units)[column]}),
             )
-        scored = test.assign(p=fit_predict(train, test, model_columns, increasing=ability_columns))
+        if prepare is not None:
+            train, test = prepare(train), prepare(test)
+        scored = test.assign(p=predict(train, test, model_columns, increasing=monotone))
         per_benchmark = [
             {"fold": fold, "benchmark": name, **_scores(group)}
             for name, group in scored.groupby("benchmark", sort=True)
