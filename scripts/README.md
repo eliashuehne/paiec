@@ -25,6 +25,8 @@ continuation is queued.
 | `fetch_grouped_checkpoint.py` | Download missing files for a declared fitted grouped checkpoint and verify hashes; no GPU allocation |
 | `complete_grouped_pilot.py` | Complete one already-launched, explicitly authorized pilot: recover checkpoint, evaluate once, stop GPU apps; never starts/restarts fitting |
 | `run_eval.py` | Score selected predictors; Laya selection loads weights and runs inference |
+| `run_baseline_eval.py` | The preserved benchmark-fold evaluator for the constant and empirical-mean reference predictors; its modules live in `paiec/baseline_harness/`, separate from the submission harness |
+| `download_data.py` | Download the eligible Measurement DB tables into `payload/data`; needs the `data` extra and a Hugging Face login |
 | `run_job.py` | Local/Modal job launcher; `--dry-run` plans only, dispatch may allocate a GPU |
 | `compare_runs.py` | Compare saved completed predictions without new model inference |
 | `mlflow_ui.py` | Serve the local tracking dashboard |
