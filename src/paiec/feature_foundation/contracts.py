@@ -55,6 +55,8 @@ class FeatureFoundationConfig(BaseModel):
     require_enrichment: bool = False
     review_cases_per_kind: int = Field(default=24, ge=1, le=100)
     batch_size: int = Field(default=4096, ge=1, le=65536)
+    legacy_monitor_seed: int | None = None
+    review_ledger: str | None = None
 
 
 def write_json(path, value):

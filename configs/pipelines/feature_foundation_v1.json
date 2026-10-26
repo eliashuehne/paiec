@@ -97,6 +97,7 @@
   },
   "input_hashes": {
     "configs/head_finetuning/compact_profiles_v3.json": "1acf2db8155513e08e8edee27d50fea949c3251b3ad1c3a88fe767777e657c80",
+    "configs/head_finetuning/enriched_30k_data_v1.json": "7ab18eda6d6eea868addfe5b7f9328bb0e7d1875b5e461ab0dd3d9a23e700075",
     "configs/head_finetuning/frozen_split_v1.json": "90a70246e53fd27478a1fbb7d1dc308c9cc1b19d20cc4d41f6e86ae2e5a85026",
     "payload/data/abstract_reason/formatted_tables/benchmarks.parquet": "8e2c91805dc91ad86b6710aabf71085156e438a43ed7846b9fcb47d0643c0824",
     "payload/data/abstract_reason/formatted_tables/items.parquet": "bf97f9bff6a6a44a48bba688fd402705888dac81b313135f262262fba44a35d7",
@@ -454,6 +455,7 @@
     "runs/shared_data/system_enrichment_v2/system_mapping.csv": "d2e7ae63c778d676c2f3e8814ac060e42daf5b7a154576eb845e7d9c2690bd4b",
     "runs/shared_data/system_enrichment_v2/systems.jsonl": "e4d248b83473a61a89c87ce013b3e998a7f03faf485480786c3747be7f0acda4"
   },
+  "legacy_monitor_seed": 20261023,
   "require_enrichment": true,
   "seed": 20261025,
   "version": "feature_foundation_v1"
