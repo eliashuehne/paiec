@@ -1,0 +1,28 @@
+{
+  "version": "model_families_v1",
+  "note": "Name patterns for model families, matched case-insensitively against the subject identity (normalized_name, else source_model_label). The first matching entry wins, so more specific families come first (llava before llama, deepseek before qwen). Patterns encode only how names are spelled, plus the family's usual provider; no release dates, scores or other outside data. Every example must match its own entry first; tests/subjects checks this.",
+  "families": [
+    {"family": "llava", "provider": null, "pattern": "llava", "examples": ["LLaVA-NeXT Vicuna 7B", "llava_next_interleave_7b"]},
+    {"family": "internvl", "provider": "OpenGVLab", "pattern": "internvl", "examples": ["OpenGVLab InternVL2.5 2B", "InternVL2_5-2B"]},
+    {"family": "deepseek", "provider": "DeepSeek", "pattern": "deepseek", "examples": ["DeepSeek V3", "DeepSeek R1 Distill Qwen 1.5B", "deepseek_vl_7b"]},
+    {"family": "qwen", "provider": "Alibaba", "pattern": "qwen|qwq", "examples": ["Alibaba Qwen2.5 72B", "Alibaba QwQ 32B", "qwen3-next-2025-12-11"]},
+    {"family": "mistral", "provider": "Mistral", "pattern": "mistral|mixtral|pixtral|codestral", "examples": ["Mistral 7B", "Mistral Mixtral 8x7B", "Pixtral-12B"]},
+    {"family": "gemma", "provider": "Google", "pattern": "gemma", "examples": ["Google Gemma 2 9B", "paligemma-3b-mix-448"]},
+    {"family": "gemini", "provider": "Google", "pattern": "gemini", "examples": ["Google Gemini 1.5 Pro", "GeminiProVision", "gemini_lite"]},
+    {"family": "palm", "provider": "Google", "pattern": "\\bpalm\\b|\\bbard\\b", "examples": ["Google PaLM 2 Unicorn"]},
+    {"family": "llama", "provider": "Meta", "pattern": "llama|alpaca|vicuna", "examples": ["Meta Llama 3 8B", "Llama-2-70b-chat-hf", "Stanford Alpaca 7B", "TinyLlama 1.1B CPT OpenWebMath"]},
+    {"family": "openai_o", "provider": "OpenAI", "pattern": "(?<![a-z0-9])o[1-4](?![a-z0-9])", "examples": ["OpenAI o3-mini", "OpenAI o1", "OpenAI o4-mini"]},
+    {"family": "gpt", "provider": "OpenAI", "pattern": "(?<![a-z])gpt|davinci", "examples": ["OpenAI GPT-4o", "gpt-35-turbo-230613-5shot", "OpenAI GPT-3.5 Davinci"]},
+    {"family": "claude", "provider": "Anthropic", "pattern": "claude|^opus$|^sonnet$|^haiku$", "examples": ["Anthropic Claude 3.7 Sonnet", "claude-haiku-4-5-2025-12-05", "opus"]},
+    {"family": "phi", "provider": "Microsoft", "pattern": "\\bphi[-_ ]?\\d", "examples": ["Microsoft Phi-3 Medium", "phi-4-5shot", "phi-3-5-moe-instruct-5shot"]},
+    {"family": "yi", "provider": "01.AI", "pattern": "\\byi[-_ ]", "examples": ["01.AI Yi 6B", "01.AI Yi-VL 6B", "Yi_VL_6B"]},
+    {"family": "glm", "provider": "Zhipu", "pattern": "glm", "examples": ["Zhipu GLM-4", "chatglm3-6b"]},
+    {"family": "kimi", "provider": "Moonshot", "pattern": "kimi", "examples": ["Moonshot Kimi K2.6"]},
+    {"family": "grok", "provider": "xAI", "pattern": "grok", "examples": ["xAI Grok 3"]},
+    {"family": "command", "provider": "Cohere", "pattern": "command[- ]?r|\\baya\\b", "examples": ["Cohere Command R"]},
+    {"family": "minimax", "provider": "MiniMax", "pattern": "minimax|abab", "examples": ["MiniMax abab7", "abab6.5s"]},
+    {"family": "olmo", "provider": "AllenAI", "pattern": "olmo|molmo", "examples": ["AllenAI OLMo 2 13B", "AllenAI Molmo 7B-O"]},
+    {"family": "nova", "provider": "Amazon", "pattern": "\\bnova\\b", "examples": ["Amazon Nova Micro"]},
+    {"family": "encoder", "provider": null, "pattern": "xlm-?r|bert(a)?\\b|\\bglot\\b", "examples": ["xlmrbase", "afroxlmr75L", "mdeberta", "afriberta", "glot", "mbert", "rembert"]}
+  ]
+}

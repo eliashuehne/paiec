@@ -12,6 +12,7 @@ from paiec.lift_budget import (
     empirical_mean,
     reveal_order,
     run_budgets,
+    shrunk_offset,
     shrunk_rate,
 )
 from paiec.lift_sample import SEALED
@@ -196,6 +197,17 @@ class RunBudgetTests(unittest.TestCase):
         pd.testing.assert_frame_equal(
             run_budgets(flipped, (3,), **km_skill)[3].folds, run_budgets(self.sample, (3,), **km_skill)[3].folds
         )
+
+
+class MonotoneTests(unittest.TestCase):
+    def test_increasing_column_never_lowers_the_prediction(self):
+        # The true relation is decreasing; the constraint must keep predictions non-decreasing.
+        frame = budget_frame(attach_reveal_order(budget_sample()), 3)
+        frame = frame.assign(feature=-frame["skill"])
+        train, test = frame[frame["fold"] != "0"], frame[frame["fold"] == "0"]
+        grid = test.iloc[[0] * 5].assign(feature=np.linspace(-1, 1, 5))
+        p = shrunk_offset(train, grid, ["feature"], increasing=["feature"])
+        self.assertTrue(np.all(np.diff(p) >= -1e-12))
 
 
 class CombineBudgetTests(unittest.TestCase):

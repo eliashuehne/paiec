@@ -15,6 +15,7 @@ number is a proxy for Brier ALC; see [Budget mode](#budget-mode).
 # 1. Once per data revision (~40 s each)
 python scripts/lift/build_lift_sample.py      # runs/lift/sample.parquet + manifest
 python scripts/lift/build_subject_fields.py   # runs/features/subject_fields.parquet
+python scripts/subjects/build_subject_features.py  # runs/features/subjects.parquet (seconds)
 
 # 2. Score a feature table on top of KM (all budgets, a few minutes)
 python scripts/lift/run_lift.py --base KM --features runs/features/subjects.parquet \
@@ -23,7 +24,8 @@ python scripts/lift/run_lift.py --base KM --features runs/features/subjects.parq
 # 3. Compare two baselines
 python scripts/lift/run_lift.py --base A --candidate K --name k_vs_a
 
-# 4. Quick check at chosen budgets, or the original budget-0 loop on all rows
+# 4. Quick check at chosen budgets, or the original budget-0 loop on all rows.
+#    --increasing lets a column only raise P(correct) (budget mode only).
 python scripts/lift/run_lift.py --base KM --features runs/features/subjects.parquet --columns release_days --budgets 1 7
 python scripts/lift/run_lift.py --budgets --base A --abilities normalized_name
 ```
@@ -131,6 +133,22 @@ true rate would give about 0.199: **at budget 0 the unknown is benchmark
 difficulty**, subject strength alone does not help, and raw text features
 mostly act as benchmark IDs (text length: fingerprint 0.87, +0.0027).
 
+## Subject features
+
+`runs/features/subjects.parquet` (`src/paiec/subject_features.py`) parses the
+visible subject fields into one row per `subject_id`: `identity` (name, else
+`source_model_label`), `release_days` / `release_year`, `log_params_b`,
+`family` and `provider_filled` (patterns in `configs/subjects/model_families.json`),
+a size `tier` for closed models, instruct / vision / reasoning / MoE / agent
+flags and `subject_kind`. The build prints each column's fill rate.
+
+Screened on KM over all budgets, no column helps: changes run from +0.0001
+to +0.0007 (no clear effect), raw `release_days` hurts (+0.0025) and all
+columns together hurt (+0.0038). Coarse or monotone release date removes the
+harm without a gain. Systems on one benchmark were released within about 0.45
+years of each other, so the real within-benchmark effect (+7.1 points per
+year) is worth at most about 0.0005: real, but below what the loop can detect.
+
 ## Limits
 
 - Labels are revealed in the default random order; a custom acquisition
@@ -154,6 +172,7 @@ library code is in `src/paiec/` (the grouped folds extend the shared
 | `src/paiec/lift.py` | joins, folds, LightGBM, in-fold ability, baselines |
 | `src/paiec/lift_budget.py` | budget mode: official split, revealed columns, baselines E, K, KM, ALC weighting |
 | `src/paiec/lift_report.py` | paired comparison, verdict, fingerprints, per-budget report, run log |
+| `scripts/subjects/build_subject_features.py`, `src/paiec/subject_features.py` | subject feature table; family patterns in `configs/subjects/model_families.json`; tests in `tests/subjects/` |
 | `scripts/lift/run_lift.py` | the command |
 | `scripts/lift/scan_benchmark_families.py` | evidence for family groups |
 | `configs/lift/benchmark_groups.json` | family groups (`benchmark_groups_v2`) |

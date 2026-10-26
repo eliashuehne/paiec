@@ -166,8 +166,9 @@ def run_budgets(
     predictor: str | None = None,
     groups: Iterable[Sequence[str]] = (),
     seed: int = 0,
+    increasing: Sequence[str] = (),
 ) -> dict[int, LiftResult]:
-    """``run_lift`` at each budget on the same scored rows."""
+    """``run_lift`` at each budget on the same scored rows; ``increasing`` columns may only raise P(correct)."""
     keyed = attach_reveal_order(sample, seed)
     predict = PREDICTORS[predictor] if predictor else None
     groups = [list(group) for group in groups]
@@ -179,6 +180,7 @@ def run_budgets(
             groups,
             prepare=partial(budget_frame, budget=budget),
             prepared_columns=REVEALED,
+            increasing=increasing,
             predict=predict,
         )
         for budget in budgets

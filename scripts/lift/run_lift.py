@@ -49,6 +49,8 @@ def parse_arguments():
     parser.add_argument("--features", type=Path, nargs="*", default=[], help="feature tables to join")
     parser.add_argument("--columns", nargs="*", default=[], help="feature columns added to the base")
     parser.add_argument("--abilities", nargs="*", default=[], help="in-fold ability keys added to the base")
+    parser.add_argument("--increasing", nargs="*", default=[],
+                        help="candidate columns that may only raise P(correct) (budget mode)")
     parser.add_argument("--base", choices=sorted(BUDGET_BASELINES), default="A")
     parser.add_argument("--candidate", choices=sorted(BUDGET_BASELINES), help="compare against this baseline")
     parser.add_argument("--budgets", type=int, nargs="*", default=list(BUDGETS),
@@ -81,6 +83,10 @@ def main():
     args = parse_arguments()
     base = BUDGET_BASELINES[args.base]
     candidate = candidate_of(args, base)
+    if not set(args.increasing) <= set(args.columns):
+        sys.exit("--increasing must name columns passed with --columns")
+    if args.increasing and not args.budgets:
+        sys.exit("--increasing works in budget mode only")
     if not args.budgets and (args.base not in BASELINES or (args.candidate and args.candidate not in BASELINES)):
         sys.exit("the budget-0 loop on all rows supports only baselines A and B")
     tables = list(args.features)
@@ -97,7 +103,8 @@ def main():
     tables_out = {}
     if args.budgets:
         base_runs = run_budgets(sample, args.budgets, **vars(base), groups=groups)
-        candidate_runs = run_budgets(sample, args.budgets, **vars(candidate), groups=groups)
+        candidate_runs = run_budgets(sample, args.budgets, **vars(candidate), groups=groups,
+                                     increasing=args.increasing)
         per_budget = {b: compare(base_runs[b], candidate_runs[b]) for b in args.budgets}
         comparison = compare(combine_budgets(base_runs), combine_budgets(candidate_runs))
         report = format_budget_report(per_budget, comparison, fingerprints, title)
@@ -121,6 +128,7 @@ def main():
         "candidate": args.candidate,
         "columns": args.columns,
         "abilities": args.abilities,
+        "increasing": args.increasing,
         "budgets": args.budgets,
         "budget_summaries": budget_summaries,
         "features": {str(path): file_sha256(path) for path in tables},
