@@ -63,3 +63,10 @@ python scripts/lift/run_lift.py --features runs/features/items.parquet --columns
 
 Subject features (identity, release date, size, family, provider) and the
 release-date estimates, with their results, are in [docs/subjects.md](docs/subjects.md).
+
+## Feature preparation
+
+[Feature foundation](docs/feature-foundation.md) builds 14 linked tables over the
+full downloaded release: preserved inputs, recorded settings, task measurements
+and separate research facts. Its plan-first command and standalone validator
+require no model or experiment-tracking service. Generated data stays in `runs/`.

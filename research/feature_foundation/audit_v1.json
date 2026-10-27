@@ -1,0 +1,805 @@
+{
+  "actions": {
+    "model_fitting": false,
+    "model_inference": false,
+    "network_calls": false,
+    "new_semantic_annotations_published": false,
+    "outcome_columns_deserialized": false,
+    "protected_content_loaded": false,
+    "trace_tables_loaded": false
+  },
+  "code_hashes": {
+    "__init__.py": "c41ad3e5587cf51291212540af9287450b588624373decd587acd887a85530bb",
+    "build.py": "a2482cb4f3232760d0959ae327fb87d4ce63ecc04ac29cb50ec8b3819d53d8ee",
+    "contracts.py": "0e2837e278cc7371072d2d9e6f882c58541a5c3a9d618bbffe43da5fa60cb391",
+    "enrichment.py": "dd98d1e1e508e7adc9233d5fe42813002d4d751d5f2e1356a986fe6b4c5d47b9",
+    "joins.py": "4ca06e034895422492b484330bed382f6757958fa9c3555b102d8e6646f93cd6",
+    "matching.py": "a4f179db944380896aa5cbe38a4e4b1b5c2840c4afdf4c703dcc7d0014f16c3d",
+    "report.py": "be0c95fcd5e25b66ef363b0ff4f04a48dc3ec4396bedc5dfefe9f305da24ddbd",
+    "review.py": "f179d8fab98bfc4dc43ffc43909afbf485519026ac6ca8361093aa7de4aeb257",
+    "settings.py": "a9830f54d5d9e4a56d85cab193425ebe7c7f77e67f0ace3166cf688bf6d9d43e",
+    "sources.py": "0ae8853b846b6e786dbace439cfe6c8319a44483f45162b06740a44b1b242209",
+    "streaming.py": "46f4e54fb7813b3a808aa052ea8ab7f9c13084bf7396d5d1bfb7f345b42d9139",
+    "tables.py": "f3606f49f312ea03017dea06ac940259c0809ba073b2bddf733f29f4efa4a2d9",
+    "tasks.py": "22c724f7b2c5af2381ee8cbc267b9260345caf3ad9d5c2f7a44c1461678902f0",
+    "text.py": "16e74d9b1cdd5b78e0cacfbad8245999893c89d2924463024236e11ddb6be679"
+  },
+  "dataset_revision": "54074453da7b9911be0f48e4c560be547bc84d21",
+  "dependency_code_hashes": {
+    "schema.py": "61a6e944de04a8ac48944167f2033d1e7cb6a6ff27dc9c6670767f4a806e3e88",
+    "split.py": "cb2dbc09f255b572f76810f6f18988df0b89c9b13c8540381a8404873c3e2a6e"
+  },
+  "distinct_processed_visible_systems": 7160,
+  "distinct_processed_visible_tasks": 692987,
+  "feature_dictionary": {
+    "path": "research/feature_foundation/feature_dictionary_v1.json",
+    "sha256": "c0852915e7438c5debead79edfc5f5f5a9cbbf2db1862d3ec33ee3193916476e"
+  },
+  "feature_version": "feature_foundation_v1",
+  "gaps": [
+    {
+      "affected_count": 6913,
+      "cause": "unresolved_identity",
+      "closure_criterion": "Known relation or documented unresolved reason; never a guessed checkpoint",
+      "cost_category": "mechanical_review",
+      "eligibility": "does_not_change_source_policy",
+      "gap_id": "identity",
+      "next_action": "Review supplied reported/base identifiers and applicability before extending aliases",
+      "population": "distinct_processed_visible_systems",
+      "priority": "P0",
+      "priority_rationale": "Source reach and contract completeness, not fitted feature importance"
+    },
+    {
+      "affected_count": 128495,
+      "cause": "absent_ambiguous_or_unparsed_settings",
+      "closure_criterion": "Typed value with source or explicit unresolved/unknown disposition",
+      "cost_category": "mechanical_review",
+      "eligibility": "does_not_change_source_policy",
+      "gap_id": "settings",
+      "next_action": "Review frequent raw keys and containers; distinguish missing source data from interpretation gaps",
+      "population": "system_setting_cells",
+      "priority": "P0",
+      "priority_rationale": "Source reach and contract completeness, not fitted feature importance"
+    },
+    {
+      "affected_count": 97074,
+      "cause": "protected_role",
+      "closure_criterion": "Accounted for as withheld; no access is authorized by this gap",
+      "cost_category": "mechanical_review",
+      "eligibility": "does_not_change_source_policy",
+      "gap_id": "protected",
+      "next_action": "Keep metadata-only census and frozen roles",
+      "population": "original_item_rows",
+      "priority": "P0",
+      "priority_rationale": "Source reach and contract completeness, not fitted feature importance"
+    },
+    {
+      "affected_count": 114817,
+      "cause": "unsupported_nontext_assets",
+      "closure_criterion": "Explicit partial support or a reviewed new modality contract",
+      "cost_category": "separate_research_or_review",
+      "eligibility": "does_not_change_source_policy",
+      "gap_id": "modalities",
+      "next_action": "Design modality handling separately; current text counts are partial",
+      "population": "original_item_rows",
+      "priority": "P1",
+      "priority_rationale": "Source reach and contract completeness, not fitted feature importance"
+    },
+    {
+      "affected_count": 85,
+      "cause": "cross_split_normalized_content",
+      "closure_criterion": "No training leakage or a justified conservative exclusion; never move frozen roles",
+      "cost_category": "mechanical_review",
+      "eligibility": "does_not_change_source_policy",
+      "gap_id": "overlap",
+      "next_action": "Keep blocked training rows visible and review grouping before future modeling",
+      "population": "item_input_variants",
+      "priority": "P0",
+      "priority_rationale": "Source reach and contract completeness, not fitted feature importance"
+    },
+    {
+      "affected_count": 692987,
+      "cause": "unreviewed_semantic_annotations",
+      "closure_criterion": "Independent semantic quality policy and reviewed coverage; not claimed by this PR",
+      "cost_category": "separate_research_or_review",
+      "eligibility": "does_not_change_source_policy",
+      "gap_id": "semantics",
+      "next_action": "Use the small training audit to refine the eight-facet taxonomy before any bulk annotation",
+      "population": "unique_processed_visible_tasks",
+      "priority": "P1",
+      "priority_rationale": "Source reach and contract completeness, not fitted feature importance"
+    },
+    {
+      "affected_count": 2117,
+      "cause": "unverified_historical_applicability",
+      "closure_criterion": "Version applicability established or explicitly unknown",
+      "cost_category": "separate_research_or_review",
+      "eligibility": "does_not_change_source_policy",
+      "gap_id": "historical",
+      "next_action": "Bind facts to recorded versions where evidence permits; retain other cases as qualified",
+      "population": "known_research_feature_cells",
+      "priority": "P1",
+      "priority_rationale": "Source reach and contract completeness, not fitted feature importance"
+    },
+    {
+      "affected_count": 54,
+      "cause": "external_source_eligibility_unreviewed",
+      "closure_criterion": "Explicit eligibility decision without changing supplied-only features",
+      "cost_category": "separate_research_or_review",
+      "eligibility": "does_not_change_source_policy",
+      "gap_id": "eligibility",
+      "next_action": "Resolve competition-source permission separately; keep research view segregated",
+      "population": "research_profiles",
+      "priority": "P1",
+      "priority_rationale": "Source reach and contract completeness, not fitted feature importance"
+    }
+  ],
+  "item_split": {
+    "test": 325803,
+    "training": 947646,
+    "validation": 83264
+  },
+  "item_status": {
+    "partial_nontext": 114817,
+    "supported_text": 1144822,
+    "withheld_protected": 97074
+  },
+  "limitations": [
+    "No predictive usefulness measured",
+    "Public development corpus was previously analyzed; split names do not create a pristine test",
+    "Protected content overlap is unmeasured",
+    "Normalized content is a conservative exact screen, not paraphrase/translation detection",
+    "Multimodal assets were not read",
+    "Semantic labels are candidates outside the default projection"
+  ],
+  "local_bundle": "runs/feature_foundation_main_port/v2",
+  "logical_reproduction": {
+    "comparison": "logical_sha256, explicit schemas and row counts",
+    "matched_tables": 14,
+    "reference_commit": "f878bf677b08f37261ccf61b34bae04678c35c8b"
+  },
+  "logical_tables": {
+    "content_groups": {
+      "logical_sha256": "332a0741615751235bb502ac90472ebd57f0324e26c8a9f9a0da6e4ce0b3d60b",
+      "rows": 672581,
+      "schema": "group_key: string\nsplit_mask: int64\nitem_rows: int64"
+    },
+    "item_input_links": {
+      "logical_sha256": "f376ea6a3e0dd381b9ebbc391e5273ff5ff61474d3b739cc8fadca5c84ad8867",
+      "rows": 1356865,
+      "schema": "benchmark: string\nitem_id: string\nitem_key: string\ninteractor_key: string\ntask_key: string\ngroup_key: string\nsplit: string\nfeature_status: string\ninteractors_recorded: bool"
+    },
+    "items": {
+      "logical_sha256": "3932c2df29cf7f3107f7f1cfbf7e462297eddaeca297fa2456766ca7cc2ca11c",
+      "rows": 1356713,
+      "schema": "benchmark: string\nitem_id: string\nitem_key: string\nsource_row: int64\nsplit: string\ncontent: string\nitem_features: string\nstatus: string\ngroup_key: string"
+    },
+    "population": {
+      "logical_sha256": "f08b957be400e06868420a27fce28a6d7ce06fe8e323d66103131badbdebc97d",
+      "rows": 61,
+      "schema": "benchmark: string\ndirectory: string\nsubjects: int64\nitems: int64\nresponses: int64\nfamily: string\nsplit: string\nfrozen_role: string\nprotected: bool\nexposure: string\ndirection: string\nmodalities: list<item: string>\n  child 0, item: string\nfeature_status: string"
+    },
+    "profile_matches": {
+      "logical_sha256": "ef0ce758a3e03b85f24762524258222387da7aa286011b1d24b02e293162e674",
+      "rows": 14320,
+      "schema": "system_key: string\nentity_type: string\nprofile_id: string\nidentity_basis: string\nstatus: string\nexact_evaluated_checkpoint_verified: bool\neligibility: string"
+    },
+    "research_system_features": {
+      "logical_sha256": "2fb920dd4494dfa08abd4a3f13ef8ac82b0bc40cd2f1e79a95fcb14251c8e03e",
+      "rows": 8365,
+      "schema": "system_key: string\nprofile_id: string\nentity_type: string\nfield: string\nvalue_json: string\nstatus: string\nreason: string\neligibility: string\nhistorical_applicability: string\nidentity_basis: string\nsource_ids: list<item: string>\n  child 0, item: string\nreview_disposition: string"
+    },
+    "response_input_links": {
+      "logical_sha256": "8b91e194b62d7c753d749fa5f26a8980cb4dbd2ada697c41beab32a794bfeb18",
+      "rows": 16423758,
+      "schema": "benchmark: string\nsource_row: int64\nresponse_id: string\nsubject_id: string\nitem_id: string\ntrial: int64\nsystem_key: string\nitem_key: string\ninteractor_key: string\nstatus: string"
+    },
+    "run_settings": {
+      "logical_sha256": "354dccba1034538d3050db5877b623b66ec25c07e796b004292ba586e24a1866",
+      "rows": 128880,
+      "schema": "system_key: string\nfield: string\nvalue_type: string\nvalue_json: string\nstatus: string\nreason: string\nsource_scope: string\nobservation_ids: list<item: string>\n  child 0, item: string\npolicy_version: string"
+    },
+    "setting_observations": {
+      "logical_sha256": "db1634e949d8171173ca69e885c1cbce8da27207395def57206fde289369431d",
+      "rows": 41041,
+      "schema": "system_key: string\nsource_field: string\nsource_path: string\noccurrence: int64\nraw_key: string\nraw_value: string\nfield: string\nstatus: string\nreason: string\nvalue_json: string\nsource_scope: string\nobservation_id: string"
+    },
+    "subject_links": {
+      "logical_sha256": "0cb7f095aca7910328cdfdc6e15af51d231a06ccf9c7a6cbe080ff2397198bf7",
+      "rows": 8163,
+      "schema": "benchmark: string\nsubject_id: string\nsystem_key: string\nstatus: string"
+    },
+    "systems": {
+      "logical_sha256": "91254860f13d54749001b43413c7094bf5be7616f3c6a113775f82bae62d6e3a",
+      "rows": 7160,
+      "schema": "system_key: string\nnormalized_name: string\nprovider: string\nrelease_date: string\naccess_date: string\nharness: string\nharness_version: string\nreasoning_effort: string\nsubject_features_extra: string"
+    },
+    "task_features": {
+      "logical_sha256": "051593246004586ba063e1ccf6cfd960d1cdfbb86cfcc4baadfd55d7bcd971cf",
+      "rows": 692987,
+      "schema": "task_key: string\ncontent_characters: int64\nwhitespace_words: int64\nlines: int64\nparagraphs: int64\nnumeric_spans: int64\ncjk_characters: int64\ncyrillic_characters: int64\narabic_characters: int64\noption_marker_count_hint: int64\nstructured_option_count_hint: int64\nsection_count_hint: int64\nmessage_count_hint: int64\nhas_code_fence: bool\nhas_math_marker_hint: bool\nhas_table_pipe_hint: bool\nhas_supplied_item_features: bool\nhas_supplied_interactors: bool\nhas_visible_asset_reference_hint: bool\nstructure_hint: string"
+    },
+    "tasks": {
+      "logical_sha256": "6c80a407adf5c1c73453b00aaf383e594cba42ef6433b984e79141a09eda85f4",
+      "rows": 692987,
+      "schema": "task_key: string\nitem_content: string\nitem_features: string\ninteractors: string"
+    },
+    "training_eligibility": {
+      "logical_sha256": "ab3c7a5305ac1c8f68f4e8c72960623df8ef675fd56d52d357664984fcfcbbc0",
+      "rows": 1356865,
+      "schema": "benchmark: string\nitem_key: string\ntask_key: string\nsplit: string\neligible: bool\nreason: string"
+    }
+  },
+  "logical_tables_reproduced": true,
+  "population": {
+    "benchmarks": 61,
+    "items": 1356713,
+    "responses": 16423758,
+    "subjects": 8163
+  },
+  "predictive_usefulness_measured": false,
+  "profile_matches": {
+    "harness": {
+      "matched": 212,
+      "unresolved": 6948
+    },
+    "model": {
+      "matched": 247,
+      "unresolved": 6913
+    }
+  },
+  "research_features": {
+    "harness.context_management": {
+      "known": 128,
+      "missing_profile_field": 0,
+      "unknown": 84,
+      "unmatched_systems": 6948
+    },
+    "harness.default_max_retries": {
+      "missing_profile_field": 0,
+      "unknown": 212,
+      "unmatched_systems": 6948
+    },
+    "harness.default_max_tool_calls": {
+      "missing_profile_field": 0,
+      "unknown": 212,
+      "unmatched_systems": 6948
+    },
+    "harness.default_max_turns": {
+      "missing_profile_field": 0,
+      "unknown": 212,
+      "unmatched_systems": 6948
+    },
+    "harness.default_prompting_strategy": {
+      "missing_profile_field": 0,
+      "unknown": 212,
+      "unmatched_systems": 6948
+    },
+    "harness.default_timeout_seconds": {
+      "missing_profile_field": 0,
+      "unknown": 212,
+      "unmatched_systems": 6948
+    },
+    "harness.supported_tools": {
+      "known": 8,
+      "missing_profile_field": 0,
+      "unknown": 204,
+      "unmatched_systems": 6948
+    },
+    "harness.workflow": {
+      "known": 212,
+      "missing_profile_field": 0,
+      "unmatched_systems": 6948
+    },
+    "model.architecture.active_parameters_per_token": {
+      "known": 40,
+      "missing_profile_field": 0,
+      "unknown": 207,
+      "unmatched_systems": 6913
+    },
+    "model.architecture.attention_direction": {
+      "known": 59,
+      "missing_profile_field": 0,
+      "unknown": 188,
+      "unmatched_systems": 6913
+    },
+    "model.architecture.attention_heads": {
+      "known": 68,
+      "missing_profile_field": 0,
+      "unknown": 179,
+      "unmatched_systems": 6913
+    },
+    "model.architecture.attention_types": {
+      "known": 31,
+      "missing_profile_field": 0,
+      "unknown": 216,
+      "unmatched_systems": 6913
+    },
+    "model.architecture.backbone": {
+      "known": 66,
+      "missing_profile_field": 0,
+      "unknown": 181,
+      "unmatched_systems": 6913
+    },
+    "model.architecture.experts_active_per_token": {
+      "known": 38,
+      "missing_profile_field": 0,
+      "unknown": 209,
+      "unmatched_systems": 6913
+    },
+    "model.architecture.experts_total": {
+      "known": 45,
+      "missing_profile_field": 0,
+      "unknown": 202,
+      "unmatched_systems": 6913
+    },
+    "model.architecture.family": {
+      "known": 73,
+      "missing_profile_field": 0,
+      "unknown": 174,
+      "unmatched_systems": 6913
+    },
+    "model.architecture.hidden_size": {
+      "known": 68,
+      "missing_profile_field": 0,
+      "unknown": 179,
+      "unmatched_systems": 6913
+    },
+    "model.architecture.key_value_heads": {
+      "known": 67,
+      "missing_profile_field": 0,
+      "unknown": 180,
+      "unmatched_systems": 6913
+    },
+    "model.architecture.layers": {
+      "known": 68,
+      "missing_profile_field": 0,
+      "unknown": 179,
+      "unmatched_systems": 6913
+    },
+    "model.architecture.parameterization": {
+      "known": 45,
+      "missing_profile_field": 0,
+      "unknown": 202,
+      "unmatched_systems": 6913
+    },
+    "model.architecture.positional_encoding": {
+      "known": 5,
+      "missing_profile_field": 0,
+      "unknown": 242,
+      "unmatched_systems": 6913
+    },
+    "model.architecture.tokenizer_identifier": {
+      "missing_profile_field": 0,
+      "unknown": 247,
+      "unmatched_systems": 6913
+    },
+    "model.architecture.total_parameters": {
+      "known": 102,
+      "missing_profile_field": 0,
+      "unknown": 145,
+      "unmatched_systems": 6913
+    },
+    "model.base_model": {
+      "known": 59,
+      "missing_profile_field": 0,
+      "unknown": 188,
+      "unmatched_systems": 6913
+    },
+    "model.documented_languages": {
+      "known": 85,
+      "missing_profile_field": 0,
+      "unknown": 162,
+      "unmatched_systems": 6913
+    },
+    "model.fine_tuning_domains": {
+      "known": 56,
+      "missing_profile_field": 0,
+      "unknown": 191,
+      "unmatched_systems": 6913
+    },
+    "model.input_modalities": {
+      "known": 165,
+      "missing_profile_field": 0,
+      "unknown": 82,
+      "unmatched_systems": 6913
+    },
+    "model.max_combined_context_tokens": {
+      "known": 50,
+      "missing_profile_field": 0,
+      "unknown": 197,
+      "unmatched_systems": 6913
+    },
+    "model.max_input_tokens": {
+      "known": 10,
+      "missing_profile_field": 0,
+      "unknown": 237,
+      "unmatched_systems": 6913
+    },
+    "model.max_output_tokens": {
+      "known": 45,
+      "missing_profile_field": 0,
+      "unknown": 202,
+      "unmatched_systems": 6913
+    },
+    "model.max_reasoning_tokens": {
+      "missing_profile_field": 0,
+      "unknown": 247,
+      "unmatched_systems": 6913
+    },
+    "model.model_type": {
+      "known": 171,
+      "missing_profile_field": 0,
+      "unknown": 76,
+      "unmatched_systems": 6913
+    },
+    "model.output_modalities": {
+      "known": 167,
+      "missing_profile_field": 0,
+      "unknown": 80,
+      "unmatched_systems": 6913
+    },
+    "model.release_date": {
+      "known": 145,
+      "missing_profile_field": 0,
+      "unknown": 102,
+      "unmatched_systems": 6913
+    },
+    "model.supported_reasoning_settings": {
+      "known": 41,
+      "missing_profile_field": 0,
+      "unknown": 206,
+      "unmatched_systems": 6913
+    }
+  },
+  "research_withholding_reasons": {
+    "harness.context_management": {
+      "documented_research_fact": 128,
+      "unknown_or_unreviewed_fact": 84
+    },
+    "harness.default_max_retries": {
+      "unknown_or_unreviewed_fact": 212
+    },
+    "harness.default_max_tool_calls": {
+      "unknown_or_unreviewed_fact": 212
+    },
+    "harness.default_max_turns": {
+      "unknown_or_unreviewed_fact": 212
+    },
+    "harness.default_prompting_strategy": {
+      "unknown_or_unreviewed_fact": 212
+    },
+    "harness.default_timeout_seconds": {
+      "unknown_or_unreviewed_fact": 212
+    },
+    "harness.supported_tools": {
+      "documented_research_fact": 8,
+      "unknown_or_unreviewed_fact": 204
+    },
+    "harness.workflow": {
+      "documented_research_fact": 212
+    },
+    "model.architecture.active_parameters_per_token": {
+      "documented_research_fact": 40,
+      "identity_ambiguous": 34,
+      "unknown_or_unreviewed_fact": 173
+    },
+    "model.architecture.attention_direction": {
+      "documented_research_fact": 59,
+      "unknown_or_unreviewed_fact": 188
+    },
+    "model.architecture.attention_heads": {
+      "documented_research_fact": 68,
+      "unknown_or_unreviewed_fact": 179
+    },
+    "model.architecture.attention_types": {
+      "documented_research_fact": 31,
+      "unknown_or_unreviewed_fact": 216
+    },
+    "model.architecture.backbone": {
+      "documented_research_fact": 66,
+      "unknown_or_unreviewed_fact": 181
+    },
+    "model.architecture.experts_active_per_token": {
+      "documented_research_fact": 38,
+      "unknown_or_unreviewed_fact": 209
+    },
+    "model.architecture.experts_total": {
+      "documented_research_fact": 45,
+      "unknown_or_unreviewed_fact": 202
+    },
+    "model.architecture.family": {
+      "documented_research_fact": 73,
+      "unknown_or_unreviewed_fact": 174
+    },
+    "model.architecture.hidden_size": {
+      "documented_research_fact": 68,
+      "unknown_or_unreviewed_fact": 179
+    },
+    "model.architecture.key_value_heads": {
+      "documented_research_fact": 67,
+      "unknown_or_unreviewed_fact": 180
+    },
+    "model.architecture.layers": {
+      "documented_research_fact": 68,
+      "unknown_or_unreviewed_fact": 179
+    },
+    "model.architecture.parameterization": {
+      "documented_research_fact": 45,
+      "identity_ambiguous": 29,
+      "unknown_or_unreviewed_fact": 173
+    },
+    "model.architecture.positional_encoding": {
+      "documented_research_fact": 5,
+      "unknown_or_unreviewed_fact": 242
+    },
+    "model.architecture.tokenizer_identifier": {
+      "unknown_or_unreviewed_fact": 247
+    },
+    "model.architecture.total_parameters": {
+      "documented_research_fact": 102,
+      "identity_ambiguous": 33,
+      "unknown_or_unreviewed_fact": 112
+    },
+    "model.base_model": {
+      "base_only_nonarchitecture": 11,
+      "documented_research_fact": 59,
+      "identity_ambiguous": 34,
+      "unknown_or_unreviewed_fact": 143
+    },
+    "model.documented_languages": {
+      "base_only_nonarchitecture": 11,
+      "documented_research_fact": 85,
+      "identity_ambiguous": 33,
+      "unknown_or_unreviewed_fact": 118
+    },
+    "model.fine_tuning_domains": {
+      "base_only_nonarchitecture": 11,
+      "documented_research_fact": 56,
+      "identity_ambiguous": 32,
+      "unknown_or_unreviewed_fact": 148
+    },
+    "model.input_modalities": {
+      "base_only_nonarchitecture": 13,
+      "documented_research_fact": 165,
+      "identity_ambiguous": 12,
+      "unknown_or_unreviewed_fact": 57
+    },
+    "model.max_combined_context_tokens": {
+      "base_only_nonarchitecture": 11,
+      "documented_research_fact": 50,
+      "identity_ambiguous": 34,
+      "unknown_or_unreviewed_fact": 152
+    },
+    "model.max_input_tokens": {
+      "base_only_nonarchitecture": 11,
+      "documented_research_fact": 10,
+      "identity_ambiguous": 34,
+      "unknown_or_unreviewed_fact": 192
+    },
+    "model.max_output_tokens": {
+      "base_only_nonarchitecture": 11,
+      "documented_research_fact": 45,
+      "identity_ambiguous": 34,
+      "unknown_or_unreviewed_fact": 157
+    },
+    "model.max_reasoning_tokens": {
+      "base_only_nonarchitecture": 11,
+      "identity_ambiguous": 34,
+      "unknown_or_unreviewed_fact": 202
+    },
+    "model.model_type": {
+      "base_only_nonarchitecture": 13,
+      "documented_research_fact": 171,
+      "identity_ambiguous": 17,
+      "unknown_or_unreviewed_fact": 46
+    },
+    "model.output_modalities": {
+      "base_only_nonarchitecture": 13,
+      "documented_research_fact": 167,
+      "identity_ambiguous": 12,
+      "unknown_or_unreviewed_fact": 55
+    },
+    "model.release_date": {
+      "base_only_nonarchitecture": 11,
+      "documented_research_fact": 145,
+      "identity_ambiguous": 27,
+      "unknown_or_unreviewed_fact": 64
+    },
+    "model.supported_reasoning_settings": {
+      "base_only_nonarchitecture": 11,
+      "documented_research_fact": 41,
+      "identity_ambiguous": 34,
+      "unknown_or_unreviewed_fact": 161
+    }
+  },
+  "response_status": {
+    "recorded": 14926758,
+    "withheld_protected": 1497000
+  },
+  "review": {
+    "complete": true,
+    "expected": 48,
+    "independent_human_reviews": 0,
+    "reviewed": 48,
+    "selected": 48,
+    "selection_limitations": "Seeded bounded reservoirs; training inputs only; complete review inputs <=8192 characters. Not a representative corpus quality estimate.",
+    "semantic_quality_established": false,
+    "shortfall": 0
+  },
+  "run_settings": {
+    "candidate_count": {
+      "invalid": 11,
+      "unknown": 7149
+    },
+    "enabled_tools": {
+      "invalid": 11,
+      "unknown": 7149
+    },
+    "few_shot_count": {
+      "invalid": 11,
+      "known": 122,
+      "unknown": 7027
+    },
+    "max_input_tokens": {
+      "invalid": 11,
+      "known": 3,
+      "unknown": 7146
+    },
+    "max_output_tokens": {
+      "invalid": 11,
+      "known": 85,
+      "unknown": 7064
+    },
+    "max_reasoning_tokens": {
+      "invalid": 11,
+      "unknown": 7149
+    },
+    "max_retries": {
+      "invalid": 11,
+      "unknown": 7149
+    },
+    "max_tool_calls": {
+      "invalid": 11,
+      "unknown": 7149
+    },
+    "max_turns": {
+      "invalid": 11,
+      "unknown": 7149
+    },
+    "prompting_method": {
+      "invalid": 11,
+      "known": 34,
+      "unknown": 7115
+    },
+    "quantization": {
+      "invalid": 11,
+      "unknown": 7149
+    },
+    "reasoning_effort": {
+      "invalid": 11,
+      "known": 14,
+      "unknown": 7135
+    },
+    "reported_method": {
+      "invalid": 11,
+      "known": 11,
+      "unknown": 7138
+    },
+    "sampling_enabled": {
+      "invalid": 11,
+      "known": 74,
+      "unknown": 7075
+    },
+    "selection_method": {
+      "invalid": 11,
+      "known": 2,
+      "unknown": 7147
+    },
+    "serving_configuration": {
+      "invalid": 11,
+      "unknown": 7149
+    },
+    "temperature": {
+      "invalid": 62,
+      "known": 31,
+      "unknown": 7067
+    },
+    "top_p": {
+      "invalid": 85,
+      "known": 9,
+      "unknown": 7066
+    }
+  },
+  "runtime_versions": {
+    "pyarrow": "26.0.0",
+    "pydantic": "2.14.1",
+    "python": "3.12.13"
+  },
+  "semantic_quality_established": false,
+  "source_inventory": "research/feature_foundation/source_inventory_v1.json",
+  "taxonomy_audit": {
+    "answer_format": {
+      "candidate": 13,
+      "unknown": 11,
+      "validated": 0
+    },
+    "domain": {
+      "candidate": 13,
+      "unknown": 11,
+      "validated": 0
+    },
+    "information_needs": {
+      "candidate": 11,
+      "unknown": 13,
+      "validated": 0
+    },
+    "input_issues": {
+      "candidate": 15,
+      "unknown": 9,
+      "validated": 0
+    },
+    "language": {
+      "candidate": 1,
+      "unknown": 23,
+      "validated": 0
+    },
+    "modalities": {
+      "candidate": 1,
+      "unknown": 23,
+      "validated": 0
+    },
+    "reasoning_structure": {
+      "candidate": 0,
+      "unknown": 24,
+      "validated": 0
+    },
+    "skills": {
+      "candidate": 2,
+      "unknown": 22,
+      "validated": 0
+    }
+  },
+  "training_eligibility": {
+    "cross_split_content": 85,
+    "eligible": 862754,
+    "nontraining_split": 281983,
+    "partial_nontext": 114969,
+    "withheld_protected": 97074
+  },
+  "verification": {
+    "clean_source_export": {
+      "passed": 47,
+      "subtests_passed": 22
+    },
+    "code_review": {
+      "P2_findings_fixed": 1,
+      "fresh_context": true,
+      "remaining_blockers": 0
+    },
+    "full_build_validation": "passed",
+    "standalone_validation": "python scripts/validate_feature_foundation.py --bundle runs/feature_foundation_main_port/v2 --require-review",
+    "standalone_validation_result": {
+      "artifacts": 124,
+      "population": {
+        "benchmarks": 61,
+        "items": 1356713,
+        "responses": 16423758,
+        "subjects": 8163
+      },
+      "review_complete": true,
+      "valid": true
+    },
+    "tests": {
+      "python_3_10": {
+        "passed": 256,
+        "subtests_passed": 22
+      },
+      "python_3_12": {
+        "passed": 256,
+        "subtests_passed": 22
+      }
+    }
+  },
+  "version": "feature_foundation_audit_v1"
+}

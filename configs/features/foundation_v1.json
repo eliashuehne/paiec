@@ -1,0 +1,929 @@
+{
+  "corpus_manifest_sha256": "ca29f094dcc8ed64e8b92d459bfe746798d8cb89c453f156506fda6f3141dc25",
+  "dataset_revision": "54074453da7b9911be0f48e4c560be547bc84d21",
+  "expected_counts": {
+    "benchmarks": 61,
+    "items": 1356713,
+    "responses": 16423758,
+    "subjects": 8163
+  },
+  "family_groups": [
+    [
+      "adaptivestep",
+      "felm",
+      "ikp",
+      "pku_saferlhf",
+      "prox"
+    ],
+    [
+      "multi_swebench",
+      "swe_rebench",
+      "swe_smith",
+      "swebench_live",
+      "swepolybench"
+    ],
+    [
+      "medhelm_ehr_sql",
+      "medhelm_head_qa",
+      "medhelm_med_mcqa",
+      "medhelm_med_qa",
+      "medhelm_medbullets",
+      "medhelm_medcalc_bench",
+      "medhelm_medec",
+      "medhelm_medhallu",
+      "medhelm_pubmed_qa",
+      "medhelm_race_based_med"
+    ],
+    [
+      "ai2d_test",
+      "hallusionbench",
+      "mathvista_mini",
+      "mmbench_v11",
+      "mmmu_dev_val"
+    ],
+    [
+      "mmlu",
+      "mmlupro",
+      "truthfulqa_mc"
+    ],
+    [
+      "bbq",
+      "helm_bbq"
+    ],
+    [
+      "bridging_gap",
+      "helm_afr"
+    ],
+    [
+      "tau2_bench",
+      "taubench"
+    ],
+    [
+      "visualwebarena",
+      "workarena"
+    ],
+    [
+      "kmmlu",
+      "kormedmcqa"
+    ],
+    [
+      "igakuqa",
+      "igakuqa119"
+    ]
+  ],
+  "frozen_roles": {
+    "calibration": [
+      "afrieval",
+      "causal_axioms"
+    ],
+    "confirmation": [
+      "bertaqa",
+      "evouna"
+    ],
+    "development": [
+      "ceval",
+      "erbench"
+    ],
+    "training": [
+      "abstract_reason",
+      "adaptivestep",
+      "benger",
+      "bird_sql",
+      "cellverse",
+      "clasheval",
+      "critic_discernment_game",
+      "fewshot_ttt_bbh"
+    ]
+  },
+  "input_hashes": {
+    "payload/data/abstract_reason/formatted_tables/benchmarks.parquet": "8e2c91805dc91ad86b6710aabf71085156e438a43ed7846b9fcb47d0643c0824",
+    "payload/data/abstract_reason/formatted_tables/items.parquet": "bf97f9bff6a6a44a48bba688fd402705888dac81b313135f262262fba44a35d7",
+    "payload/data/abstract_reason/formatted_tables/response.parquet": "59893c65449b1223ab6a71ba139e63149786d7660ad64c3f3a34dcacaedddfcc",
+    "payload/data/abstract_reason/formatted_tables/subjects.parquet": "040593fa9128e3108866d269b440d11d4565569e196c7686782dfa34a35f7d17",
+    "payload/data/adaptivestep/formatted_tables/benchmarks.parquet": "0fb51bc5fb75ea72935f35a00ab98da56b3ed847678e60ad9178738ee884f07e",
+    "payload/data/adaptivestep/formatted_tables/items.parquet": "eee9a48a089fd94d5e6b6af33eb4b704f5413e073b400852bb1dff885924fcfe",
+    "payload/data/adaptivestep/formatted_tables/response.parquet": "fcc7a28f9e30327cf2af9804b453c87a02ed225cc121f21de8f39bf1ef9dd90f",
+    "payload/data/adaptivestep/formatted_tables/subjects.parquet": "32d6e7b49e34b05c83d9bb5cb0c175cf4e717a42f1a40809465d89e175b19065",
+    "payload/data/advprompter/formatted_tables/benchmarks.parquet": "a0d1a827722261553fd74d0ba11aad7edff82b43aa3b6948664253061993eb75",
+    "payload/data/advprompter/formatted_tables/items.parquet": "48d6bc3ea9d5ab52608a508833103680e9cd01a2517f7f84941bed9e90656528",
+    "payload/data/advprompter/formatted_tables/response.parquet": "0211545a16febe197ed45877be2d68f4c07626ef88e627f2dc538fe9c273cfa6",
+    "payload/data/advprompter/formatted_tables/subjects.parquet": "0394b0c10f9d573383fc4f4d7df2a919f671941788a1356a9bac75bacd837051",
+    "payload/data/aegis/formatted_tables/benchmarks.parquet": "1451963030814e81990d1a6dcefde6cf27a91a63006aa0d1e405cec9fcad6b54",
+    "payload/data/aegis/formatted_tables/items.parquet": "a84bf5bfeac873848f908dfaa3568db5853c5dcfe7d19143f9c710dc781c04f9",
+    "payload/data/aegis/formatted_tables/response.parquet": "924bb0387b0a90b7d2a09248230e5b75326fc939bc925030f87b23874db4da23",
+    "payload/data/aegis/formatted_tables/subjects.parquet": "7be08182aab9a9922e2a125e5b00343a9e14a100c7cec564da65957e941b2348",
+    "payload/data/afrieval/formatted_tables/benchmarks.parquet": "d4bbb04d1bad19b5d938700ee66849c0f7b0d64e451e3a050fa7064b20264cc6",
+    "payload/data/afrieval/formatted_tables/items.parquet": "ffb1e4847221e003de23a539687e75da0d438cbc3b9c481b3131384646c0c618",
+    "payload/data/afrieval/formatted_tables/response.parquet": "9ef4f721f4fe2d105eaa68c5d895a11e98bff849b20ff8409ac7d103e53482c5",
+    "payload/data/afrieval/formatted_tables/subjects.parquet": "82d0098f307c00012ddda7b14f9848224475f1eccf2758c0338799c90345e818",
+    "payload/data/afrimedqa/formatted_tables/benchmarks.parquet": "94ee26a8e60e1ca707193962a2723b0dd36fbb577857ebb4ceb521044d41a40f",
+    "payload/data/afrimedqa/formatted_tables/items.parquet": "487d3b61c4a001a901583c0ecd9c144cf13a430bb01ff1f34ecfc9fcd418d99e",
+    "payload/data/afrimedqa/formatted_tables/response.parquet": "c8e24b3c79de1a7160a2b43fa77bc61f953db6aeaa1d91b32280d5f65e1c3c64",
+    "payload/data/afrimedqa/formatted_tables/subjects.parquet": "09b8bd0426537c59192cdeaac1a5f597f0711661a907ced9bc9c882b488d237c",
+    "payload/data/agentic_review_perturbation/formatted_tables/benchmarks.parquet": "282ccb7ff0a6aafc0efb8774bd9ff2a9dc842f1318ac274bcab8e2b81bd52bf0",
+    "payload/data/agentic_review_perturbation/formatted_tables/items.parquet": "1ec9fc3b6a75e84ac70b5fedc88c2b26cfc9c6c4e3daaa1fc9dcc5dd1f7c7362",
+    "payload/data/agentic_review_perturbation/formatted_tables/response.parquet": "e4ff1e47348981f9e32c2d919d0e85a87aa1a28e55a0b2d3aaed61d3c58295de",
+    "payload/data/agentic_review_perturbation/formatted_tables/subjects.parquet": "12254c0aea7d5ae93af6648a1b08107bb63486fb6093f2dc9b40d8cfc6c5eb93",
+    "payload/data/agi_elo/formatted_tables/benchmarks.parquet": "c7859745ee6d7eaed727afbbc39f97f7fa10afd90b6fe4a68deec0d7a8f66949",
+    "payload/data/agi_elo/formatted_tables/items.parquet": "edc7856fab159be49e6f609f1bed5c88a55c79406b2aee421b975ea19d3d3d74",
+    "payload/data/agi_elo/formatted_tables/response.parquet": "e10fdd1ce2c39483dc5c878394e3b9f3561cecd2f2480e773b6a0996b867a0f7",
+    "payload/data/agi_elo/formatted_tables/subjects.parquet": "33a7ee8739d9d05acf1de17069c3791ab92b828edaccc3973fd04d80fcfbb3f5",
+    "payload/data/ai2d_test/formatted_tables/benchmarks.parquet": "3701e5ef546cfd7cb54f1f185bb81b27a24de49322b87e81d6066d27a0be80f9",
+    "payload/data/ai2d_test/formatted_tables/items.parquet": "d76abbef5670284060151add2958d355d3e597efe79ca43a99c303be3d4aff93",
+    "payload/data/ai2d_test/formatted_tables/response.parquet": "dc0853abdefe687251f6118c2c17f5cb4b982fe315e34b0709477205ff08234f",
+    "payload/data/ai2d_test/formatted_tables/subjects.parquet": "1e6d74a9d3de04a7f796be107de1421541186d4e22d008c07a1c33af51a27b88",
+    "payload/data/aider/formatted_tables/benchmarks.parquet": "1d61fae1e56920ebb7509ae3f6f657f2dacb83d31db7cad0b4bc44f96e4d5474",
+    "payload/data/aider/formatted_tables/items.parquet": "fc547256d7b7ca7d4fc7e4ebe690c586ebf71f82da822c2a847544559ff7fc01",
+    "payload/data/aider/formatted_tables/response.parquet": "9e3e6e231242d33053373d635919d6c3aaaa74694d988ecf1ade333ae2369100",
+    "payload/data/aider/formatted_tables/subjects.parquet": "1b8a0fa1836de42102779358e156c54999e8f936d4aec6339819265120e5f77d",
+    "payload/data/algotune/formatted_tables/benchmarks.parquet": "b037f4938d32844f5df1c3f86cca701e167da568d3605e8e3c4e3c9e2ff0a83b",
+    "payload/data/algotune/formatted_tables/items.parquet": "b089d8f29fef971f02f45885ecb0a23cb9e9e1dcf249099e1b619f3799611a4c",
+    "payload/data/algotune/formatted_tables/response.parquet": "66454f671fb545f99d012d212dcd82156c2943fced9c5be82318fc674142097f",
+    "payload/data/algotune/formatted_tables/subjects.parquet": "7e8fd95d157c3d49d0ab4956a570a4d6a234c8ec7f49104af472a22d08286cf4",
+    "payload/data/alignment_faking/formatted_tables/benchmarks.parquet": "35ea703afc682a9400758cf6042c92213aec4fcc315f39c38a9fa618bd38cb5b",
+    "payload/data/alignment_faking/formatted_tables/items.parquet": "07422da21d2cb296b9ba1d8737a5e1ac8c76d51f5beff9602221f06aa5786204",
+    "payload/data/alignment_faking/formatted_tables/response.parquet": "944469057d9c5499e5d24ee00804b3652a217d7cf5fbffa8d20f747e3cb1769b",
+    "payload/data/alignment_faking/formatted_tables/subjects.parquet": "777921d21feb3301cd5b295b0f2b408f6515c0c8d447b5b938367998dfae5c7c",
+    "payload/data/alpha_sql/formatted_tables/benchmarks.parquet": "1908074ff2a68572c6fd9b3f0dffe4e35d4a5bc8a9b62709938d7866ecc1de13",
+    "payload/data/alpha_sql/formatted_tables/items.parquet": "df83ad39d0b91054ba9f70de59b4393afec9e8b1b5ec989af54b5571be86d3a9",
+    "payload/data/alpha_sql/formatted_tables/response.parquet": "772a7fd827e50a4d89504c4605a2b5e2b917dc30ff1d8385d7072ff691cce609",
+    "payload/data/alpha_sql/formatted_tables/subjects.parquet": "17c199cf2b0b3c356812965d0f7b7545579aa728bd23634b4eaf05ea88ac9ba5",
+    "payload/data/appworld/formatted_tables/benchmarks.parquet": "d0aa40dd5d3e1652d99e58645475620ad4c564005bdc6ff454b11cdd08ad5145",
+    "payload/data/appworld/formatted_tables/items.parquet": "016ed101f006d6ce8d2dc43dd82f1ceacc53c0a5b28a8e63752a7049588f6729",
+    "payload/data/appworld/formatted_tables/response.parquet": "a15f0c5f85d435d9fa90ee17b9e2cf303e9439dd2b85e0f151534173e21f1f14",
+    "payload/data/appworld/formatted_tables/subjects.parquet": "39700cd3eca5efea9ca4e29dacb9a30372a99b35fc22a45157b7853e84dc730d",
+    "payload/data/auditing_sabotage_bench/formatted_tables/benchmarks.parquet": "286e5634304815b9373c65eba0e322a69587002b27296d896b4513f0d9958e32",
+    "payload/data/auditing_sabotage_bench/formatted_tables/items.parquet": "cc6fea1982af20ec867388d56ff96bf92271217c968a591894f92d02ea165850",
+    "payload/data/auditing_sabotage_bench/formatted_tables/response.parquet": "5c4ba281202a468c4b930eaa67a0640defe269ab14a8f97d8fb58c6fbac1de88",
+    "payload/data/auditing_sabotage_bench/formatted_tables/subjects.parquet": "55836cf422f6ac0fc6c07fd6e644702f526a751c88f7339b26ad3612e7a92053",
+    "payload/data/averimatec/formatted_tables/benchmarks.parquet": "6117952f9cba359b8e78ababf96d52bd5ff51ddad6e19807fe02e6ae3f90957e",
+    "payload/data/averimatec/formatted_tables/items.parquet": "67f63eadd557caf439bcd2a1be7311d40ed164de998539ca421205c3132c5e24",
+    "payload/data/averimatec/formatted_tables/response.parquet": "af1d2805e3505d9a489357c1a875f761c85585c7b58c6df880f86f6852bc226c",
+    "payload/data/averimatec/formatted_tables/subjects.parquet": "d6da6a09cdd230081b872b7086b201c582f3aa00cdb19103dd302bb77b30962b",
+    "payload/data/babilong/formatted_tables/benchmarks.parquet": "2ec32907221928244079fb0087e7061f11810b6b435b8e4d581e5d120be8b74a",
+    "payload/data/babilong/formatted_tables/items.parquet": "6cffcbd3d0ef436103c416d909251103d632c8d81a85a5eeaa9297f884489c9b",
+    "payload/data/babilong/formatted_tables/response.parquet": "4239cdb64fbd26be2b7bfd4ba4b7c1f806658b9080126c797913b36bdfaf6efd",
+    "payload/data/babilong/formatted_tables/subjects.parquet": "7057ebdae4d4d646975820e22f70a0750260b11a25c984038ddf35682b348928",
+    "payload/data/bbq/formatted_tables/benchmarks.parquet": "b3cedc9a7b1a469df95631cb8386d5186742d2e9e4055d765f496da5f3041e6f",
+    "payload/data/bbq/formatted_tables/items.parquet": "0d2c57557872899c7e31e5e974bca0d0667f4ff42a904889a236104e8e2d0248",
+    "payload/data/bbq/formatted_tables/response.parquet": "4b1ad142c0652475e807369f87d94f1d19d07a2e1d1b5b3c357f270faa3256d0",
+    "payload/data/bbq/formatted_tables/subjects.parquet": "63c7fa4d4e0de201f7d6277f178aaf97aab2f610e0aeed74197cc475a29c0905",
+    "payload/data/beavertails/formatted_tables/benchmarks.parquet": "be264ef70fffb88b150cbc25f0066668bc3091cfccde9e429cd7a4493ebac64d",
+    "payload/data/beavertails/formatted_tables/items.parquet": "68130bd4335f2b1ac3a825a0ff4c001dc75694e77043772c425c9dce77847805",
+    "payload/data/beavertails/formatted_tables/response.parquet": "7367901e99aadfde4e9c6ad444413fbb97cabdb097bfb8454793817dad67c158",
+    "payload/data/beavertails/formatted_tables/subjects.parquet": "2fa69259ea06562298346133c9a0ee65a6b2c3082e09142b232233ce1ade53c7",
+    "payload/data/benger/formatted_tables/benchmarks.parquet": "42f33c2e4e6c4d75e9b5a75a32f4bfb07da58a5583bd9473f89d0faca8c07941",
+    "payload/data/benger/formatted_tables/items.parquet": "b3633d6de0d12c53d448b5cb7e256f6d1e581a2e221ec642d60a58ccd02bfd1f",
+    "payload/data/benger/formatted_tables/response.parquet": "ef3e19ea78134dfe20d1a86bf3559531ae33292a2611c52a79414b7dec7f41b4",
+    "payload/data/benger/formatted_tables/subjects.parquet": "eed8ff929c05f66a464262dae1eadf279313a8770605ba346414a1a2f2581745",
+    "payload/data/bertaqa/formatted_tables/benchmarks.parquet": "f7a577a4ba050be0a4150d33dc903bdfe677b8c682831c550a9a6fd9a85a8a45",
+    "payload/data/bertaqa/formatted_tables/items.parquet": "5bab19ecdfd45fe4fcb3bc937edd39768f219004a685739b278d51422198da36",
+    "payload/data/bertaqa/formatted_tables/response.parquet": "bdd7c044e384ea1db7c9a234076ae024db39f3f7691fb52caabd5761b910c80e",
+    "payload/data/bertaqa/formatted_tables/subjects.parquet": "0ded33a6193ca7c496e188630d163ed62f2c89dd49a85e5ceb55eb88789bac07",
+    "payload/data/bird_sql/formatted_tables/benchmarks.parquet": "099a9b3c37f70fd2d67288ad8627d5c574cdc1744d7d8ad68e380a495c320505",
+    "payload/data/bird_sql/formatted_tables/items.parquet": "d4ff41c32631b47583127e0df84a78d9dc90bb16fb430284d9beb6e7a8898f7c",
+    "payload/data/bird_sql/formatted_tables/response.parquet": "a6d47ab7cb8b5f654b9ffcf8653890c8272cf2094696b7917ed97e9ed2e73493",
+    "payload/data/bird_sql/formatted_tables/subjects.parquet": "5344027c99a304c6de848191ea82d481635d425454661886013a2656d3be0a65",
+    "payload/data/brace/formatted_tables/benchmarks.parquet": "6d8bc0fd3b6d5b2477d05a3545da036cf903ecc9ba9d80ac63347a39fc185972",
+    "payload/data/brace/formatted_tables/items.parquet": "6d35500bec530cbc6e7b007306210e6e0afbaf2a0b1e28403904f236ce0cd41c",
+    "payload/data/brace/formatted_tables/response.parquet": "f87ba5941185ef220f3c08b127382dff114fb03eba0bb9a0b83a157765c28620",
+    "payload/data/brace/formatted_tables/subjects.parquet": "a6f226083f72cb3035ad4404cae7afbfbb325fda415fcd402349b569d7f79837",
+    "payload/data/braveguard/formatted_tables/benchmarks.parquet": "c5a246335adbcc31b038b5e2f73853dc4eaa57046ee3499db6ea1948504ff5c4",
+    "payload/data/braveguard/formatted_tables/items.parquet": "989bb7524e922b6c6d4b44282c49966baa7705a9f30aa429382b4be4a2adda1c",
+    "payload/data/braveguard/formatted_tables/response.parquet": "2080ecfc8c8152d5e1fb6383b0a0ff916e15b2cb9cff55568a73acc1a35e823c",
+    "payload/data/braveguard/formatted_tables/subjects.parquet": "c243045788bc088eecd4e0e9cb5e83778cd543464fb67a7783a8993edf1ec9ba",
+    "payload/data/bridging_gap/formatted_tables/benchmarks.parquet": "3b2e1b1f84a53d26a6d0837d67c42b96578092cd5aec01c78a805fbae994ff4a",
+    "payload/data/bridging_gap/formatted_tables/items.parquet": "b17b683bc1685c46d5d63a0f8075108e30ff6ed5a321253d5a63e46c30f6885f",
+    "payload/data/bridging_gap/formatted_tables/response.parquet": "552362a9d2f2d02ad95e19e942580bad2861f76be152837e4b985ef10c1dffd4",
+    "payload/data/bridging_gap/formatted_tables/subjects.parquet": "2d1c9bc7043a70e7264fb45ad7330de2c144f9eceefac3b3fc4763c18ac3204c",
+    "payload/data/causal_axioms/formatted_tables/benchmarks.parquet": "f519d6071af070255f0823e4add40d2f3d76f7d1f21e04e9f419de035c240bb4",
+    "payload/data/causal_axioms/formatted_tables/items.parquet": "3a2f09b6de15a40b2d28c80183bceba582d7b42417216af6674eee7ea9c79d96",
+    "payload/data/causal_axioms/formatted_tables/response.parquet": "743ff26e695e7e297723a0ae90d9ef26b188e0bb104d3f7deee98daafe4980b7",
+    "payload/data/causal_axioms/formatted_tables/subjects.parquet": "20c3d793a848a80c824702a8b8b1075a763854c1091fa634157fc24e84cbd386",
+    "payload/data/cellverse/formatted_tables/benchmarks.parquet": "97443ed363c9e12511aec20ca6a0bf9686ced36e71cf98ad875834c56b6db1ea",
+    "payload/data/cellverse/formatted_tables/items.parquet": "ccc9382ccaf846ad4a6ea3a8ec3c69c6a4bb31733e7307758817efebef030653",
+    "payload/data/cellverse/formatted_tables/response.parquet": "b3876e4bf8949da97607b37df8df063358d611b749d285e3227f31e5bb389d23",
+    "payload/data/cellverse/formatted_tables/subjects.parquet": "8f44dc8c4573a3c6034c030f9cec7e3362820eb5c4f2abfcbaacbb1641b6b6ae",
+    "payload/data/ceval/formatted_tables/benchmarks.parquet": "9549a56280fab9aeaf4bda4cff05d5d1cb41c80799ba963e93225fe9d5607b05",
+    "payload/data/ceval/formatted_tables/items.parquet": "ef2e9ae4d8602732883393f2cd2e63912dfe0cf363d3efc8dede2913a9908b50",
+    "payload/data/ceval/formatted_tables/response.parquet": "306c1a7b5b16b5286ea0d5f4d7ce53909936f1bf06d81b856ba8d4cbd37c3c28",
+    "payload/data/ceval/formatted_tables/subjects.parquet": "57f1e1c2ffd32b44ddb5b31f277a5b56b16309f42fc3e43e7188eb636da5f001",
+    "payload/data/chartmuseum/formatted_tables/benchmarks.parquet": "c9281342bc27c923b59f43ad3f5f22e5c6a40dd742d7443685ba82ad0e0c38d6",
+    "payload/data/chartmuseum/formatted_tables/items.parquet": "6821b69c99cce7b456a989022a4ce92cf4ac57aab6c529a9b48ad4f01aa8b092",
+    "payload/data/chartmuseum/formatted_tables/response.parquet": "3b8378afd4a93809d2c4539fe1b229be0677dc67072597904fa82aeccf49ec85",
+    "payload/data/chartmuseum/formatted_tables/subjects.parquet": "35ae33016ee275604fd833664527e0482ca840fa1fc16592f1d937ea0e5a205f",
+    "payload/data/chi_bench/formatted_tables/benchmarks.parquet": "9b33fd1eb63a82772332aa547b568797c2326948e94791e66294ad5d2d764fca",
+    "payload/data/chi_bench/formatted_tables/items.parquet": "f5fb3e40b978fef937b5583de3ed87b25f73ffe9df2a55603c63b302aae7b99d",
+    "payload/data/chi_bench/formatted_tables/response.parquet": "eec0c23474da86e5a1c5272235c9f1240716e18b0ee5c9ff53b300c2e6513ac9",
+    "payload/data/chi_bench/formatted_tables/subjects.parquet": "33e9c443ca7df64687771c9f3e0224b9e98cd31b2a322057003f15e2649be4cf",
+    "payload/data/clasheval/formatted_tables/benchmarks.parquet": "8662dfe73488de294c81d46eaa63de47637308c660b4dac24e9798706be32688",
+    "payload/data/clasheval/formatted_tables/items.parquet": "e8f76477ac36d0a6e01dc824c54ae8c9bc658f7da9a8b1cd5765ff15583bdaab",
+    "payload/data/clasheval/formatted_tables/response.parquet": "968ec1c89c5b3ebb2ae082bd000848baaf36bd9428b5a42ca19f239daddd21d3",
+    "payload/data/clasheval/formatted_tables/subjects.parquet": "72803e2a70db2c8ddff9162383991d7773d4cda6fde15b5e0c78e5e420f5d1ad",
+    "payload/data/cmmlu/formatted_tables/benchmarks.parquet": "d315214ca30ccf7a9345ec56252876c483e13745e6f61095c5f96038fba17753",
+    "payload/data/cmmlu/formatted_tables/items.parquet": "5137af93b3b45e04334abc559233fe3a08a962928c38cfc35cfc564cb4605e25",
+    "payload/data/cmmlu/formatted_tables/response.parquet": "b42a1cfbb7a6973c483d42ac455fc6840d77e1ab0620b16c7195b5fc791d65d6",
+    "payload/data/cmmlu/formatted_tables/subjects.parquet": "51c514405ab377e8ba4fb29dfb7b62a44273062505f9f1b0c04eaeda1e87d311",
+    "payload/data/confagents/formatted_tables/benchmarks.parquet": "2cff83d0a2280f1f884d66e80698a348f8e460b0f896299ceebd3403617a36e8",
+    "payload/data/confagents/formatted_tables/items.parquet": "3741ff58939ff871310f11fca9ae551288fea23b3bd3ef1ded12cf0bbbd72572",
+    "payload/data/confagents/formatted_tables/response.parquet": "8c470b8deebcdae873597494fe2dbde44da4d2a8b330bdfeb249d8a125a4cc0c",
+    "payload/data/confagents/formatted_tables/subjects.parquet": "0cfdecaf8f3b274637b06bd0c1e5c14d0c675751232c55ca724c8854f96b3f6e",
+    "payload/data/critic_discernment_game/formatted_tables/benchmarks.parquet": "e87272019e8f6e7652f9e5800b4b75933d461bd5ee443a40dc27e2808af0d654",
+    "payload/data/critic_discernment_game/formatted_tables/items.parquet": "fce47cc9d0796c053fc4afded25bb495ffa2b16508a7d8fe2495d62c7fc89cce",
+    "payload/data/critic_discernment_game/formatted_tables/response.parquet": "0f2ee09b83d840730145cf10a98dcedaeaf655245551549fd7ecc2faac25e676",
+    "payload/data/critic_discernment_game/formatted_tables/subjects.parquet": "376d495dca55855b281306a65f0f886bf97260d71144d1aa4a887bb7504c5689",
+    "payload/data/crow/formatted_tables/benchmarks.parquet": "abb60bd8a857488aa5851af0e5a3c100abe635eaa5ae793fc21d5ef0b8d6bf5e",
+    "payload/data/crow/formatted_tables/items.parquet": "b6a800a97db0914d5486214f61033e89a0e3cb8b08e33004db96c33b9602ea10",
+    "payload/data/crow/formatted_tables/response.parquet": "5e8e07b74ce40bd731d0a37bcb5b7aa381bc9719538d508676401c1288d4b6ed",
+    "payload/data/crow/formatted_tables/subjects.parquet": "e66c66a5e481380108f7b0a4d19983e30cd9e63612dea0abcb13f08ab9d266ee",
+    "payload/data/cruxeval/formatted_tables/benchmarks.parquet": "a7fc2360f43593f6bca435554c40920da0c5a41070e3e89fe07237238bfc0d0f",
+    "payload/data/cruxeval/formatted_tables/items.parquet": "b06e3093a6beb8c56a48ee4bcef5cd54914e138880d7f6ce6fec7b19686b2f0e",
+    "payload/data/cruxeval/formatted_tables/response.parquet": "f777c5280cc1cc8963a76a13b8bada16b2a68f207d03fb77e4f03ea3b459aa6c",
+    "payload/data/cruxeval/formatted_tables/subjects.parquet": "7dbe35df7cde9123f35a00f1e5f0790142657c660ddc87302be3ddbddc2def83",
+    "payload/data/dave/formatted_tables/benchmarks.parquet": "6a6b2c92c3124e2012eab2924e403b45ab4be8c49350be8ee53f4ac3f8fc3e5a",
+    "payload/data/dave/formatted_tables/items.parquet": "54cc772ed45f6d41506c27f13fc1fc35f0c68e592edefeb0c68c50cc358993a6",
+    "payload/data/dave/formatted_tables/response.parquet": "e674d6d5e555c130b51d87905d77c02d23847e250c4703fc62c9225911f721ec",
+    "payload/data/dave/formatted_tables/subjects.parquet": "449ba6631cea24863649baaec9c20869d808c6616449f94a535f8fe55941d56d",
+    "payload/data/dbpa/formatted_tables/benchmarks.parquet": "5a810e5ad53beb078cf6010fbf0ce1167e816fbf35217a0964871849ce1b519d",
+    "payload/data/dbpa/formatted_tables/items.parquet": "3958d664938b90677a0e666bc61de4b49a5dd4bea8cd1f1f566782412c94b5d8",
+    "payload/data/dbpa/formatted_tables/response.parquet": "b617d2ed40b82a55a3d0ea68fd035f6fd8a7b02943abd967dda261954981aef3",
+    "payload/data/dbpa/formatted_tables/subjects.parquet": "030c8f5eac9c7c808427c6fe2010ed8a70ed8015c1063872632fe82d5a7258ea",
+    "payload/data/devbench/formatted_tables/benchmarks.parquet": "52fcf1e7c4f2eefb0d6d3fead86864c79ef1ec39c30f88da3273a5ea500c4f74",
+    "payload/data/devbench/formatted_tables/items.parquet": "74f78cd2de8db38ed2d07865697647c3dee7daaa01790313fb9b17a44f6dc407",
+    "payload/data/devbench/formatted_tables/response.parquet": "10c7a198606929c5863b8b9ae1d81c93e639a082eb89df42bc14c0328d00c4eb",
+    "payload/data/devbench/formatted_tables/subjects.parquet": "ceb38afb741d0ff421ea63a91ac8641598150e33f190008d905ab9f10065eb04",
+    "payload/data/disco/formatted_tables/benchmarks.parquet": "caf40e3a1124238c58e9fdf7fc337f4b98695d14d34e3b59377cc0e5d31cd289",
+    "payload/data/disco/formatted_tables/items.parquet": "1fb6cb920fac31be39cd17837743f4dfba46387f29f656345e2f479282d2b2a0",
+    "payload/data/disco/formatted_tables/response.parquet": "fab86f87ca3b506642f64fe71f88818000c690c810edd7f832c23d844d9263c7",
+    "payload/data/disco/formatted_tables/subjects.parquet": "cb253aa39eafc703236628e9adc9fd9dae3b4c690c953eea51fd17a1cc761da0",
+    "payload/data/editbench/formatted_tables/benchmarks.parquet": "835a23344276f43582c930cba439492bd5bb15f5c45f1b883436ba537b1bdded",
+    "payload/data/editbench/formatted_tables/items.parquet": "cd23e864e60c01c5b8a2d99c4d0602596d6c8a4ea98b47a06052f0ca16230333",
+    "payload/data/editbench/formatted_tables/response.parquet": "10e60a511a5d3276a5eb83598c61a6a9340c49db0ee8b15ca8e2dd95db02a250",
+    "payload/data/editbench/formatted_tables/subjects.parquet": "455dbf129e6becc190935a7fd763f3c55b2f2905174fe2765f19be4125f1e953",
+    "payload/data/edu_circuit_hw/formatted_tables/benchmarks.parquet": "5c848e8700d262f523132457279327b9d7180f4574947be0c205fc71bde1bb72",
+    "payload/data/edu_circuit_hw/formatted_tables/items.parquet": "c0d6795a744baa698f30aca23ce1780cf84cddee9b7da7c1f83233e795962fae",
+    "payload/data/edu_circuit_hw/formatted_tables/response.parquet": "8f8b58b100e4a26e00fe661b494f4c488d88926ec3257169cd38a5d20bedd4b8",
+    "payload/data/edu_circuit_hw/formatted_tables/subjects.parquet": "c2f3a4bfe6d99e23e51552c17437c555a446174c9d397a0f7a1a1f701f95dd99",
+    "payload/data/egoschema/formatted_tables/benchmarks.parquet": "1d51e1a8fac5bff8576bc2fef9eca0d2868403e0a3900e2ff3b75832c3eddaf7",
+    "payload/data/egoschema/formatted_tables/items.parquet": "4d85eced53d1dd077c14868de86234de28a383b94d1113197f5126126f052213",
+    "payload/data/egoschema/formatted_tables/response.parquet": "9f54c18b4582f91d6e9d1e98c715224216c9f7f4aa2e616ae2a28f1c72375d89",
+    "payload/data/egoschema/formatted_tables/subjects.parquet": "fbf5394185f2899f14a92a61739b6ef2558ecc6864c619be77812d06620513ad",
+    "payload/data/ehrflowbench/formatted_tables/benchmarks.parquet": "ea66cb57961e6cad458c807b513113c81bb6e80e6fb5613edb37a1221b65de8e",
+    "payload/data/ehrflowbench/formatted_tables/items.parquet": "0fdcb88e18d9e35be508a844bc0ba108da40d493b38ea2a42c24eb5a878c656d",
+    "payload/data/ehrflowbench/formatted_tables/response.parquet": "d601ee7de8e8876093cc50898ddb0873762733bad02490d25a3cb860234bdabe",
+    "payload/data/ehrflowbench/formatted_tables/subjects.parquet": "bbcb17b519a65cb76422b46875383e4e30b746f13adeac5fe6dd09ec7a03aa31",
+    "payload/data/elicitation_game/formatted_tables/benchmarks.parquet": "112ad8d8abaced649732c0bbd32fe112b4fb2ff80eb1dfb00a44ae5a03aac9eb",
+    "payload/data/elicitation_game/formatted_tables/items.parquet": "7dab9c3a16ab21fbc590324b59e04613d445edfa7a87a3e669cb121fa11bb642",
+    "payload/data/elicitation_game/formatted_tables/response.parquet": "5d40a39fd9ac88a9fe36deba1842f8753fc141436e8413dfe3c0e1d4fb717199",
+    "payload/data/elicitation_game/formatted_tables/subjects.parquet": "a08c09715513137aa3f1618ffe2485479eaf77604a825cf930183a2a551f55b0",
+    "payload/data/emoji_attack/formatted_tables/benchmarks.parquet": "2bfc2e27ded4e28d21962d0a21f7af6fafa98f75b70b570ca89027dd72490f3a",
+    "payload/data/emoji_attack/formatted_tables/items.parquet": "c07276b4bb790253b57bd17becb4f41b3ee720ad27b829206b899444ac262bfd",
+    "payload/data/emoji_attack/formatted_tables/response.parquet": "1ec13073970586996d5b60a406322c57cd98f78668789d2b22b88dd97b65beb7",
+    "payload/data/emoji_attack/formatted_tables/subjects.parquet": "e2de920a0eef05b3cb38f9ec2c270ee713f82516a0ba44d953d122d81de59cf8",
+    "payload/data/engdesign/formatted_tables/benchmarks.parquet": "5380263e49f5b5626101d23a9d0fcca655fe82c0228f1646e3caf1e27e1c74c7",
+    "payload/data/engdesign/formatted_tables/items.parquet": "768b6622ec26d8194b28a01262134551a0576bcffbdc74339373613e773d7a2c",
+    "payload/data/engdesign/formatted_tables/response.parquet": "64c2da202f93afee5e36971cd2cd5bf199d84500e097d385c3d819f5b373b22e",
+    "payload/data/engdesign/formatted_tables/subjects.parquet": "dcdbd9dbbb8aadfe0bbefb0ce41c9c7401cfa62e3a180e5d5c80fc486ff34c14",
+    "payload/data/enginemt_qa/formatted_tables/benchmarks.parquet": "dac0241add6b073c8b564ebd3b97159213a0528adc3f36bb49b75095bceb6668",
+    "payload/data/enginemt_qa/formatted_tables/items.parquet": "2c08add9c99a655809d32fda9f1c108d8e38477fa74436d677e8ca561f072fe4",
+    "payload/data/enginemt_qa/formatted_tables/response.parquet": "713f043fd52959f9960bf83e032aeb282afdb91a462547e9e7e4c837496a1690",
+    "payload/data/enginemt_qa/formatted_tables/subjects.parquet": "f23f828e1caefe6304fc706bfe5965fc295b9bff667788b8f5ba32ee086b6be2",
+    "payload/data/erbench/formatted_tables/benchmarks.parquet": "ede9961b8218947d7d900e0c4a92d5347e42dfecd9d1dfdd183fec6c3d5ee5fe",
+    "payload/data/erbench/formatted_tables/items.parquet": "0f8a66afdf4b0e99dd0c4d5c0d88016415c8f21c54c9cb19b949ad8de468a3ca",
+    "payload/data/erbench/formatted_tables/response.parquet": "bd056ba26743f1b898f220b92442e27afd30fef506d537f79ff29021eb266533",
+    "payload/data/erbench/formatted_tables/subjects.parquet": "9646f275559c214fa08d451c22d87b4deae46e71b1fdc5f16673823c717e3a28",
+    "payload/data/evouna/formatted_tables/benchmarks.parquet": "f5bb9fbbb8af883641b1e63311bd0a4ac1c6258707621bf90770b62259aee334",
+    "payload/data/evouna/formatted_tables/items.parquet": "f069964c69fc10a87851ee83a9bad21a507b417a73ffdd78d6195aac016864b4",
+    "payload/data/evouna/formatted_tables/response.parquet": "84f25faf0c32fc2234d5c78f648842909d57c3643cf2e485634a0b41275c5768",
+    "payload/data/evouna/formatted_tables/subjects.parquet": "e9e85658e70bcbef579820833472c0d676255c82814dc7a91199b4ac168ae5ab",
+    "payload/data/exploitgym/formatted_tables/benchmarks.parquet": "2446c8fc8a23b170836bd6ce143d9b78022e289833820cc6e8bb2308a45591ed",
+    "payload/data/exploitgym/formatted_tables/items.parquet": "863f4c084b5b7ed4bb8752e06122bc5794388e130a78f4a4d99a54fcb09e7a0a",
+    "payload/data/exploitgym/formatted_tables/response.parquet": "5fa390ac69db3749ddd866732d045bc43a241ad622b9a8c1db4696c15598dd24",
+    "payload/data/exploitgym/formatted_tables/subjects.parquet": "210e0183f1b715fcd15ca166efd2bf7af44b715119c6143e582b98e4311b4cf5",
+    "payload/data/faithcot/formatted_tables/benchmarks.parquet": "a9a4bcafe10d8a20fa9a5042559fea7f417096b7e5afe83a3aa3ac433f495c63",
+    "payload/data/faithcot/formatted_tables/items.parquet": "31314cb162c3ac4cd417e3ea69f174a334f5ef0bc067df9208bef49cf694a387",
+    "payload/data/faithcot/formatted_tables/response.parquet": "21b6fcf9a49f6d8995b8db797e8f581325204c1dad0b26390b7c2cc1ce7689ed",
+    "payload/data/faithcot/formatted_tables/subjects.parquet": "b642644cec1a6435c418c96422029e106edb9170a703a9875ce1f5348c04a99f",
+    "payload/data/felm/formatted_tables/benchmarks.parquet": "7348b698be0a71751eba1be4a53f59b83f0eed4b05233e182495a6348b279c3c",
+    "payload/data/felm/formatted_tables/items.parquet": "13ec8d1ba82121efb9e0a58acc96b068c7e0516947ec4cef86e0297e78f7afeb",
+    "payload/data/felm/formatted_tables/response.parquet": "f2550fa7f57da53729dd5fd7c22504e57dcefc4f4829595564a6a58088c1d9b5",
+    "payload/data/felm/formatted_tables/subjects.parquet": "b3011b707d1310b72202bf6159456c5c55d9118619bf4624a933c1e18d83bab9",
+    "payload/data/fewshot_ttt_bbh/formatted_tables/benchmarks.parquet": "712991a976b78d5c84a9b90c9164b9af02fdf6af0d51d42b607bb146aebd26a3",
+    "payload/data/fewshot_ttt_bbh/formatted_tables/items.parquet": "bd64ceff79edb58d23a1c7fcfed6d8607a708281129b1c59c8c3be6bc0c1c3ea",
+    "payload/data/fewshot_ttt_bbh/formatted_tables/response.parquet": "2a4700833ff4e94941cf415c90e3885ee13906c41a29c9525a4f50f7c0eceb27",
+    "payload/data/fewshot_ttt_bbh/formatted_tables/subjects.parquet": "9fc0a8e1914cff8aeed6ee2e51400a10ef5828ba16b740452cd0e779e5d2d676",
+    "payload/data/financebench/formatted_tables/benchmarks.parquet": "a127d4ffbc51e48989b49ef375ca5354dc4bfb88fa117e2e5fad12dc14c4d5c9",
+    "payload/data/financebench/formatted_tables/items.parquet": "b86240e2c5ad2c985bd7cb571618e66f5d99f6aedad035ab08f4c8f3a810cba5",
+    "payload/data/financebench/formatted_tables/response.parquet": "1b7c8eb6d6498c45b1a27cd6ade8b968842399c20b10077dd6f7847ebd912a16",
+    "payload/data/financebench/formatted_tables/subjects.parquet": "60043d9fcc3b17908defaa203db95c2ca09330e83f9a39709212e83c20264b31",
+    "payload/data/finegrain_t2i/formatted_tables/benchmarks.parquet": "1456031ae5e80a0cdc64bf52077fbd4cd2e4edad6aed499bdc9946af2b678458",
+    "payload/data/finegrain_t2i/formatted_tables/items.parquet": "e692ef1f35f0493c04efe6743a98c6d4461c08df78ca02224baf68f72dbc9eb0",
+    "payload/data/finegrain_t2i/formatted_tables/response.parquet": "a7137836a2db3f901eac277af7451424ee21c82b277363a01550b40289092f53",
+    "payload/data/finegrain_t2i/formatted_tables/subjects.parquet": "eb80739a6969639e841073f065cad2b463d38fbfa4553d4e19a553750a663573",
+    "payload/data/haiid/formatted_tables/benchmarks.parquet": "895f251455fdd8e5150583835c969c7516aecb22494e75a7f80062dbdb4f9657",
+    "payload/data/haiid/formatted_tables/items.parquet": "6ceca26301c575e0ee9fd3079864a4faea9c7d9868d42b32b334a90b2e9a2af4",
+    "payload/data/haiid/formatted_tables/response.parquet": "7146c9514de7a71cb05e7582675fc64d82b7a5bc6cee53cac4de007fdba20b3d",
+    "payload/data/haiid/formatted_tables/subjects.parquet": "cf61dfde246a2051f4393c6f3b639dce7ec83b09ea95bbe81c0aae2968500459",
+    "payload/data/hallusionbench/formatted_tables/benchmarks.parquet": "b95bb7c8105def1e36a5c736922e4211885098ea497ca65357c9cde6391d48f6",
+    "payload/data/hallusionbench/formatted_tables/items.parquet": "5eb07f0e6fdedbecae69fc1d2fe618c587925b216673eba30eb86ffe6eb59f21",
+    "payload/data/hallusionbench/formatted_tables/response.parquet": "c8c4280ac954a05e4f629d5cfb0d56fa80594906666443b98fbfd24e4cf78d10",
+    "payload/data/hallusionbench/formatted_tables/subjects.parquet": "04a05bab45d628214d43c1c140882e029ce0bdff8ca7952ce19d56af5504b5be",
+    "payload/data/harmbench/formatted_tables/benchmarks.parquet": "ac34f3f9a963623e76525af5cf57f53f935932dd4024bb085cc47e674d1825bb",
+    "payload/data/harmbench/formatted_tables/items.parquet": "83179e4cd4d679cb98d63f297fd7510532b5b4d0007025d9db6527e69911b49c",
+    "payload/data/harmbench/formatted_tables/response.parquet": "d52a1b761cbebddc1800977c8bfbb18d9842a46e63483288286341ba36031ffc",
+    "payload/data/harmbench/formatted_tables/subjects.parquet": "9720ecc81bf53ad35bffdf3fc8203d46de769eb3891d323f1533981a8818c9e2",
+    "payload/data/healthadminbench/formatted_tables/benchmarks.parquet": "bdbc50d38d2ddeea38b5ebbf4fe1ea4149a04da7a374b30ebf37de2669cc1b66",
+    "payload/data/healthadminbench/formatted_tables/items.parquet": "cfd65f829c75382a2b0b14bd64bc613fea051905d64337d8354c2b21af76cbf1",
+    "payload/data/healthadminbench/formatted_tables/response.parquet": "4165643d92f54ae14ca9a62d84bf9b9ba238041f19948d91eab82a9f4d12e432",
+    "payload/data/healthadminbench/formatted_tables/subjects.parquet": "449ab0222acab63cbc43db30bbb25968dda748533311d7336022aea9ef5924ac",
+    "payload/data/helm_afr/formatted_tables/benchmarks.parquet": "f2576dc38fceebbcddb15fbb9d49f61baa64f2da08708a884b9dc4dad7b87be6",
+    "payload/data/helm_afr/formatted_tables/items.parquet": "746ca65792055395ffbb396243bc3b9ed0137391ff317ef74cbf37a719d22e00",
+    "payload/data/helm_afr/formatted_tables/response.parquet": "b4d83673944f49446548f53f1d17ad507c0cef4c08ae80719eba0eef8425d3b8",
+    "payload/data/helm_afr/formatted_tables/subjects.parquet": "a5d1c1072438fcb5ca3163bba203b6fae1cc3beaf22c67a351a9db11bd496323",
+    "runs/shared_data/system_enrichment_v2/README.md": "2b6ec42a69d1797e655d963d09522cd08915b28ca09727711419c596f73836f8",
+    "runs/shared_data/system_enrichment_v2/catalog_runs.jsonl": "cd83ab2e97cc56390449935f6380a8da6d098e696e4059ec1de62cbaf0002464",
+    "runs/shared_data/system_enrichment_v2/catalog_systems.jsonl": "0039be83e5d015d7443d89c6f40470620ab588d827e6607f3a9e95f701374b86",
+    "runs/shared_data/system_enrichment_v2/facts.csv": "ea1b7bf4d22340a5e55bb6970061e73bb2162632214bc5926a81d67c196e0941",
+    "runs/shared_data/system_enrichment_v2/harnesses.jsonl": "7c3beb961be79481f5b487e9b4a6b808490ce1842bbf85a12d264af4ad09631f",
+    "runs/shared_data/system_enrichment_v2/manifest.json": "5e51a8ce5d1d71ccd5160b8718ca61e66b9152a5576c537e65e3a59c1a34717b",
+    "runs/shared_data/system_enrichment_v2/models.jsonl": "e5cbaef38d65026fe5db821779d28603f7978eef3b6f0185f62f9c41525634d1",
+    "runs/shared_data/system_enrichment_v2/observations.jsonl": "3da80c6b5dcde9f7a6b42b6c6f138427371984a384b4679b799de6bd319fec44",
+    "runs/shared_data/system_enrichment_v2/provenance/collection_inventory.json": "6c569f53fdf42d077cafe0d5963a0eeb8c9900b0af4b065e7136ea666e792660",
+    "runs/shared_data/system_enrichment_v2/provenance/research/feature_collection/README.md": "2f947d3a45628eb203507c1073748d39927816383aa897e840d0c28a29259884",
+    "runs/shared_data/system_enrichment_v2/provenance/research/feature_collection/assertions_v1.jsonl": "53b6f1afa9af25b39bac2382b6f57b496cfced3a87f27b62f447e1a4a6f260d9",
+    "runs/shared_data/system_enrichment_v2/provenance/research/feature_collection/harness_v4/README.md": "5d9aa271e54daaf555728298c010cad89c184341a49a1093cdb25428e686c8de",
+    "runs/shared_data/system_enrichment_v2/provenance/research/feature_collection/harness_v4/assertions_v1.jsonl": "a69c1f7681be37ffc8d4735c193253a04a658c38231c9a272099f9c36422fe21",
+    "runs/shared_data/system_enrichment_v2/provenance/research/feature_collection/harness_v4/observations_v1.jsonl": "6ad66bd7d864c2fbbc4aaef5015ef7e004a74344f9216bdabe08366a8e000e26",
+    "runs/shared_data/system_enrichment_v2/provenance/research/feature_collection/harness_v4/reviews_v1.jsonl": "44131783f22c5303e81cb9258749fa86c3837184c7cd1eac2d2fe32b7abe9053",
+    "runs/shared_data/system_enrichment_v2/provenance/research/feature_collection/harness_v4/snapshots.json": "d06a5f49bea85addaec4c9982926e3f505b4f9139ae440f9381445ff5154f9f5",
+    "runs/shared_data/system_enrichment_v2/provenance/research/feature_collection/harness_v4/sources.jsonl": "60fae9e16c6eaba6ce23ac3fb714461cf91530291a498f558b203a7b91f12b08",
+    "runs/shared_data/system_enrichment_v2/provenance/research/feature_collection/historical_v3/assertions_v1.jsonl": "71ee6cdbb4330ad4d2fbd6e2a9cf83e2de3765dc2aa1a9da63800d9f03f12564",
+    "runs/shared_data/system_enrichment_v2/provenance/research/feature_collection/historical_v3/assertions_v2.jsonl": "6a5fef37e3022b74473f2733e8461004ed8eea9d14a6fb2d88978a5801cd2808",
+    "runs/shared_data/system_enrichment_v2/provenance/research/feature_collection/historical_v3/reviews_v1.jsonl": "318e37a0284b0336b14590b323c74896829900aae477059d5ef2070e1a6f3edd",
+    "runs/shared_data/system_enrichment_v2/provenance/research/feature_collection/historical_v3/reviews_v2.jsonl": "3bfe93f182acb08fce293a1339da89d492d6689fd63b91a4d5636af0d235bfb0",
+    "runs/shared_data/system_enrichment_v2/provenance/research/feature_collection/historical_v3/snapshots.json": "91f4a0632a7147a5d96f3b1f122d51a4d3541c3b15e7ada5799971d86cd66f19",
+    "runs/shared_data/system_enrichment_v2/provenance/research/feature_collection/historical_v3/sources.jsonl": "bb1eed36062170df4c1bccefaed075a2cc140bfa828ce98fad46cd07ea430aaf",
+    "runs/shared_data/system_enrichment_v2/provenance/research/feature_collection/identity_reviews_v1.jsonl": "518fab72ab400033c3ec848d78e5e169dd3b1820d9fa6fc4dc1d71b05a0f4388",
+    "runs/shared_data/system_enrichment_v2/provenance/research/feature_collection/model_review_v5/README.md": "8d56d1cecf585d7c01a320a3b72645ef2a71c04faec7ad1567ef396e88bed2fd",
+    "runs/shared_data/system_enrichment_v2/provenance/research/feature_collection/model_review_v5/assertions_v1.jsonl": "8e6064f93c61ddc122033e986dc24cd3af70b7ed763e9428ea4f63f8aa29d2ef",
+    "runs/shared_data/system_enrichment_v2/provenance/research/feature_collection/model_review_v5/observations_v1.jsonl": "f6dfbb2ad55bdc743f1f98d2e9cbfa95253c5aefb81ebf6ac1919a5e26ae01df",
+    "runs/shared_data/system_enrichment_v2/provenance/research/feature_collection/model_review_v5/profile_scopes_v1.json": "e42db1bfc09257c32c2f4d7f98130348d61316b09af12daa88c981fc334aa0d6",
+    "runs/shared_data/system_enrichment_v2/provenance/research/feature_collection/model_review_v5/reviews_v1.jsonl": "4c4e0a35702d609cba7b76ee164dacec6296792b9713aa5a7bb31806c896bdca",
+    "runs/shared_data/system_enrichment_v2/provenance/research/feature_collection/model_review_v5/snapshots.json": "30b0b6561f49cd105b198c1ead4a70289644e0e76e61b27d06d7856a29092a99",
+    "runs/shared_data/system_enrichment_v2/provenance/research/feature_collection/model_review_v5/sources.jsonl": "92f48e6e694ed87231ecdc060eb3ff53d5498045821a4a3ba1129f998b8a6320",
+    "runs/shared_data/system_enrichment_v2/provenance/research/feature_collection/nominal_contexts_v1.jsonl": "227da4cce91c746a2c9123429faf5a2ca14fc27f2f04180566933c8e2b8a44af",
+    "runs/shared_data/system_enrichment_v2/provenance/research/feature_collection/open_models_v3/assertions_v1.jsonl": "0c29e152c00e340848e959b24cf9b38773e5405f884dcdd866adf5eb4ac45b2d",
+    "runs/shared_data/system_enrichment_v2/provenance/research/feature_collection/open_models_v3/assertions_v2.jsonl": "1e2b6092677e2fbc2eed0fbfb6a1a1e3fb08d4abdba7ba06982c5e1c5fcd0a56",
+    "runs/shared_data/system_enrichment_v2/provenance/research/feature_collection/open_models_v3/snapshots.json": "27b1057ee844897edfe3516365e74021171b5e52122c790e2f4c5a165aded5e4",
+    "runs/shared_data/system_enrichment_v2/provenance/research/feature_collection/open_models_v3/sources.jsonl": "86cb35c7f4eacd861500c4f99ee48c077d0aa5cb44f11304f6c776fbd464cefe",
+    "runs/shared_data/system_enrichment_v2/provenance/research/feature_collection/provider_review_v4/README.md": "50fdf1b05ef55e3ec1e233af8f9cb4545ad55db837b0aad16774977ac0e6464c",
+    "runs/shared_data/system_enrichment_v2/provenance/research/feature_collection/provider_review_v4/assertions_v1.jsonl": "3bcedd477426049abefd3036c868c601da30b2f358b7dde87535e8cd5b9bd358",
+    "runs/shared_data/system_enrichment_v2/provenance/research/feature_collection/provider_review_v4/reviews_v1.jsonl": "c18660b6611a57f5a971c9fe0a2645cb43b104e35dedc42f67aab584c1aff7b1",
+    "runs/shared_data/system_enrichment_v2/provenance/research/feature_collection/provider_review_v4/snapshots.json": "9daa2bb2e9fcc294062a241cb14cccd078e71d2199a98110e982af394564218e",
+    "runs/shared_data/system_enrichment_v2/provenance/research/feature_collection/provider_review_v4/sources.jsonl": "7b076a538b5159c04f0de3972b3a9127edbeb60fad8a986780d4c951d38977c3",
+    "runs/shared_data/system_enrichment_v2/provenance/research/feature_collection/provider_v2/assertions_v1.jsonl": "dd0bd475ec34f21cb03387aff83c3bcab800b7acff21663cc51cb0e07fb847c4",
+    "runs/shared_data/system_enrichment_v2/provenance/research/feature_collection/provider_v2/assertions_v2.jsonl": "2d2b194e13dd182253a2b52fe5179214a7ce2f6beaad624fee95842a87974093",
+    "runs/shared_data/system_enrichment_v2/provenance/research/feature_collection/provider_v2/snapshots.json": "123dcf97c8ec47989b5db1974681693c6009b2b20ef79087f007497559e17dc8",
+    "runs/shared_data/system_enrichment_v2/provenance/research/feature_collection/provider_v2/sources.jsonl": "8a147a3fd1c4b7fd16c4afe968649a5794ae4f006ef9fe511b6dae2a90e3c94b",
+    "runs/shared_data/system_enrichment_v2/provenance/research/feature_collection/snapshots.json": "f051c3564bffdbc24d2c31d4df1bcdc1e6b8be764789037ef47e9aed839a52fb",
+    "runs/shared_data/system_enrichment_v2/provenance/research/feature_collection/source_plan_v1.json": "738217df3fe1c4ba0b15107b5e254a5e8095c55d9d2817fa6165f9e0acc12cc5",
+    "runs/shared_data/system_enrichment_v2/provenance/research/feature_collection/sources.jsonl": "76acbcc65ff407a66df4ad83d06ece59e41381a1aa21a534db5c050fe2c8420f",
+    "runs/shared_data/system_enrichment_v2/provenance/research/system_profiles/README.md": "aa94666da278ceb8b6a3b7fe71b34409f0dffe125a69d3ede684cbd7690b9a7f",
+    "runs/shared_data/system_enrichment_v2/provenance/research/system_profiles/collection_v1/assertions.jsonl": "2df4c6fd43d45474cc3ee7aa21ab2423a5403fdde9db4cd4db79a99ddd95e3ff",
+    "runs/shared_data/system_enrichment_v2/provenance/research/system_profiles/collection_v1/coverage.md": "397cb9b9cac6aa1c486fc9c77cfe0c389a94ae367609acf55df652d3a60cd2f5",
+    "runs/shared_data/system_enrichment_v2/provenance/research/system_profiles/collection_v1/fetch_log.json": "13e7aa6c246906c3e0155f5dec2678209097196eead866f0f71a9b135645f4ac",
+    "runs/shared_data/system_enrichment_v2/provenance/research/system_profiles/collection_v1/profiles.jsonl": "9a60d1ddd9e98f033c6d4a6afcceb5f26012330c89bd3e94e02119e5d047994d",
+    "runs/shared_data/system_enrichment_v2/provenance/research/system_profiles/collection_v1/recipe.json": "258726ca9d4719ae0ff3b8b7109e91d3bc06edd9ee070deed911e564dc6bc92b",
+    "runs/shared_data/system_enrichment_v2/provenance/research/system_profiles/collection_v1/snapshots.json": "2bacac0cf53d2906f6063b28d88974d8cb4484752870476969a32cafbed93ed5",
+    "runs/shared_data/system_enrichment_v2/provenance/research/system_profiles/collection_v1/sources.jsonl": "d9c70d0abe8331159619b12694f507c258767347fc3d634a546397e66c2528bb",
+    "runs/shared_data/system_enrichment_v2/provenance/research/system_profiles/collection_v1/subjects.jsonl": "6f51dd4f8f1e5fd22aa07b2172e87281345c45e68ab3dcf83304daef803999eb",
+    "runs/shared_data/system_enrichment_v2/provenance/research/system_profiles/collection_v2/assertions.jsonl": "a708c2487e5fb96e9a467590abf4e007d28ce009ee595953e7eb81d6fd77f825",
+    "runs/shared_data/system_enrichment_v2/provenance/research/system_profiles/collection_v2/coverage.md": "cf3d3118dcd21a69f54dde3dc4531deecfac6352ac4b7a14d68d3eb25a04c039",
+    "runs/shared_data/system_enrichment_v2/provenance/research/system_profiles/collection_v2/coverage_summary.json": "ae45e13fe6a0131afc1a82e03475aec50857cc6029be45f3e69e8fde72e4961d",
+    "runs/shared_data/system_enrichment_v2/provenance/research/system_profiles/collection_v2/fetch_log.json": "a05b5b7f3734b3ee4b6b4e8fb8ae1a98e318b5863b9514defc11785797bb4055",
+    "runs/shared_data/system_enrichment_v2/provenance/research/system_profiles/collection_v2/profile_scopes.json": "656f7d7518fb58f1cc93db441d7a6b9349e52ea852c0c590995b0af687b1ad96",
+    "runs/shared_data/system_enrichment_v2/provenance/research/system_profiles/collection_v2/profiles.jsonl": "345d37a4d66ecf0ca69c601c9052c9de2915a489815ca3cf49404117ead141ba",
+    "runs/shared_data/system_enrichment_v2/provenance/research/system_profiles/collection_v2/recipe.json": "dd50ecf8c9fcb165e83d046a3ccbf02bf6421eaffa2553863b8790dd3c27560b",
+    "runs/shared_data/system_enrichment_v2/provenance/research/system_profiles/collection_v2/snapshots.json": "d57ad8fadd59b02af9a07e3c4fb78640c907d4d1ed04a1cea037b39f5a02bdac",
+    "runs/shared_data/system_enrichment_v2/provenance/research/system_profiles/collection_v2/sources.jsonl": "84fbde7eec67a3b9339a61ffdf1c758ec666898addd551723762bd9793239d41",
+    "runs/shared_data/system_enrichment_v2/provenance/research/system_profiles/collection_v2/subjects.jsonl": "79fccad1aae5210bc3f5d655b622019c013dd35c37695eb98bdec8ab21385dcd",
+    "runs/shared_data/system_enrichment_v2/provenance/research/system_profiles/collection_v2/unresolved.jsonl": "695df726c7d620bf6db0a08c999ddf684022c20a54cc76104cbbf57462ab3590",
+    "runs/shared_data/system_enrichment_v2/provenance/research/system_profiles/collection_v3/assertions.jsonl": "9e0aa29bca0838eeae6ef53ab490fd57bb923db1d88d77e1f7a0245eafee7212",
+    "runs/shared_data/system_enrichment_v2/provenance/research/system_profiles/collection_v3/compact_delivery_summary.json": "78359d8ed54a5b6deab6425df73f3a17d70d06efdd8883024b6a02ea7c4541d3",
+    "runs/shared_data/system_enrichment_v2/provenance/research/system_profiles/collection_v3/coverage.md": "2dd83b3ebb1d1c718d1f8febfceab0c2f4e1eff2cb95f11b2f7838aef0de9a78",
+    "runs/shared_data/system_enrichment_v2/provenance/research/system_profiles/collection_v3/development_review.jsonl": "c7c06c03648dc9a5df3fe17fea65caf5f9af9fae7e74d053e6a04e1275678a0e",
+    "runs/shared_data/system_enrichment_v2/provenance/research/system_profiles/collection_v3/fetch_log.json": "9d1a5e3dddd7b295b1b19c143a9f3bc0271cfede0bcc960ee0f8300aa2ea4b12",
+    "runs/shared_data/system_enrichment_v2/provenance/research/system_profiles/collection_v3/profile_scopes.json": "8ec67ce0a57b8f7081373bde985fc9d943b199e5a925822f35fe51b9464635ed",
+    "runs/shared_data/system_enrichment_v2/provenance/research/system_profiles/collection_v3/profiles.jsonl": "1a785324b7bdd8652e31f1945abd16daf84b36a3ff2aa435b29ca9ea72ee4bd9",
+    "runs/shared_data/system_enrichment_v2/provenance/research/system_profiles/collection_v3/recipe.json": "f8c7c324e9187ae9b79a2b16545dd8971cb67eebb599e3b67beb5b0a32de646d",
+    "runs/shared_data/system_enrichment_v2/provenance/research/system_profiles/collection_v3/snapshots.json": "1360c92b64110c6c0643f0c21ed5d33ff2f565c415ab8f86f936c3adee4ff42b",
+    "runs/shared_data/system_enrichment_v2/provenance/research/system_profiles/collection_v3/sources.jsonl": "9ceaa6bd655c62eb4d62f3db52d7dd383004563ecc4ed734c2594bbaaca2c53b",
+    "runs/shared_data/system_enrichment_v2/provenance/research/system_profiles/collection_v3/subjects.jsonl": "d7ca45d79989a1e6ae4cc9647a2ed5ef074b27e6f688f27e5fe1d41a2f723b3e",
+    "runs/shared_data/system_enrichment_v2/provenance/research/system_profiles/v1/collection_plan.json": "a3efffeb52ed8903eb865a4ce9b9a4434798e34b1f76934e71e4254f365cf0c7",
+    "runs/shared_data/system_enrichment_v2/provenance/research/system_profiles/v1/profiles.jsonl": "aaa0951724e0b4999297f4c44ec1b14e05c4d2a18173d0954c17d59f0d178a69",
+    "runs/shared_data/system_enrichment_v2/provenance/research/system_profiles/v1/sources.jsonl": "fbbb1e030403e8418c0c16ee0cc5f3b7622bfb7ff183181ca4491b3e4ad98581",
+    "runs/shared_data/system_enrichment_v2/provenance/runs/feature_pipeline/offline_evidence_preparation_v1/collection_plan.json": "dcfe3bc677322c1199af2c1c6b6571cc900345450355cd8177c18670b0011691",
+    "runs/shared_data/system_enrichment_v2/provenance/runs/feature_pipeline/offline_evidence_preparation_v1/collection_queue.jsonl": "41eb30fc60ee9e04f7999f1100c6442fdaf80a6fef468ff0959c562f714f32eb",
+    "runs/shared_data/system_enrichment_v2/provenance/runs/feature_pipeline/offline_evidence_preparation_v1/collection_summary.json": "691367d51a8fa46d3078e13325cb1a14e893f9841e749d39aa361c2f26463f62",
+    "runs/shared_data/system_enrichment_v2/provenance/runs/feature_pipeline/offline_evidence_preparation_v1/coverage_audit.json": "eaf9f2e4cdeaa9db03471ca52ab715af5baa91785b5a951717299d08a5c5da4f",
+    "runs/shared_data/system_enrichment_v2/provenance/runs/feature_pipeline/offline_evidence_preparation_v1/harness_source_collection_audit.json": "b5a8b9e90896ba233397ea50c6a5e11e3e16e17c2fcd175752f28f23d80b561d",
+    "runs/shared_data/system_enrichment_v2/provenance/runs/feature_pipeline/offline_evidence_preparation_v1/identity_review_audit.json": "01b5b0f8b01d68fd844d017de67fa57898ede784bd3273963a2cb19258790782",
+    "runs/shared_data/system_enrichment_v2/provenance/runs/feature_pipeline/offline_evidence_preparation_v1/recorded_runs.jsonl": "62e7937432e35d3d1ee253d84aa6b9518a0f0153f70c5e811edc3cd591ecf7b4",
+    "runs/shared_data/system_enrichment_v2/provenance/runs/feature_pipeline/offline_evidence_preparation_v1/run_setting_review_audit.json": "cfaec0f994f77a97f4187e234de89f0b4badd6b4b9dd0cbc0d3dffbb9d8d989c",
+    "runs/shared_data/system_enrichment_v2/provenance/runs/feature_pipeline/offline_evidence_preparation_v1/source_collection_audit.json": "13a2425a0cd9537b9c22d071551ba223de5ef2e46bd1a1cc018fab384dda09d2",
+    "runs/shared_data/system_enrichment_v2/provenance/runs/feature_pipeline/offline_evidence_preparation_v1/source_review_audit.json": "3a7bfeaf422087e6c98f4e92adffb171846a71d21d3c5b0897db5132f3c8744d",
+    "runs/shared_data/system_enrichment_v2/provenance/source_tables/identity_review_status.jsonl": "6561a9cbbf1917fe3500d5d5253ca03dcac186e4c7a8e8e6d41a09039f94bedb",
+    "runs/shared_data/system_enrichment_v2/provenance/source_tables/profile_sources.jsonl": "50dc49bdee9e59fbff084411be350e46a8a83e736375d9435beaaa81dc053bba",
+    "runs/shared_data/system_enrichment_v2/provenance/source_tables/qualified_harness_observations.jsonl": "5520983d6f20fff9900e263413776270e8013ab8a7d4533e0161ed6f41c01b74",
+    "runs/shared_data/system_enrichment_v2/provenance/source_tables/qualified_model_observations.jsonl": "af8b2402416e192126af25eb5cc01555dd6c72b624b6f84a8e372d60c3b6c20c",
+    "runs/shared_data/system_enrichment_v2/provenance/source_tables/reviewed_static_features.jsonl": "2fbf2cdd7df8bc91038d604a7881db3b5d8d32d376331a572d356a1ec897d016",
+    "runs/shared_data/system_enrichment_v2/provenance/source_tables/run_setting_reviews.jsonl": "b61ddf2afab898475b4b65da1fce5873a0d8f290f5708fbe9fb0f2530dd8bf2e",
+    "runs/shared_data/system_enrichment_v2/provenance/source_tables/source_review_status.jsonl": "657f7f57be4edc639b09865bfc490dc6671014abdec48815256786be03d1e818",
+    "runs/shared_data/system_enrichment_v2/provenance/source_tables/supplemental_sources.jsonl": "2fb068b28ad08b69792b3693ef574ee6384e7c1bdbed8272f192aef1edd800ff",
+    "runs/shared_data/system_enrichment_v2/provenance/source_tables/supplemented_harness_profiles.jsonl": "493052088708b5930a1761e3b9945c2141dbb03de4fd006427fe120879fd45b2",
+    "runs/shared_data/system_enrichment_v2/provenance/source_tables/supplemented_model_profiles.jsonl": "ea59ddb0627515fb32ff84ff5c40132c158d1df15efc9bcabe8b350cafb5e6e8",
+    "runs/shared_data/system_enrichment_v2/provenance/source_tables/systems.jsonl": "e4d248b83473a61a89c87ce013b3e998a7f03faf485480786c3747be7f0acda4",
+    "runs/shared_data/system_enrichment_v2/provenance/source_tables/typed_run_features.jsonl": "1263f1249d8e41244a591bee282650d8a7ebc3e5b02e5f20557a1f6090438030",
+    "runs/shared_data/system_enrichment_v2/run_settings.csv": "c5f4ad8ed057ca9fb94a8998d24590d88873ef1d167b08a8e22f8836e3245503",
+    "runs/shared_data/system_enrichment_v2/runs.jsonl": "1263f1249d8e41244a591bee282650d8a7ebc3e5b02e5f20557a1f6090438030",
+    "runs/shared_data/system_enrichment_v2/sources.jsonl": "448dd8263d04b07a41d27a1b5068354cfd827da998b9887259582fc60a4bd9f4",
+    "runs/shared_data/system_enrichment_v2/system_mapping.csv": "d2e7ae63c778d676c2f3e8814ac060e42daf5b7a154576eb845e7d9c2690bd4b",
+    "runs/shared_data/system_enrichment_v2/systems.jsonl": "e4d248b83473a61a89c87ce013b3e998a7f03faf485480786c3747be7f0acda4"
+  },
+  "legacy_monitor_seed": 20261023,
+  "matching_policy": {
+    "harnesses": [
+      {
+        "identifiers": [
+          "ASPRM"
+        ],
+        "profile_id": "harness.asprm"
+      },
+      {
+        "identifiers": [
+          "Fewshot-TTT"
+        ],
+        "profile_id": "harness.fewshot-ttt"
+      },
+      {
+        "identifiers": [
+          "ERBench"
+        ],
+        "profile_id": "harness.erbench"
+      },
+      {
+        "identifiers": [
+          "CellVerse"
+        ],
+        "profile_id": "harness.cellverse"
+      },
+      {
+        "identifiers": [
+          "Lighteval"
+        ],
+        "profile_id": "harness.lighteval"
+      },
+      {
+        "identifiers": [
+          "OpenCompass"
+        ],
+        "profile_id": "harness.opencompass"
+      },
+      {
+        "identifiers": [
+          "Petavue NL2SQL-Benchmark"
+        ],
+        "profile_id": "harness.petavue"
+      },
+      {
+        "identifiers": [
+          "BenGER"
+        ],
+        "profile_id": "harness.benger"
+      }
+    ],
+    "models": [
+      {
+        "identifiers": [
+          "mistralai/Mistral-7B-Instruct-v0.1"
+        ],
+        "profile_id": "model.mistral-7b-instruct-v0.1"
+      },
+      {
+        "identifiers": [
+          "defog/sqlcoder-70b-alpha",
+          "Defog SQLCoder 70B"
+        ],
+        "profile_id": "model.sqlcoder-70b-alpha"
+      },
+      {
+        "identifiers": [
+          "codellama/CodeLlama-34b-Instruct-hf",
+          "meta-llama/CodeLlama-34b-Instruct-hf"
+        ],
+        "profile_id": "model.codellama-34b-instruct"
+      },
+      {
+        "identifiers": [
+          "DeepSeek R1",
+          "deepseek-ai/DeepSeek-R1"
+        ],
+        "profile_id": "model.deepseek-r1"
+      },
+      {
+        "identifiers": [
+          "DeepSeek V4 Flash",
+          "deepseek-ai/DeepSeek-V4-Flash"
+        ],
+        "profile_id": "model.deepseek-v4-flash"
+      },
+      {
+        "identifiers": [
+          "Alibaba Qwen3.6 35B A3B",
+          "Qwen/Qwen3.6-35B-A3B"
+        ],
+        "profile_id": "model.qwen3.6-35b-a3b"
+      },
+      {
+        "identifiers": [
+          "meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8"
+        ],
+        "profile_id": "model.llama4-maverick-fp8"
+      },
+      {
+        "identifiers": [
+          "meta-llama/Meta-Llama-3.1-8B-Instruct",
+          "Llama-3.1-8B-Instruct",
+          "Meta Llama 3.1 8B"
+        ],
+        "profile_id": "model.llama3.1-8b-instruct"
+      },
+      {
+        "identifiers": [
+          "Alibaba Qwen 7B",
+          "Qwen/Qwen-7B"
+        ],
+        "profile_id": "model.qwen-7b"
+      },
+      {
+        "identifiers": [
+          "OpenAI GPT-4o mini",
+          "gpt-4o-mini"
+        ],
+        "profile_id": "model.gpt-4o-mini"
+      },
+      {
+        "identifiers": [
+          "OpenAI GPT-4o",
+          "gpt-4o"
+        ],
+        "profile_id": "model.gpt-4o"
+      },
+      {
+        "identifiers": [
+          "OpenAI GPT-5.4 mini",
+          "gpt-5.4-mini"
+        ],
+        "profile_id": "model.gpt-5.4-mini"
+      },
+      {
+        "identifiers": [
+          "Anthropic Claude 3 Sonnet",
+          "claude-3-sonnet-20240229",
+          "anthropic.claude-3-sonnet-20240229-v1:0"
+        ],
+        "profile_id": "model.claude3-sonnet"
+      },
+      {
+        "identifiers": [
+          "Google Gemini 1.5 Flash",
+          "gemini-1.5-flash"
+        ],
+        "profile_id": "model.gemini1.5-flash"
+      },
+      {
+        "identifiers": [
+          "Qwen/Qwen3-235B-A22B-Thinking-2507",
+          "Alibaba Qwen3 235B A22B Thinking"
+        ],
+        "profile_id": "model.qwen3-235b-thinking-2507"
+      },
+      {
+        "identifiers": [
+          "Qwen/Qwen3.5-122B-A10B",
+          "Alibaba Qwen3.5 122B A10B"
+        ],
+        "profile_id": "model.qwen3.5-122b-a10b"
+      },
+      {
+        "identifiers": [
+          "deepseek-ai/DeepSeek-V4-Pro",
+          "DeepSeek V4 Pro"
+        ],
+        "profile_id": "model.deepseek-v4-pro"
+      },
+      {
+        "identifiers": [
+          "defog/sqlcoder-7b-2",
+          "Defog SQLCoder 7B"
+        ],
+        "profile_id": "model.sqlcoder-7b-2"
+      },
+      {
+        "identifiers": [
+          "mistralai/Mistral-7B-Instruct-v0.2"
+        ],
+        "profile_id": "model.mistral-7b-instruct-v0.2"
+      },
+      {
+        "identifiers": [
+          "mistralai/Mixtral-8x7B-Instruct-v0.1"
+        ],
+        "profile_id": "model.mixtral-8x7b-instruct-v0.1"
+      },
+      {
+        "identifiers": [
+          "WizardLM/WizardCoder-33B-V1.1",
+          "Microsoft WizardCoder 33B"
+        ],
+        "profile_id": "model.wizardcoder-33b-v1.1"
+      },
+      {
+        "identifiers": [
+          "databricks/dbrx-instruct",
+          "Databricks DBRX"
+        ],
+        "profile_id": "model.dbrx-instruct"
+      },
+      {
+        "identifiers": [
+          "codellama/CodeLlama-70b-Instruct-hf",
+          "meta-llama/CodeLlama-70b-Instruct-hf",
+          "Meta Code Llama 70B"
+        ],
+        "profile_id": "model.codellama-70b-instruct"
+      },
+      {
+        "identifiers": [
+          "meta-llama/Llama-2-70b-chat-hf",
+          "Meta Llama 2 70B",
+          "meta.llama2-70b-chat-v1"
+        ],
+        "profile_id": "model.llama2-70b-chat"
+      },
+      {
+        "identifiers": [
+          "Meta Llama 3 8B"
+        ],
+        "profile_id": "model.llama3-8b-family"
+      },
+      {
+        "identifiers": [
+          "MetaMath-Llama"
+        ],
+        "profile_id": "model.metamath-llama-family"
+      },
+      {
+        "identifiers": [
+          "MetaMath-Mistral"
+        ],
+        "profile_id": "model.metamath-mistral-family"
+      },
+      {
+        "identifiers": [
+          "Anthropic Claude 3 Haiku",
+          "claude-3-haiku-20240307",
+          "anthropic.claude-3-haiku-20240307-v1:0"
+        ],
+        "profile_id": "model.claude3-haiku"
+      },
+      {
+        "identifiers": [
+          "Anthropic Claude 3 Opus",
+          "claude-3-opus-20240229"
+        ],
+        "profile_id": "model.claude3-opus"
+      },
+      {
+        "identifiers": [
+          "Anthropic Claude Sonnet 4.6",
+          "claude-sonnet-4-6"
+        ],
+        "profile_id": "model.claude-sonnet4.6"
+      },
+      {
+        "identifiers": [
+          "Anthropic Claude Opus 4.7",
+          "claude-opus-4-7"
+        ],
+        "profile_id": "model.claude-opus4.7"
+      },
+      {
+        "identifiers": [
+          "Google Gemini 3.1 Pro",
+          "gemini-3.1-pro-preview"
+        ],
+        "profile_id": "model.gemini3.1-pro-preview"
+      },
+      {
+        "identifiers": [
+          "Google Gemini 3.1 Flash-Lite",
+          "gemini-3.1-flash-lite-preview"
+        ],
+        "profile_id": "model.gemini3.1-flashlite-preview"
+      },
+      {
+        "identifiers": [
+          "Google Gemini 1.0 Pro",
+          "models/gemini-1.0-pro-latest"
+        ],
+        "profile_id": "model.gemini1.0-pro-family"
+      },
+      {
+        "identifiers": [
+          "OpenAI GPT-5.4",
+          "gpt-5.4"
+        ],
+        "profile_id": "model.gpt5.4"
+      },
+      {
+        "identifiers": [
+          "gpt-4-turbo-preview"
+        ],
+        "profile_id": "model.gpt4-turbo-preview"
+      },
+      {
+        "identifiers": [
+          "OpenAI GPT-3.5",
+          "gpt-3.5-turbo-16k"
+        ],
+        "profile_id": "model.gpt3.5-turbo-family"
+      },
+      {
+        "identifiers": [
+          "gpt-3.5-turbo-16k-0613"
+        ],
+        "profile_id": "model.gpt3.5-turbo16k-family"
+      },
+      {
+        "identifiers": [
+          "mistral.mistral-7b-instruct-v0:2"
+        ],
+        "profile_id": "model.bedrock-mistral7b-family"
+      },
+      {
+        "identifiers": [
+          "mistral.mixtral-8x7b-instruct-v0:1"
+        ],
+        "profile_id": "model.bedrock-mixtral-family"
+      }
+    ],
+    "scoped_aliases": [
+      {
+        "evidence": [
+          {
+            "excerpt": "model=\"claude-3-sonnet-20240229\"",
+            "locator": "binary/utils.py line 777",
+            "source_id": "erbench-utils"
+          }
+        ],
+        "harness": "ERBench",
+        "note": "Original published harness dispatch identifies this documented model/family. Evaluated harness revision/API snapshot not independently verified; no global alias.",
+        "profile_id": "model.claude3-sonnet",
+        "source_model": "claude"
+      },
+      {
+        "evidence": [
+          {
+            "excerpt": "model = genai.GenerativeModel('gemini-pro')",
+            "locator": "binary/utils.py line 924",
+            "source_id": "erbench-utils"
+          }
+        ],
+        "harness": "ERBench",
+        "note": "Original published harness dispatch identifies this documented model/family. Evaluated harness revision/API snapshot not independently verified; no global alias.",
+        "profile_id": "model.gemini1.0-pro-family",
+        "source_model": "gemini"
+      },
+      {
+        "basis": "reported_model_family",
+        "evidence": [
+          {
+            "excerpt": "GPT-3.5",
+            "locator": "Section 4, LLMs Compared / Section 4.6, model identity passages only",
+            "source_id": "erbench-paper-v3"
+          },
+          {
+            "excerpt": "if model== 'gpt35':",
+            "locator": "binary/utils.py run_llm dispatch",
+            "source_id": "erbench-utils"
+          }
+        ],
+        "harness": "ERBench",
+        "note": "Reported model family",
+        "profile_id": "model.gpt3.5-turbo-family",
+        "source_model": "gpt35"
+      },
+      {
+        "basis": "reported_model_family",
+        "evidence": [
+          {
+            "excerpt": "GPT-4",
+            "locator": "Section 4, LLMs Compared / Section 4.6, model identity passages only",
+            "source_id": "erbench-paper-v3"
+          },
+          {
+            "excerpt": "elif model == 'gpt4':",
+            "locator": "binary/utils.py run_llm dispatch",
+            "source_id": "erbench-utils"
+          }
+        ],
+        "harness": "ERBench",
+        "note": "Reported model family",
+        "profile_id": "model.gpt4-family",
+        "source_model": "gpt4"
+      },
+      {
+        "basis": "reported_model_family",
+        "evidence": [
+          {
+            "excerpt": "Llama2-70B-Chat",
+            "locator": "Section 4, LLMs Compared / Section 4.6, model identity passages only",
+            "source_id": "erbench-paper-v3"
+          },
+          {
+            "excerpt": "elif model == 'llama':",
+            "locator": "binary/utils.py run_llm dispatch",
+            "source_id": "erbench-utils"
+          }
+        ],
+        "harness": "ERBench",
+        "note": "Reported model family",
+        "profile_id": "model.llama2-70b-chat",
+        "source_model": "llama"
+      },
+      {
+        "basis": "reported_model_family",
+        "evidence": [
+          {
+            "excerpt": "Mistral-7B-Instruct",
+            "locator": "Section 4, LLMs Compared / Section 4.6, model identity passages only",
+            "source_id": "erbench-paper-v3"
+          },
+          {
+            "excerpt": "elif model == 'mistral':",
+            "locator": "binary/utils.py run_llm dispatch",
+            "source_id": "erbench-utils"
+          }
+        ],
+        "harness": "ERBench",
+        "note": "Reported model family",
+        "profile_id": "model.mistral7b-instruct-family",
+        "source_model": "mistral"
+      },
+      {
+        "basis": "base_family",
+        "evidence": [
+          {
+            "excerpt": "We use GPT-3.5 and fine-tune it",
+            "locator": "Section 4, LLMs Compared / Section 4.6, model identity passages only",
+            "source_id": "erbench-paper-v3"
+          },
+          {
+            "excerpt": "elif model =='gpt_finetune':",
+            "locator": "binary/utils.py run_llm dispatch",
+            "source_id": "erbench-utils"
+          }
+        ],
+        "harness": "ERBench",
+        "note": "Documented BASE family only. Private fine-tuned checkpoint and exact base snapshot remain unknown.",
+        "profile_id": "model.gpt3.5-turbo-family",
+        "source_model": "gpt_finetune"
+      },
+      {
+        "basis": "base_family",
+        "evidence": [
+          {
+            "excerpt": "We use GPT-3.5 and fine-tune it",
+            "locator": "Section 4, LLMs Compared / Section 4.6, model identity passages only",
+            "source_id": "erbench-paper-v3"
+          },
+          {
+            "excerpt": "elif model =='gpt_finetune_2':",
+            "locator": "binary/utils.py run_llm dispatch",
+            "source_id": "erbench-utils"
+          }
+        ],
+        "harness": "ERBench",
+        "note": "Documented BASE family only. Private fine-tuned checkpoint and exact base snapshot remain unknown.",
+        "profile_id": "model.gpt3.5-turbo-family",
+        "source_model": "gpt_finetune_2"
+      }
+    ],
+    "version": "profile_matching_v1"
+  },
+  "require_enrichment": true,
+  "review_ledger": "research/feature_foundation/reviews_v1.jsonl",
+  "seed": 20261025,
+  "version": "feature_foundation_v1"
+}
