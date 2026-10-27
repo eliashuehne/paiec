@@ -12,7 +12,7 @@ from training benchmarks only; see ``in_fold_ability``.
 
 from __future__ import annotations
 
-from collections.abc import Iterable, Iterator, Mapping, Sequence
+from collections.abc import Callable, Iterable, Iterator, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -22,6 +22,7 @@ import pandas as pd
 
 from .lift_sample import SEALED
 from .metrics import brier
+from .subject_dates import fill_release_dates, subject_folds
 
 KEYS = ("benchmark", "subject_id", "item_id")
 EPSILON = 1e-15
@@ -46,12 +47,13 @@ ABILITY_STRENGTH = 20
 
 @dataclass(frozen=True)
 class LiftResult:
-    """Scores per held-out fold and per benchmark."""
+    """Scores per held-out fold and benchmark, plus pairs in budget mode."""
 
     columns: tuple[str, ...]
     abilities: tuple[str, ...]
     folds: pd.DataFrame
     benchmarks: pd.DataFrame
+    pairs: pd.DataFrame | None = None
 
 
 def join_features(sample: pd.DataFrame, tables: Iterable[pd.DataFrame]) -> pd.DataFrame:
@@ -191,21 +193,29 @@ def fit_predict(
     test: pd.DataFrame,
     columns: Sequence[str],
     increasing: Sequence[str] = (),
+    offset: tuple[np.ndarray, np.ndarray] | None = None,
 ) -> np.ndarray:
     """Train on ``train`` and return P(correct) for each ``test`` row.
 
     Columns in ``increasing`` may only raise the prediction as they grow.
-    With no columns the prediction is the training correct rate, which is the
-    floor every feature set is compared against.
+    ``offset`` gives starting log-odds for the train and test rows; the trees
+    then learn corrections to it. With no columns the prediction is the offset,
+    or else the training correct rate, the floor every feature set is compared
+    against.
     """
     if not columns:
+        if offset is not None:
+            return 1 / (1 + np.exp(-offset[1]))
         return np.full(len(test), train["label"].mean())
     x_train, x_test = _model_frame(train, test, columns)
     params = PARAMS
     if increasing:
         params = {**PARAMS, "monotone_constraints": [int(c in increasing) for c in columns]}
-    model = lgb.train(params, lgb.Dataset(x_train, label=train["label"]), num_boost_round=ROUNDS)
-    return model.predict(x_test)
+    init = None if offset is None else offset[0]
+    model = lgb.train(params, lgb.Dataset(x_train, label=train["label"], init_score=init), num_boost_round=ROUNDS)
+    if offset is None:
+        return model.predict(x_test)
+    return 1 / (1 + np.exp(-(model.predict(x_test, raw_score=True) + offset[1])))
 
 
 def log_loss(labels: Sequence[float], probabilities: Sequence[float]) -> float:
@@ -228,6 +238,11 @@ def run_lift(
     columns: Sequence[str] = (),
     abilities: Sequence[str] = (),
     groups: Iterable[Sequence[str]] = (),
+    prepare: Callable[[pd.DataFrame], pd.DataFrame] | None = None,
+    prepared_columns: Sequence[str] = (),
+    increasing: Sequence[str] = (),
+    predict: Callable[..., np.ndarray] | None = None,
+    pair_weighted: bool = False,
 ) -> LiftResult:
     """Score ``columns`` on every numbered fold; sealed benchmarks are skipped.
 
@@ -238,10 +253,19 @@ def run_lift(
     or count differs per training benchmark, and trees would use it to memorise
     that benchmark's difficulty, which never transfers.
 
+    ``prepare`` turns each fold's train and test rows into the rows to fit and
+    score, after abilities are built from the full training rows; budget-k mode
+    (``lift_budget``) uses it to reveal labels and add the ``prepared_columns``.
+    Columns in ``increasing`` may only raise P(correct). ``predict`` replaces
+    ``fit_predict`` (same arguments), for rule or offset baselines.
+
     Fold rows report row-weighted Brier and log loss plus ``brier_macro``, the
     mean of per-benchmark Brier, so small benchmarks count as much as large ones.
+    With ``pair_weighted=True`` these scores instead average pair scores and
+    retain the pair table for the global equal-pair mean. Derived release-date
+    columns are always rebuilt without the outer validation fold.
     """
-    missing = sorted((set(columns) | set(abilities)) - set(sample.columns))
+    missing = sorted((set(columns) | set(abilities)) - set(sample.columns) - set(prepared_columns))
     if missing:
         raise ValueError(f"columns not in sample: {missing}")
     if not sample.index.is_unique:
@@ -249,26 +273,67 @@ def run_lift(
     units = group_units(groups)
     ability_columns = [f"{key}_ability" for key in abilities]
     model_columns = [*columns, *ability_columns]
-    folds, benchmarks = [], []
+    monotone = [*ability_columns, *increasing]
+    predict = predict or fit_predict
+    folds, benchmarks, pairs = [], [], []
+    derived_dates = {"release_days_filled", "release_year_filled", "release_lo", "release_hi",
+                     "release_source", "release_filled"} & set(columns)
+    date_inputs = ["subject_id", "identity_key", "family", "line", "version", "log_params_b",
+                   "provider_filled", "release_days", "name_date_days"]
+    if derived_dates:
+        missing_dates = set(date_inputs) - set(sample.columns)
+        if missing_dates:
+            raise ValueError(f"date features require raw subject columns: {sorted(missing_dates)}")
+        date_subjects = sample[date_inputs].drop_duplicates()
+        if date_subjects["subject_id"].duplicated().any():
+            raise ValueError("a subject has inconsistent raw date features")
+        memberships = subject_folds(sample)
     for fold, train, test in fold_splits(sample):
+        if derived_dates:
+            dates = fill_release_dates(date_subjects, memberships, accepted=None, excluded_folds={fold})
+            dates = dates.set_index("subject_id")
+            train, test = (
+                rows.assign(**{c: rows["subject_id"].map(dates[c]) for c in derived_dates})
+                for rows in (train, test)
+            )
         for key, column in zip(abilities, ability_columns):
             train, test = (
                 train.assign(**{column: in_fold_ability(train, train, key, units=units)[column]}),
                 test.assign(**{column: in_fold_ability(train, test, key, units=units)[column]}),
             )
-        scored = test.assign(p=fit_predict(train, test, model_columns, increasing=ability_columns))
-        per_benchmark = [
-            {"fold": fold, "benchmark": name, **_scores(group)}
-            for name, group in scored.groupby("benchmark", sort=True)
-        ]
+        if prepare is not None:
+            train, test = prepare(train), prepare(test)
+        scored = test.assign(p=predict(train, test, model_columns, increasing=monotone))
+        per_pair = pd.DataFrame([
+            {"fold": fold, "benchmark": benchmark, "subject_id": subject, **_scores(group)}
+            for (benchmark, subject), group in scored.groupby(["benchmark", "subject_id"], sort=True)
+        ]) if pair_weighted else None
+        if per_pair is not None:
+            pairs.append(per_pair)
+            per_benchmark = [
+                {"fold": fold, "benchmark": name, "rows": int(group["rows"].sum()),
+                 "brier": float(group["brier"].mean()), "log_loss": float(group["log_loss"].mean())}
+                for name, group in per_pair.groupby("benchmark", sort=True)
+            ]
+            scores = {"rows": len(scored), "brier": float(per_pair["brier"].mean()),
+                      "log_loss": float(per_pair["log_loss"].mean())}
+        else:
+            per_benchmark = [
+                {"fold": fold, "benchmark": name, **_scores(group)}
+                for name, group in scored.groupby("benchmark", sort=True)
+            ]
+            scores = _scores(scored)
         benchmarks.extend(per_benchmark)
         folds.append({
             "fold": fold,
             "benchmarks": len(per_benchmark),
-            **_scores(scored),
+            **scores,
             "brier_macro": float(np.mean([row["brier"] for row in per_benchmark])),
         })
-    return LiftResult(tuple(columns), tuple(abilities), pd.DataFrame(folds), pd.DataFrame(benchmarks))
+    return LiftResult(
+        tuple(columns), tuple(abilities), pd.DataFrame(folds), pd.DataFrame(benchmarks),
+        pd.concat(pairs, ignore_index=True) if pair_weighted else None,
+    )
 
 
 __all__ = [
