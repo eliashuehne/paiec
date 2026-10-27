@@ -12,6 +12,8 @@ Install the optional preparation dependency:
 pip install -e '.[features]'
 ```
 
+For development tests, install `.[dev,features]` and run `python -m pytest`.
+
 The default command prints a plan without opening source data or creating output:
 
 ```bash
@@ -64,7 +66,8 @@ All 14 tables have explicit nullable Arrow schemas and `.parquet` filenames.
 | `profile_matches` | A model or harness matching disposition per visible system |
 | `research_system_features` | An available, qualified research field per matched system |
 
-Start a training-input join from `training_eligibility` where `eligible=true`.
+For a recipe using the frozen preparation roles, start a training-input join
+from `training_eligibility` where `eligible=true`.
 Follow item/variant and task keys; response inputs join by
 `(item_key, interactor_key)` and subjects by `(benchmark, subject_id)`.
 `safe_left_join` checks composite many-to-one joins. Preserve orphan/protected
@@ -102,7 +105,50 @@ view is separate. Unmatched profiles remain in the collection.
   decisions for a later training recipe. These roles do not replace the lift
   runner’s own folds or sealed holdout; consumers must apply those boundaries too.
 - Response outcomes, grading rules, reference answers, test conditions and traces
-  are not read. Existing evaluation, subject-feature and prediction code is unchanged.
+  are not read. Existing scoring, subject-feature and prediction logic is unchanged.
+
+## Use with the lift loop
+
+Keep the [existing lift sample and subject-feature builders](lift.md#quick-start).
+Export a supplied-only view for that sample after validating the bundle:
+
+```bash
+python scripts/lift/build_foundation_features.py \
+  --bundle runs/features/foundation_v1 --sample runs/lift/sample.parquet \
+  --out runs/features/foundation_lift_v1 --execute
+```
+
+Omit `--execute` to print the plan without opening inputs. Export uses a fresh
+directory and reads only the sample's `benchmark`, `subject_id`, `item_id` and
+`trial` columns. It checks the consumed bundle artifacts against their manifest.
+The separate full validator checks all tables and relationships.
+
+The resulting `features.parquet` works alongside the existing subject features:
+
+```bash
+python scripts/lift/run_lift.py --base KM \
+  --features runs/features/subjects.parquet runs/features/foundation_lift_v1/features.parquet \
+  --columns recorded_few_shot_count task_content_characters --name recorded_and_task
+```
+
+This second command runs a predictive experiment; export alone does not. No
+improvement has been measured. Select columns explicitly: `recorded_*` contains
+18 settings with separate `*_status` columns; `task_*` contains the 19 task
+measurements. Known zero, false and empty lists stay distinct from unknown.
+Lists use their JSON text as categorical values. The adjacent dictionary records
+types and definitions; coverage records missing/ambiguous/protected counts, and
+the manifest pins the sample, consumed bundle artifacts, code and outputs.
+
+Task resolution uses each exact subject/item/trial's recorded interactor variant.
+Conflicting variants at the same key produce null task features. Identical
+repeated trials share one feature row and remain separate scoring rows. Protected
+inputs remain null; the export never reads research or adds its availability as
+a feature. Missing-input reasons stay in the coverage report, outside model columns.
+
+The export neither selects rows using preparation splits nor changes the lift
+sample. The lift loop remains responsible for folds, sealed holdout, acquisition
+budgets and in-fold estimates. Its identity/family/date builders remain the
+source of those features; research profile matching has a different purpose.
 
 ## Reference
 

@@ -21,6 +21,7 @@ import numpy as np
 import pandas as pd
 
 from .lift_sample import SEALED
+from .feature_join import safe_left_join
 from .metrics import brier
 from .subject_dates import fill_release_dates, subject_folds
 
@@ -62,18 +63,16 @@ def join_features(sample: pd.DataFrame, tables: Iterable[pd.DataFrame]) -> pd.Da
     A table keyed by ``item_id`` alone adds item features; one keyed by
     ``subject_id`` adds subject features. Keys must be unique in each table and
     feature names must not clash, so a join never duplicates or overwrites rows.
+    ``trial`` is an optional additional key for features of an exact attempt.
     """
     joined = sample
     for table in tables:
         keys = [key for key in KEYS if key in table.columns]
         if not keys:
             raise ValueError(f"feature table has none of the keys {KEYS}")
-        if table.duplicated(keys).any():
-            raise ValueError(f"feature table has duplicate keys on {keys}")
-        clash = sorted((set(table.columns) - set(keys)) & set(joined.columns))
-        if clash:
-            raise ValueError(f"feature columns already present: {clash}")
-        joined = joined.merge(table, on=keys, how="left", validate="many_to_one")
+        if "trial" in table:
+            keys.append("trial")
+        joined = safe_left_join(joined, table, keys)
     return joined
 
 

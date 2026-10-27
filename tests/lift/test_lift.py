@@ -282,6 +282,23 @@ class JoinFeatureTests(unittest.TestCase):
         self.assertEqual(joined.loc[joined["subject_id"] == "s1", "provider"].unique().tolist(), ["b"])
         self.assertTrue(joined.loc[joined["subject_id"] == "s2", "provider"].isna().all())
 
+    def test_trial_features_preserve_repeated_sample_rows_and_bookkeeping(self):
+        sample = pd.DataFrame({"benchmark": ["a", "a", "a"], "subject_id": ["s"] * 3,
+                               "item_id": ["i"] * 3, "trial": [1, 0, 1],
+                               "label": [0, 1, 1], "fold": ["0", "sealed", "0"],
+                               "pool": ["evaluate", "reveal", "evaluate"], "order": [-1, 0, -1]})
+        features = pd.DataFrame({"benchmark": ["a", "a"], "subject_id": ["s"] * 2,
+                                 "item_id": ["i"] * 2, "trial": [0, 1], "task_chars": [10, 20]})
+        joined = join_features(sample, [features])
+        pd.testing.assert_frame_equal(joined[sample.columns], sample)
+        self.assertEqual(joined.task_chars.tolist(), [20, 10, 20])
+
+    def test_null_feature_keys_and_trial_without_entity_key_raise(self):
+        for table in [pd.DataFrame({"subject_id": [None], "x": [1]}),
+                      pd.DataFrame({"trial": [0], "x": [1]})]:
+            with self.subTest(columns=list(table)), self.assertRaises(ValueError):
+                join_features(self.sample, [table])
+
     def test_duplicate_keys_raise(self):
         with self.assertRaises(ValueError):
             join_features(self.sample, [pd.DataFrame({"subject_id": ["s0", "s0"], "x": [1, 2]})])

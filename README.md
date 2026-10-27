@@ -70,3 +70,5 @@ release-date estimates, with their results, are in [docs/subjects.md](docs/subje
 full downloaded release: preserved inputs, recorded settings, task measurements
 and separate research facts. Its plan-first command and standalone validator
 require no model or experiment-tracking service. Generated data stays in `runs/`.
+Its supplied-only export adds recorded settings and task measurements to the
+[existing lift loop](docs/feature-foundation.md#use-with-the-lift-loop).

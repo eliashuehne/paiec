@@ -53,6 +53,13 @@ is appended to `runs/lift/history.jsonl`.
    `lift.in_fold_ability`. `lift_report.is_label_free` checks a builder.
 4. Run `scripts/lift/run_lift.py` and read the report.
 
+The [feature foundation](feature-foundation.md#use-with-the-lift-loop) exports
+supplied run settings and task measurements for an existing sample. Its table
+joins alongside `subjects.parquet`; it also uses `trial` to distinguish recorded
+input variants. Existing item/subject tables retain their usual keys. Feature
+keys must be non-null and unique. Preparation roles do not replace these folds,
+and researched facts are excluded from the export.
+
 ## Reading the report
 
 ```

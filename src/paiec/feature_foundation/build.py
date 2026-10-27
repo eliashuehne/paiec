@@ -56,7 +56,7 @@ def build_bundle(config, *, source_root, out, progress=None):
     source_root, out = Path(source_root).resolve(), Path(out).resolve()
     code_root = Path(__file__).parent
     code_hashes = {p.name: file_hash(p) for p in sorted(code_root.glob("*.py"))}
-    dependency_paths = [code_root.parent / name for name in ("schema.py", "split.py")]
+    dependency_paths = [code_root.parent / name for name in ("schema.py", "split.py", "feature_join.py")]
     dependency_hashes = {p.name: file_hash(p) for p in dependency_paths}
     # Check physical overlap before touching either input or output contents.
     for relative in (config.data_root, config.enrichment_export):
