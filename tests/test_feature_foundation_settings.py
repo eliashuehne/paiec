@@ -10,6 +10,12 @@ class SettingsTests(unittest.TestCase):
             self.fail("Typed settings extraction is missing")
         return module.parse_run_settings(dict(subject_features_extra=extra, **fields))
 
+    def test_first_public_settings_policy_is_v1(self):
+        from paiec.feature_foundation.settings import POLICY_VERSION
+        self.assertEqual(POLICY_VERSION, 'recorded_settings_v1')
+        self.assertEqual({row['policy_version'] for row in self.parse('n_shots=5')['resolved']},
+                         {'recorded_settings_v1'})
+
     def test_known_zero_and_empty_tool_list_remain_known(self):
         result = self.parse('n_shots=5;temperature=0;max_retries=0;enabled_tools=[]')
         values = {r["field"]: r for r in result["resolved"]}

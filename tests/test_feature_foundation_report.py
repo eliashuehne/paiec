@@ -12,6 +12,15 @@ from paiec.feature_foundation.tables import write_table
 
 
 class ReportTests(unittest.TestCase):
+    def test_first_public_dictionary_has_no_internal_revision_labels(self):
+        from paiec.feature_foundation.report import feature_dictionary
+        entries = feature_dictionary([])
+        self.assertEqual({row['version'] for row in entries}, {'feature_foundation_v1'})
+        recorded = [row for row in entries if row['name'].startswith('run.')]
+        self.assertTrue(all('recorded_settings_v1' in row['definition'] for row in recorded))
+        semantic = [row for row in entries if row['name'].startswith('semantic.')]
+        self.assertTrue(all('task-taxonomy-v2' not in row['definition'] for row in semantic))
+
     def test_sparse_research_fields_and_protected_subjects_are_in_the_denominator(self):
         with tempfile.TemporaryDirectory() as root, tempfile.TemporaryDirectory() as dest:
             config = FeatureFoundationConfig.model_validate(corpus(root))

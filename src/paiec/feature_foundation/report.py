@@ -35,7 +35,7 @@ def feature_dictionary(facts):
         add("research." + entity + "." + field, "qualified_json", "Combined shared-export " + entity + " fact: " + field,
             "Candidate functional capacity or architecture context, conditional on identity and historical applicability.", eligibility="research_only")
     for field in FACETS:
-        add("semantic." + field, "candidate_labels", "Existing task-taxonomy-v2 facet: " + field,
+        add("semantic." + field, "candidate_labels", "Candidate task taxonomy facet: " + field,
             "Reviewed task requirements could support cross-domain transfer; no bulk labels are approved.", status="deferred_unreviewed", grain="visible_task")
     for field in ("language_match", "domain_match", "context_to_capacity", "required_tool_enabled", "semantic_embedding", "demonstrated_ability", "revealed_evidence"):
         add("candidate." + field, "not_materialized", "Proposed compatibility/representation/evidence family: " + field,

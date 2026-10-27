@@ -137,7 +137,7 @@
   },
   {
     "availability": "supplied_at_prediction",
-    "definition": "Recorded setting observations resolved by recorded_settings_v3: few_shot_count",
+    "definition": "Recorded setting observations resolved by recorded_settings_v1: few_shot_count",
     "eligibility": "supplied_only",
     "fit_scope": "none",
     "grain": "system",
@@ -147,14 +147,14 @@
     "name": "run.few_shot_count",
     "quality": "deterministic_observable_not_predictive_validation",
     "source_fields": [
-      "Recorded setting observations resolved by recorded_settings_v3: few_shot_count"
+      "Recorded setting observations resolved by recorded_settings_v1: few_shot_count"
     ],
     "status": "implemented",
     "version": "feature_foundation_v1"
   },
   {
     "availability": "supplied_at_prediction",
-    "definition": "Recorded setting observations resolved by recorded_settings_v3: prompting_method",
+    "definition": "Recorded setting observations resolved by recorded_settings_v1: prompting_method",
     "eligibility": "supplied_only",
     "fit_scope": "none",
     "grain": "system",
@@ -164,14 +164,14 @@
     "name": "run.prompting_method",
     "quality": "deterministic_observable_not_predictive_validation",
     "source_fields": [
-      "Recorded setting observations resolved by recorded_settings_v3: prompting_method"
+      "Recorded setting observations resolved by recorded_settings_v1: prompting_method"
     ],
     "status": "implemented",
     "version": "feature_foundation_v1"
   },
   {
     "availability": "supplied_at_prediction",
-    "definition": "Recorded setting observations resolved by recorded_settings_v3: selection_method",
+    "definition": "Recorded setting observations resolved by recorded_settings_v1: selection_method",
     "eligibility": "supplied_only",
     "fit_scope": "none",
     "grain": "system",
@@ -181,14 +181,14 @@
     "name": "run.selection_method",
     "quality": "deterministic_observable_not_predictive_validation",
     "source_fields": [
-      "Recorded setting observations resolved by recorded_settings_v3: selection_method"
+      "Recorded setting observations resolved by recorded_settings_v1: selection_method"
     ],
     "status": "implemented",
     "version": "feature_foundation_v1"
   },
   {
     "availability": "supplied_at_prediction",
-    "definition": "Recorded setting observations resolved by recorded_settings_v3: reasoning_effort",
+    "definition": "Recorded setting observations resolved by recorded_settings_v1: reasoning_effort",
     "eligibility": "supplied_only",
     "fit_scope": "none",
     "grain": "system",
@@ -198,14 +198,14 @@
     "name": "run.reasoning_effort",
     "quality": "deterministic_observable_not_predictive_validation",
     "source_fields": [
-      "Recorded setting observations resolved by recorded_settings_v3: reasoning_effort"
+      "Recorded setting observations resolved by recorded_settings_v1: reasoning_effort"
     ],
     "status": "implemented",
     "version": "feature_foundation_v1"
   },
   {
     "availability": "supplied_at_prediction",
-    "definition": "Recorded setting observations resolved by recorded_settings_v3: max_input_tokens",
+    "definition": "Recorded setting observations resolved by recorded_settings_v1: max_input_tokens",
     "eligibility": "supplied_only",
     "fit_scope": "none",
     "grain": "system",
@@ -215,14 +215,14 @@
     "name": "run.max_input_tokens",
     "quality": "deterministic_observable_not_predictive_validation",
     "source_fields": [
-      "Recorded setting observations resolved by recorded_settings_v3: max_input_tokens"
+      "Recorded setting observations resolved by recorded_settings_v1: max_input_tokens"
     ],
     "status": "implemented",
     "version": "feature_foundation_v1"
   },
   {
     "availability": "supplied_at_prediction",
-    "definition": "Recorded setting observations resolved by recorded_settings_v3: max_output_tokens",
+    "definition": "Recorded setting observations resolved by recorded_settings_v1: max_output_tokens",
     "eligibility": "supplied_only",
     "fit_scope": "none",
     "grain": "system",
@@ -232,14 +232,14 @@
     "name": "run.max_output_tokens",
     "quality": "deterministic_observable_not_predictive_validation",
     "source_fields": [
-      "Recorded setting observations resolved by recorded_settings_v3: max_output_tokens"
+      "Recorded setting observations resolved by recorded_settings_v1: max_output_tokens"
     ],
     "status": "implemented",
     "version": "feature_foundation_v1"
   },
   {
     "availability": "supplied_at_prediction",
-    "definition": "Recorded setting observations resolved by recorded_settings_v3: max_reasoning_tokens",
+    "definition": "Recorded setting observations resolved by recorded_settings_v1: max_reasoning_tokens",
     "eligibility": "supplied_only",
     "fit_scope": "none",
     "grain": "system",
@@ -249,14 +249,14 @@
     "name": "run.max_reasoning_tokens",
     "quality": "deterministic_observable_not_predictive_validation",
     "source_fields": [
-      "Recorded setting observations resolved by recorded_settings_v3: max_reasoning_tokens"
+      "Recorded setting observations resolved by recorded_settings_v1: max_reasoning_tokens"
     ],
     "status": "implemented",
     "version": "feature_foundation_v1"
   },
   {
     "availability": "supplied_at_prediction",
-    "definition": "Recorded setting observations resolved by recorded_settings_v3: max_turns",
+    "definition": "Recorded setting observations resolved by recorded_settings_v1: max_turns",
     "eligibility": "supplied_only",
     "fit_scope": "none",
     "grain": "system",
@@ -266,14 +266,14 @@
     "name": "run.max_turns",
     "quality": "deterministic_observable_not_predictive_validation",
     "source_fields": [
-      "Recorded setting observations resolved by recorded_settings_v3: max_turns"
+      "Recorded setting observations resolved by recorded_settings_v1: max_turns"
     ],
     "status": "implemented",
     "version": "feature_foundation_v1"
   },
   {
     "availability": "supplied_at_prediction",
-    "definition": "Recorded setting observations resolved by recorded_settings_v3: max_tool_calls",
+    "definition": "Recorded setting observations resolved by recorded_settings_v1: max_tool_calls",
     "eligibility": "supplied_only",
     "fit_scope": "none",
     "grain": "system",
@@ -283,14 +283,14 @@
     "name": "run.max_tool_calls",
     "quality": "deterministic_observable_not_predictive_validation",
     "source_fields": [
-      "Recorded setting observations resolved by recorded_settings_v3: max_tool_calls"
+      "Recorded setting observations resolved by recorded_settings_v1: max_tool_calls"
     ],
     "status": "implemented",
     "version": "feature_foundation_v1"
   },
   {
     "availability": "supplied_at_prediction",
-    "definition": "Recorded setting observations resolved by recorded_settings_v3: max_retries",
+    "definition": "Recorded setting observations resolved by recorded_settings_v1: max_retries",
     "eligibility": "supplied_only",
     "fit_scope": "none",
     "grain": "system",
@@ -300,14 +300,14 @@
     "name": "run.max_retries",
     "quality": "deterministic_observable_not_predictive_validation",
     "source_fields": [
-      "Recorded setting observations resolved by recorded_settings_v3: max_retries"
+      "Recorded setting observations resolved by recorded_settings_v1: max_retries"
     ],
     "status": "implemented",
     "version": "feature_foundation_v1"
   },
   {
     "availability": "supplied_at_prediction",
-    "definition": "Recorded setting observations resolved by recorded_settings_v3: candidate_count",
+    "definition": "Recorded setting observations resolved by recorded_settings_v1: candidate_count",
     "eligibility": "supplied_only",
     "fit_scope": "none",
     "grain": "system",
@@ -317,14 +317,14 @@
     "name": "run.candidate_count",
     "quality": "deterministic_observable_not_predictive_validation",
     "source_fields": [
-      "Recorded setting observations resolved by recorded_settings_v3: candidate_count"
+      "Recorded setting observations resolved by recorded_settings_v1: candidate_count"
     ],
     "status": "implemented",
     "version": "feature_foundation_v1"
   },
   {
     "availability": "supplied_at_prediction",
-    "definition": "Recorded setting observations resolved by recorded_settings_v3: temperature",
+    "definition": "Recorded setting observations resolved by recorded_settings_v1: temperature",
     "eligibility": "supplied_only",
     "fit_scope": "none",
     "grain": "system",
@@ -334,14 +334,14 @@
     "name": "run.temperature",
     "quality": "deterministic_observable_not_predictive_validation",
     "source_fields": [
-      "Recorded setting observations resolved by recorded_settings_v3: temperature"
+      "Recorded setting observations resolved by recorded_settings_v1: temperature"
     ],
     "status": "implemented",
     "version": "feature_foundation_v1"
   },
   {
     "availability": "supplied_at_prediction",
-    "definition": "Recorded setting observations resolved by recorded_settings_v3: top_p",
+    "definition": "Recorded setting observations resolved by recorded_settings_v1: top_p",
     "eligibility": "supplied_only",
     "fit_scope": "none",
     "grain": "system",
@@ -351,14 +351,14 @@
     "name": "run.top_p",
     "quality": "deterministic_observable_not_predictive_validation",
     "source_fields": [
-      "Recorded setting observations resolved by recorded_settings_v3: top_p"
+      "Recorded setting observations resolved by recorded_settings_v1: top_p"
     ],
     "status": "implemented",
     "version": "feature_foundation_v1"
   },
   {
     "availability": "supplied_at_prediction",
-    "definition": "Recorded setting observations resolved by recorded_settings_v3: enabled_tools",
+    "definition": "Recorded setting observations resolved by recorded_settings_v1: enabled_tools",
     "eligibility": "supplied_only",
     "fit_scope": "none",
     "grain": "system",
@@ -368,14 +368,14 @@
     "name": "run.enabled_tools",
     "quality": "deterministic_observable_not_predictive_validation",
     "source_fields": [
-      "Recorded setting observations resolved by recorded_settings_v3: enabled_tools"
+      "Recorded setting observations resolved by recorded_settings_v1: enabled_tools"
     ],
     "status": "implemented",
     "version": "feature_foundation_v1"
   },
   {
     "availability": "supplied_at_prediction",
-    "definition": "Recorded setting observations resolved by recorded_settings_v3: quantization",
+    "definition": "Recorded setting observations resolved by recorded_settings_v1: quantization",
     "eligibility": "supplied_only",
     "fit_scope": "none",
     "grain": "system",
@@ -385,14 +385,14 @@
     "name": "run.quantization",
     "quality": "deterministic_observable_not_predictive_validation",
     "source_fields": [
-      "Recorded setting observations resolved by recorded_settings_v3: quantization"
+      "Recorded setting observations resolved by recorded_settings_v1: quantization"
     ],
     "status": "implemented",
     "version": "feature_foundation_v1"
   },
   {
     "availability": "supplied_at_prediction",
-    "definition": "Recorded setting observations resolved by recorded_settings_v3: serving_configuration",
+    "definition": "Recorded setting observations resolved by recorded_settings_v1: serving_configuration",
     "eligibility": "supplied_only",
     "fit_scope": "none",
     "grain": "system",
@@ -402,14 +402,14 @@
     "name": "run.serving_configuration",
     "quality": "deterministic_observable_not_predictive_validation",
     "source_fields": [
-      "Recorded setting observations resolved by recorded_settings_v3: serving_configuration"
+      "Recorded setting observations resolved by recorded_settings_v1: serving_configuration"
     ],
     "status": "implemented",
     "version": "feature_foundation_v1"
   },
   {
     "availability": "supplied_at_prediction",
-    "definition": "Recorded setting observations resolved by recorded_settings_v3: sampling_enabled",
+    "definition": "Recorded setting observations resolved by recorded_settings_v1: sampling_enabled",
     "eligibility": "supplied_only",
     "fit_scope": "none",
     "grain": "system",
@@ -419,14 +419,14 @@
     "name": "run.sampling_enabled",
     "quality": "deterministic_observable_not_predictive_validation",
     "source_fields": [
-      "Recorded setting observations resolved by recorded_settings_v3: sampling_enabled"
+      "Recorded setting observations resolved by recorded_settings_v1: sampling_enabled"
     ],
     "status": "implemented",
     "version": "feature_foundation_v1"
   },
   {
     "availability": "supplied_at_prediction",
-    "definition": "Recorded setting observations resolved by recorded_settings_v3: reported_method",
+    "definition": "Recorded setting observations resolved by recorded_settings_v1: reported_method",
     "eligibility": "supplied_only",
     "fit_scope": "none",
     "grain": "system",
@@ -436,7 +436,7 @@
     "name": "run.reported_method",
     "quality": "deterministic_observable_not_predictive_validation",
     "source_fields": [
-      "Recorded setting observations resolved by recorded_settings_v3: reported_method"
+      "Recorded setting observations resolved by recorded_settings_v1: reported_method"
     ],
     "status": "implemented",
     "version": "feature_foundation_v1"
@@ -1361,7 +1361,7 @@
   },
   {
     "availability": "supplied_at_prediction",
-    "definition": "Existing task-taxonomy-v2 facet: language",
+    "definition": "Candidate task taxonomy facet: language",
     "eligibility": "supplied_only",
     "fit_scope": "separate_training_only_design_required",
     "grain": "visible_task",
@@ -1371,14 +1371,14 @@
     "name": "semantic.language",
     "quality": "deterministic_observable_not_predictive_validation",
     "source_fields": [
-      "Existing task-taxonomy-v2 facet: language"
+      "Candidate task taxonomy facet: language"
     ],
     "status": "deferred_unreviewed",
     "version": "feature_foundation_v1"
   },
   {
     "availability": "supplied_at_prediction",
-    "definition": "Existing task-taxonomy-v2 facet: domain",
+    "definition": "Candidate task taxonomy facet: domain",
     "eligibility": "supplied_only",
     "fit_scope": "separate_training_only_design_required",
     "grain": "visible_task",
@@ -1388,14 +1388,14 @@
     "name": "semantic.domain",
     "quality": "deterministic_observable_not_predictive_validation",
     "source_fields": [
-      "Existing task-taxonomy-v2 facet: domain"
+      "Candidate task taxonomy facet: domain"
     ],
     "status": "deferred_unreviewed",
     "version": "feature_foundation_v1"
   },
   {
     "availability": "supplied_at_prediction",
-    "definition": "Existing task-taxonomy-v2 facet: skills",
+    "definition": "Candidate task taxonomy facet: skills",
     "eligibility": "supplied_only",
     "fit_scope": "separate_training_only_design_required",
     "grain": "visible_task",
@@ -1405,14 +1405,14 @@
     "name": "semantic.skills",
     "quality": "deterministic_observable_not_predictive_validation",
     "source_fields": [
-      "Existing task-taxonomy-v2 facet: skills"
+      "Candidate task taxonomy facet: skills"
     ],
     "status": "deferred_unreviewed",
     "version": "feature_foundation_v1"
   },
   {
     "availability": "supplied_at_prediction",
-    "definition": "Existing task-taxonomy-v2 facet: reasoning_structure",
+    "definition": "Candidate task taxonomy facet: reasoning_structure",
     "eligibility": "supplied_only",
     "fit_scope": "separate_training_only_design_required",
     "grain": "visible_task",
@@ -1422,14 +1422,14 @@
     "name": "semantic.reasoning_structure",
     "quality": "deterministic_observable_not_predictive_validation",
     "source_fields": [
-      "Existing task-taxonomy-v2 facet: reasoning_structure"
+      "Candidate task taxonomy facet: reasoning_structure"
     ],
     "status": "deferred_unreviewed",
     "version": "feature_foundation_v1"
   },
   {
     "availability": "supplied_at_prediction",
-    "definition": "Existing task-taxonomy-v2 facet: modalities",
+    "definition": "Candidate task taxonomy facet: modalities",
     "eligibility": "supplied_only",
     "fit_scope": "separate_training_only_design_required",
     "grain": "visible_task",
@@ -1439,14 +1439,14 @@
     "name": "semantic.modalities",
     "quality": "deterministic_observable_not_predictive_validation",
     "source_fields": [
-      "Existing task-taxonomy-v2 facet: modalities"
+      "Candidate task taxonomy facet: modalities"
     ],
     "status": "deferred_unreviewed",
     "version": "feature_foundation_v1"
   },
   {
     "availability": "supplied_at_prediction",
-    "definition": "Existing task-taxonomy-v2 facet: answer_format",
+    "definition": "Candidate task taxonomy facet: answer_format",
     "eligibility": "supplied_only",
     "fit_scope": "separate_training_only_design_required",
     "grain": "visible_task",
@@ -1456,14 +1456,14 @@
     "name": "semantic.answer_format",
     "quality": "deterministic_observable_not_predictive_validation",
     "source_fields": [
-      "Existing task-taxonomy-v2 facet: answer_format"
+      "Candidate task taxonomy facet: answer_format"
     ],
     "status": "deferred_unreviewed",
     "version": "feature_foundation_v1"
   },
   {
     "availability": "supplied_at_prediction",
-    "definition": "Existing task-taxonomy-v2 facet: information_needs",
+    "definition": "Candidate task taxonomy facet: information_needs",
     "eligibility": "supplied_only",
     "fit_scope": "separate_training_only_design_required",
     "grain": "visible_task",
@@ -1473,14 +1473,14 @@
     "name": "semantic.information_needs",
     "quality": "deterministic_observable_not_predictive_validation",
     "source_fields": [
-      "Existing task-taxonomy-v2 facet: information_needs"
+      "Candidate task taxonomy facet: information_needs"
     ],
     "status": "deferred_unreviewed",
     "version": "feature_foundation_v1"
   },
   {
     "availability": "supplied_at_prediction",
-    "definition": "Existing task-taxonomy-v2 facet: input_issues",
+    "definition": "Candidate task taxonomy facet: input_issues",
     "eligibility": "supplied_only",
     "fit_scope": "separate_training_only_design_required",
     "grain": "visible_task",
@@ -1490,7 +1490,7 @@
     "name": "semantic.input_issues",
     "quality": "deterministic_observable_not_predictive_validation",
     "source_fields": [
-      "Existing task-taxonomy-v2 facet: input_issues"
+      "Candidate task taxonomy facet: input_issues"
     ],
     "status": "deferred_unreviewed",
     "version": "feature_foundation_v1"

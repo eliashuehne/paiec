@@ -20,7 +20,7 @@ ALIASES = {**{name: name for name in FIELDS}, "n_shots": "few_shot_count", "shot
            "selection": "selection_method", "method": "reported_method"}
 CONTAINERS = {"agent_configuration", "tool_configuration", "configuration", "config", "settings", "subject_features_extra", "released_configuration"}
 SETTING_BRANCHES = CONTAINERS | {"llm", "generation_parameters", "generation_config", "sampling_params"}
-POLICY_VERSION = "recorded_settings_v3"
+POLICY_VERSION = "recorded_settings_v1"
 
 
 class _ObservedObject(dict):

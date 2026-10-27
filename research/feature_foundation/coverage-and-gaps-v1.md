@@ -128,7 +128,6 @@ Priorities reflect source reach and contract completeness, not measured feature 
 
 ## Verification
 
-The standalone main-branch preparation reproduces all 14 logical table hashes,
-schemas and row counts from the original feature foundation. All 256 tests pass
-on Python 3.10 and 3.12. The [audit](audit_v1.json) records current code hashes and
-validation evidence. No model was trained or evaluated by preparation.
+The v1 release contains 14 tables with checked hashes, schemas, row counts and
+cross-table links. The [audit](audit_v1.json) records code hashes, test results
+and validation evidence. No model was trained or evaluated by preparation.

@@ -3,6 +3,8 @@
 Prepare model-independent features for the entire downloaded public release.
 The command preserves supplied inputs and separates recorded settings, task
 measurements and researched facts. It does not train models or read outcomes.
+This is the first public v1 of the tables, settings policy and lift
+export. Source archive names and evidence revisions retain their original names.
 
 ## Build and validate
 

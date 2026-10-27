@@ -16,9 +16,9 @@
     "joins.py": "cf3d73107fab3e8b7047b875acdac474c4511e3faeb8a1bb68796ac1dc252eb1",
     "lift.py": "fd877bad70e45bb7d994ed7b14e1e96d9c646593a370c70a4109563c4c2f4edd",
     "matching.py": "a4f179db944380896aa5cbe38a4e4b1b5c2840c4afdf4c703dcc7d0014f16c3d",
-    "report.py": "be0c95fcd5e25b66ef363b0ff4f04a48dc3ec4396bedc5dfefe9f305da24ddbd",
+    "report.py": "2007bd977a37939b2cbb345ed0a8ffe7fdf128850c9e499bae0c66b6ae60dd81",
     "review.py": "f179d8fab98bfc4dc43ffc43909afbf485519026ac6ca8361093aa7de4aeb257",
-    "settings.py": "a9830f54d5d9e4a56d85cab193425ebe7c7f77e67f0ace3166cf688bf6d9d43e",
+    "settings.py": "fa6b47c115f2c6ad85c20b06933aed94c6cc8caca707d129fe1a4b74eeb9768a",
     "sources.py": "0ae8853b846b6e786dbace439cfe6c8319a44483f45162b06740a44b1b242209",
     "streaming.py": "46f4e54fb7813b3a808aa052ea8ab7f9c13084bf7396d5d1bfb7f345b42d9139",
     "tables.py": "f3606f49f312ea03017dea06ac940259c0809ba073b2bddf733f29f4efa4a2d9",
@@ -35,7 +35,7 @@
   "distinct_processed_visible_tasks": 692987,
   "feature_dictionary": {
     "path": "research/feature_foundation/feature_dictionary_v1.json",
-    "sha256": "c0852915e7438c5debead79edfc5f5f5a9cbbf2db1862d3ec33ee3193916476e"
+    "sha256": "656b72431de64236cf98a67f1150625b1c3b58ceeaba4975cd5b07783510001e"
   },
   "feature_version": "feature_foundation_v1",
   "gaps": [
@@ -164,7 +164,7 @@
       "trial"
     ],
     "source_only_smoke": {
-      "bundle_manifest_sha256": "9b982e6d043ad77c4f98e31f69a3dd04053fbe15f453a16a2a2b6b7c3924d1fe",
+      "bundle_manifest_sha256": "4611176b18c416b844c4fa3410e3e82c8cb765c1ac9ce020408233537a230b9b",
       "collections": 61,
       "coverage": {
         "sample_rows": 488,
@@ -194,12 +194,7 @@
     "Multimodal assets were not read",
     "Semantic labels are candidates outside the default projection"
   ],
-  "local_bundle": "runs/feature_foundation_main_port/v3",
-  "logical_reproduction": {
-    "comparison": "logical_sha256, explicit schemas and row counts",
-    "matched_tables": 14,
-    "reference_commit": "f878bf677b08f37261ccf61b34bae04678c35c8b"
-  },
+  "local_bundle": "runs/features/foundation_v1",
   "logical_tables": {
     "content_groups": {
       "logical_sha256": "332a0741615751235bb502ac90472ebd57f0324e26c8a9f9a0da6e4ce0b3d60b",
@@ -237,7 +232,7 @@
       "schema": "benchmark: string\nsource_row: int64\nresponse_id: string\nsubject_id: string\nitem_id: string\ntrial: int64\nsystem_key: string\nitem_key: string\ninteractor_key: string\nstatus: string"
     },
     "run_settings": {
-      "logical_sha256": "354dccba1034538d3050db5877b623b66ec25c07e796b004292ba586e24a1866",
+      "logical_sha256": "f30af1e008825fcddfddd4cbfbc752552b06140a2f520719862b0068617b6fdc",
       "rows": 128880,
       "schema": "system_key: string\nfield: string\nvalue_type: string\nvalue_json: string\nstatus: string\nreason: string\nsource_scope: string\nobservation_ids: list<item: string>\n  child 0, item: string\npolicy_version: string"
     },
@@ -272,7 +267,6 @@
       "schema": "benchmark: string\nitem_key: string\ntask_key: string\nsplit: string\neligible: bool\nreason: string"
     }
   },
-  "logical_tables_reproduced": true,
   "population": {
     "benchmarks": 61,
     "items": 1356713,
@@ -289,6 +283,12 @@
       "matched": 247,
       "unresolved": 6913
     }
+  },
+  "release_versions": {
+    "lift_export": "foundation_lift_v1",
+    "profile_matching": "profile_matching_v1",
+    "settings_policy": "recorded_settings_v1",
+    "tables": "feature_foundation_v1"
   },
   "research_features": {
     "harness.context_management": {
@@ -810,27 +810,9 @@
     "withheld_protected": 97074
   },
   "verification": {
-    "clean_source_export": {
-      "passed": 265,
-      "scope": "full main suite; no local payload, models or tracking",
-      "subtests_passed": 28
-    },
-    "code_review": {
-      "P2_findings_fixed": 1,
-      "fresh_context": true,
-      "lift_integration": {
-        "fresh_context": true,
-        "material_findings": 0,
-        "remaining_blockers": 0,
-        "subtests_passed": 6,
-        "targeted_tests_passed": 42
-      },
-      "remaining_blockers": 0
-    },
-    "full_build_validation": "passed",
-    "standalone_validation": "python scripts/validate_feature_foundation.py --bundle runs/feature_foundation_main_port/v3 --require-review",
-    "standalone_validation_result": {
+    "bundle_validation": {
       "artifacts": 124,
+      "invoked_by": "build_bundle",
       "population": {
         "benchmarks": 61,
         "items": 1356713,
@@ -838,15 +820,25 @@
         "subjects": 8163
       },
       "review_complete": true,
-      "valid": true
+      "valid": true,
+      "validator": "validate_bundle"
+    },
+    "clean_source_export": {
+      "passed": 267,
+      "scope": "full suite; no local payload, models or tracking",
+      "subtests_passed": 28
+    },
+    "code_review": {
+      "fresh_context": true,
+      "remaining_blockers": 0
     },
     "tests": {
       "python_3_10": {
-        "passed": 265,
+        "passed": 267,
         "subtests_passed": 28
       },
       "python_3_12": {
-        "passed": 265,
+        "passed": 267,
         "subtests_passed": 28
       }
     }

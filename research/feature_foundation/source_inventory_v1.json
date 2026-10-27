@@ -57,8 +57,8 @@
   "source_fields": "generated bundle/source_fields.json",
   "unlisted_downloaded_benchmark_directories": [],
   "upstream_reuse": {
-    "join_contract": "origin/main:b202afd lift.join_features, adapted for explicit composite keys; no model imports",
-    "source_family_groups": "origin/main:b202afd configs/lift/benchmark_groups.json"
+    "join_contract": "paiec.feature_join.safe_left_join",
+    "source_family_groups": "configs/lift/benchmark_groups.json; frozen in the feature recipe"
   },
   "version": "feature_foundation_source_inventory_v1"
 }
