@@ -1,0 +1,10 @@
+{
+  "required_identity_requests": 10,
+  "reviewed": 10,
+  "pending": 0,
+  "stale": 0,
+  "unresolved": 10,
+  "identities_invented": 0,
+  "ledger_sha256": "518fab72ab400033c3ec848d78e5e169dd3b1820d9fa6fc4dc1d71b05a0f4388",
+  "complete": true
+}

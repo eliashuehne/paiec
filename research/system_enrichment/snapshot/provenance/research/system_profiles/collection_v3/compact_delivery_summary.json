@@ -1,0 +1,115 @@
+{
+  "preparation": {
+    "rows": [
+      {
+        "role": "training",
+        "records": 5000,
+        "model_available": 4584,
+        "model_delivered": 4584,
+        "harness_available": 3958,
+        "harness_delivered": 3958,
+        "any_facts_delivered": 5000,
+        "task_omitted": 1145,
+        "question_or_user_omitted": 652,
+        "options_omitted": 0,
+        "system_omitted": 0,
+        "metadata_omitted": 0,
+        "rows_with_detected_options": 0
+      },
+      {
+        "role": "development",
+        "records": 963,
+        "model_available": 603,
+        "model_delivered": 603,
+        "harness_available": 963,
+        "harness_delivered": 963,
+        "any_facts_delivered": 963,
+        "task_omitted": 0,
+        "question_or_user_omitted": 0,
+        "options_omitted": 0,
+        "system_omitted": 0,
+        "metadata_omitted": 0,
+        "rows_with_detected_options": 480
+      }
+    ],
+    "native_truncation": 0,
+    "control_enriched_task_payloads_identical": true,
+    "full_task_retention": false,
+    "training_performed": false,
+    "model_inference": false,
+    "scores_computed": false,
+    "context_limit": 2048,
+    "context_limit_comparison": "Task-v2 reference used 1024 tokens; new compact recipe uses 2048. No quality gain is established."
+  },
+  "development_review": {
+    "development_subjects": 19,
+    "model_fact_subjects": 9,
+    "missing_model_subjects": 10,
+    "extra_identifiable_subjects": 4,
+    "original_subjects_preserved": 8,
+    "supplement_inputs_by_pool": {
+      "acquisition": 160,
+      "evaluation": 480
+    },
+    "selection": "All additional identifiable systems in frozen development families with >=80 linked text items; metadata only.",
+    "source_sha256": {
+      "configs/head_finetuning/frozen_split_v1.json": "90a70246e53fd27478a1fbb7d1dc308c9cc1b19d20cc4d41f6e86ae2e5a85026",
+      "payload/data/ceval/formatted_tables/subjects.parquet": "57f1e1c2ffd32b44ddb5b31f277a5b56b16309f42fc3e43e7188eb636da5f001",
+      "payload/data/ceval/formatted_tables/response.parquet": "306c1a7b5b16b5286ea0d5f4d7ce53909936f1bf06d81b856ba8d4cbd37c3c28",
+      "payload/data/ceval/formatted_tables/items.parquet": "ef2e9ae4d8602732883393f2cd2e63912dfe0cf363d3efc8dede2913a9908b50",
+      "payload/data/erbench/formatted_tables/subjects.parquet": "9646f275559c214fa08d451c22d87b4deae46e71b1fdc5f16673823c717e3a28",
+      "payload/data/erbench/formatted_tables/response.parquet": "bd056ba26743f1b898f220b92442e27afd30fef506d537f79ff29021eb266533",
+      "payload/data/erbench/formatted_tables/items.parquet": "0f8a66afdf4b0e99dd0c4d5c0d88016415c8f21c54c9cb19b949ad8de468a3ca"
+    },
+    "profile_policy": {
+      "version": "compact_profiles_v3",
+      "usage": "research_only",
+      "catalog_sha256": "075295b5f2ac4196edef01c7bb887be5d69c897057a7344f0e9e8a369ff693d3",
+      "policy_sha256": "1acf2db8155513e08e8edee27d50fea949c3251b3ad1c3a88fe767777e657c80",
+      "source_eligibility": "unreviewed for competition"
+    },
+    "response_values_loaded": false,
+    "reference_answers_loaded": false,
+    "new_scores": false,
+    "original_evaluation_modified": false,
+    "sealed_sets_opened": false,
+    "compact_input_visibility": {
+      "acquisition_inputs": 160,
+      "acquisition_model_facts_delivered": 160,
+      "acquisition_harness_facts_delivered": 160,
+      "evaluation_inputs": 480,
+      "evaluation_model_facts_delivered": 480,
+      "evaluation_harness_facts_delivered": 480
+    },
+    "binary_outcome_eligibility_checked": false
+  },
+  "catalog_scope": {
+    "systems": 189,
+    "model_or_base_family_context": 177,
+    "harness_context": 182,
+    "both_contexts": 170,
+    "some_context": 189
+  },
+  "native_preflight_status": "ready",
+  "native_preflight_checks": {
+    "training": {
+      "responses": 5000,
+      "native_token_parity": "all records passed",
+      "runtime_render_parity": "all records passed",
+      "model_property_rows": 4584,
+      "harness_capability_rows": 3958,
+      "matched_task_payload": "all records passed"
+    },
+    "development": {
+      "responses": 963,
+      "native_token_parity": "all records passed",
+      "runtime_render_parity": "all records passed",
+      "model_property_rows": 603,
+      "harness_capability_rows": 963,
+      "matched_task_payload": "all records passed"
+    }
+  },
+  "model_inference": false,
+  "training": false,
+  "original_evaluation_modified": false
+}

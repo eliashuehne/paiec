@@ -1,0 +1,67 @@
+{
+  "applied": 3,
+  "already_known": 0,
+  "conflicts": [],
+  "not_selected": 140,
+  "assertion_bundles": [
+    {
+      "catalog": "research/feature_collection",
+      "assertions_sha256": "53b6f1afa9af25b39bac2382b6f57b496cfced3a87f27b62f447e1a4a6f260d9",
+      "sources_sha256": "76acbcc65ff407a66df4ad83d06ece59e41381a1aa21a534db5c050fe2c8420f",
+      "snapshots_sha256": "f051c3564bffdbc24d2c31d4df1bcdc1e6b8be764789037ef47e9aed839a52fb"
+    },
+    {
+      "catalog": "research/feature_collection/provider_v2",
+      "assertions_sha256": "2d2b194e13dd182253a2b52fe5179214a7ce2f6beaad624fee95842a87974093",
+      "sources_sha256": "8a147a3fd1c4b7fd16c4afe968649a5794ae4f006ef9fe511b6dae2a90e3c94b",
+      "snapshots_sha256": "123dcf97c8ec47989b5db1974681693c6009b2b20ef79087f007497559e17dc8"
+    },
+    {
+      "catalog": "research/feature_collection/open_models_v3",
+      "assertions_sha256": "1e2b6092677e2fbc2eed0fbfb6a1a1e3fb08d4abdba7ba06982c5e1c5fcd0a56",
+      "sources_sha256": "86cb35c7f4eacd861500c4f99ee48c077d0aa5cb44f11304f6c776fbd464cefe",
+      "snapshots_sha256": "27b1057ee844897edfe3516365e74021171b5e52122c790e2f4c5a165aded5e4"
+    },
+    {
+      "catalog": "research/feature_collection/historical_v3",
+      "assertions_sha256": "6a5fef37e3022b74473f2733e8461004ed8eea9d14a6fb2d88978a5801cd2808",
+      "sources_sha256": "bb1eed36062170df4c1bccefaed075a2cc140bfa828ce98fad46cd07ea430aaf",
+      "snapshots_sha256": "91f4a0632a7147a5d96f3b1f122d51a4d3541c3b15e7ada5799971d86cd66f19"
+    },
+    {
+      "catalog": "research/feature_collection/harness_v4",
+      "assertions_sha256": "a69c1f7681be37ffc8d4735c193253a04a658c38231c9a272099f9c36422fe21",
+      "sources_sha256": "60fae9e16c6eaba6ce23ac3fb714461cf91530291a498f558b203a7b91f12b08",
+      "snapshots_sha256": "d06a5f49bea85addaec4c9982926e3f505b4f9139ae440f9381445ff5154f9f5"
+    },
+    {
+      "catalog": "research/feature_collection/provider_review_v4",
+      "assertions_sha256": "3bcedd477426049abefd3036c868c601da30b2f358b7dde87535e8cd5b9bd358",
+      "sources_sha256": "7b076a538b5159c04f0de3972b3a9127edbeb60fad8a986780d4c951d38977c3",
+      "snapshots_sha256": "9daa2bb2e9fcc294062a241cb14cccd078e71d2199a98110e982af394564218e"
+    },
+    {
+      "catalog": "research/feature_collection/model_review_v5",
+      "assertions_sha256": "8e6064f93c61ddc122033e986dc24cd3af70b7ed763e9428ea4f63f8aa29d2ef",
+      "sources_sha256": "92f48e6e694ed87231ecdc060eb3ff53d5498045821a4a3ba1129f998b8a6320",
+      "snapshots_sha256": "30b0b6561f49cd105b198c1ead4a70289644e0e76e61b27d06d7856a29092a99"
+    }
+  ],
+  "source_registry_sha256": "d1a1d6546c0b30753568557cd8895aab77315970b37a3d8ed9483fac51d52a2e",
+  "nominal_context_ledger_sha256": null,
+  "qualified_context_observations": 0,
+  "qualified_observations": 11,
+  "observation_ledgers": [
+    {
+      "path": "research/feature_collection/harness_v4/observations_v1.jsonl",
+      "sha256": "6ad66bd7d864c2fbbc4aaef5015ef7e004a74344f9216bdabe08366a8e000e26"
+    },
+    {
+      "path": "research/feature_collection/model_review_v5/observations_v1.jsonl",
+      "sha256": "f6dfbb2ad55bdc743f1f98d2e9cbfa95253c5aefb81ebf6ac1919a5e26ae01df"
+    }
+  ],
+  "source_snapshots": 97,
+  "new_fact_scope": "named_harness_documentation; not actual run settings",
+  "original_catalog_changed": false
+}

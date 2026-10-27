@@ -1,0 +1,71 @@
+{
+  "collection_plan_sha256": "dcfe3bc677322c1199af2c1c6b6571cc900345450355cd8177c18670b0011691",
+  "seed_sha256": "5dbf1b1fe97e0e076265efefe9b2c2fe33c5b6af2ebdb1d279a2be75452e2ef9",
+  "collection_scope": "all_selected_roles",
+  "systems_in_collection_scope": 176,
+  "collection_requests": 2211,
+  "missing_static_facts": 404,
+  "sample_tasks": 14,
+  "candidate_annotations": 7,
+  "human_reviewed": 0,
+  "selection_is_representative": false,
+  "selection_note": "Length-stratified starter review only; not a representative quality estimate.",
+  "source_snapshots_collected": 97,
+  "new_static_facts": 100,
+  "annotation_api_calls": 0,
+  "empirical_difficulty_fitted": false,
+  "recovered_run_settings": 149,
+  "unresolved_run_settings": 1435,
+  "training_ready": false,
+  "source_review": {
+    "required_static_fields": 617,
+    "reviewed": 617,
+    "pending": 0,
+    "stale": 0,
+    "known_values": 213,
+    "confirmed_known_values": 205,
+    "reviewed_conflicts": 8,
+    "independently_reviewed": 0,
+    "ledger_hashes": [
+      {
+        "path": "research/feature_collection/historical_v3/reviews_v2.jsonl",
+        "sha256": "3bfe93f182acb08fce293a1339da89d492d6689fd63b91a4d5636af0d235bfb0"
+      },
+      {
+        "path": "research/feature_collection/harness_v4/reviews_v1.jsonl",
+        "sha256": "44131783f22c5303e81cb9258749fa86c3837184c7cd1eac2d2fe32b7abe9053"
+      },
+      {
+        "path": "research/feature_collection/provider_review_v4/reviews_v1.jsonl",
+        "sha256": "c18660b6611a57f5a971c9fe0a2645cb43b104e35dedc42f67aab584c1aff7b1"
+      },
+      {
+        "path": "research/feature_collection/model_review_v5/reviews_v1.jsonl",
+        "sha256": "4c4e0a35702d609cba7b76ee164dacec6296792b9713aa5a7bb31806c896bdca"
+      }
+    ],
+    "acceptance_rule": "Complete source review; retain evidenced unknowns",
+    "unknown_values_promoted_to_known": 0,
+    "complete": true
+  },
+  "run_setting_review": {
+    "required_run_fields": 1584,
+    "reviewed": 1584,
+    "pending": 0,
+    "known_values": 149,
+    "unknown_values_promoted_to_known": 0,
+    "independently_reviewed": 0,
+    "complete": true
+  },
+  "identity_review": {
+    "required_identity_requests": 10,
+    "reviewed": 10,
+    "pending": 0,
+    "stale": 0,
+    "unresolved": 10,
+    "identities_invented": 0,
+    "ledger_sha256": "518fab72ab400033c3ec848d78e5e169dd3b1820d9fa6fc4dc1d71b05a0f4388",
+    "complete": true
+  },
+  "metadata_review_complete": true
+}

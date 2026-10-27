@@ -1,0 +1,157 @@
+[
+  {
+    "source_id": "model.codellama-34b-instruct.README.md",
+    "cache_file": "model.codellama-34b-instruct.README.md",
+    "sha256": "0f725cc54c6bc2050c42828f63a0257a6f959452f9b3a46daa637875c58cb5a9"
+  },
+  {
+    "source_id": "model.codellama-34b-instruct.config.json",
+    "cache_file": "model.codellama-34b-instruct.config.json",
+    "sha256": "e1724f8eda28bdcbe4fe1df98f4439e6b90c181de9d04e9d672438f92fe84213"
+  },
+  {
+    "source_id": "model.codellama-70b-instruct.README.md",
+    "cache_file": "model.codellama-70b-instruct.README.md",
+    "sha256": "567e4a0655240be6a8ed5a44eef33b8adb2a5765f7c8348bef82a6378b619f7b"
+  },
+  {
+    "source_id": "model.codellama-70b-instruct.config.json",
+    "cache_file": "model.codellama-70b-instruct.config.json",
+    "sha256": "865c90f8d6071e03ffe534a2f533152500898e729222e00f789f35b4ffa67851"
+  },
+  {
+    "source_id": "model.deepseek-r1.README.md",
+    "cache_file": "model.deepseek-r1.README.md",
+    "sha256": "d26d26ddb518fee60c6c6bf7a708bd751b1619d93a4944f188143693d956c77f"
+  },
+  {
+    "source_id": "model.deepseek-r1.config.json",
+    "cache_file": "model.deepseek-r1.config.json",
+    "sha256": "79ddea672a62e95d3f0be27be434375538e1988975971cffcf87c96c1de84a65"
+  },
+  {
+    "source_id": "model.deepseek-v4-flash.README.md",
+    "cache_file": "model.deepseek-v4-flash.README.md",
+    "sha256": "c4d714818a4d3333542edc7d38ea065825a0cf7aa8fea3605bbd1d1c18e4a610"
+  },
+  {
+    "source_id": "model.deepseek-v4-flash.config.json",
+    "cache_file": "model.deepseek-v4-flash.config.json",
+    "sha256": "b628e63398a645abc711d92207f8737dd8140f7a4ef1e0a5b3616019e0ddd818"
+  },
+  {
+    "source_id": "model.deepseek-v4-pro.README.md",
+    "cache_file": "model.deepseek-v4-pro.README.md",
+    "sha256": "c4d714818a4d3333542edc7d38ea065825a0cf7aa8fea3605bbd1d1c18e4a610"
+  },
+  {
+    "source_id": "model.deepseek-v4-pro.config.json",
+    "cache_file": "model.deepseek-v4-pro.config.json",
+    "sha256": "5fe4568daee51c208cb8a79538eaeda090ae011ade1dee2c386aa95f569c810e"
+  },
+  {
+    "source_id": "model.llama2-70b-chat.README.md",
+    "cache_file": "model.llama2-70b-chat.README.md",
+    "sha256": "35e22712ddf1d950d66eaf75ec79cfb325e365fa97f72aedbf4aaaf36c139bc9"
+  },
+  {
+    "source_id": "model.llama3.1-8b-instruct.README.md",
+    "cache_file": "model.llama3.1-8b-instruct.README.md",
+    "sha256": "ed0e2e86f7a40c38b793b0a04dfd993b2c1dfb34906804f96b999f0bbd8d70e6"
+  },
+  {
+    "source_id": "model.llama4-maverick-fp8.README.md",
+    "cache_file": "model.llama4-maverick-fp8.README.md",
+    "sha256": "5c514f5a2aefa6998a8b6ad37e44dbfb4b8a89364ac59c46bdca2b077e9e0187"
+  },
+  {
+    "source_id": "model.mistral-7b-instruct-v0.1.README.md",
+    "cache_file": "model.mistral-7b-instruct-v0.1.README.md",
+    "sha256": "b48ba429779e88b6362b3e5ac7aa4dce3434bc7b2b0ee8cf34ceb0889c121c0f"
+  },
+  {
+    "source_id": "model.mistral-7b-instruct-v0.1.config.json",
+    "cache_file": "model.mistral-7b-instruct-v0.1.config.json",
+    "sha256": "cf25cdf4719f181d1d1d371973285d9afe9afde0d0c6a6fd48de857555ce1e0d"
+  },
+  {
+    "source_id": "model.mistral-7b-instruct-v0.2.README.md",
+    "cache_file": "model.mistral-7b-instruct-v0.2.README.md",
+    "sha256": "aa431f0f615eae0a34b895020db5ad43ae287b460d1300b5ee225a3f50ff2343"
+  },
+  {
+    "source_id": "model.mistral-7b-instruct-v0.2.config.json",
+    "cache_file": "model.mistral-7b-instruct-v0.2.config.json",
+    "sha256": "2e97da1b1d2b7e7669f0991c186904538c27d4ea56c4fc74e89215e2b2013922"
+  },
+  {
+    "source_id": "model.mixtral-8x7b-instruct-v0.1.README.md",
+    "cache_file": "model.mixtral-8x7b-instruct-v0.1.README.md",
+    "sha256": "b18a029ab6963341c72c7018efd61a600f794efd5945a2bf0d80960bfd624ff0"
+  },
+  {
+    "source_id": "model.mixtral-8x7b-instruct-v0.1.config.json",
+    "cache_file": "model.mixtral-8x7b-instruct-v0.1.config.json",
+    "sha256": "9d56d04b36d0fd12ff54ae4c5bac769cc176e254e64ff71144614b6318b40793"
+  },
+  {
+    "source_id": "model.qwen3-235b-thinking-2507.README.md",
+    "cache_file": "model.qwen3-235b-thinking-2507.README.md",
+    "sha256": "9aa7860622381d0ca3ead2f16cc9ce52472b8effa3e9614ede6acdef008282d3"
+  },
+  {
+    "source_id": "model.qwen3-235b-thinking-2507.config.json",
+    "cache_file": "model.qwen3-235b-thinking-2507.config.json",
+    "sha256": "ad59a339665ee1c68cbff06ac72c9e59f5183ebfaf3698c98737e003a870e9e2"
+  },
+  {
+    "source_id": "model.qwen3.5-122b-a10b.README.md",
+    "cache_file": "model.qwen3.5-122b-a10b.README.md",
+    "sha256": "1775bb720398d6107cce3da0c3129abfd24ec639fd9853d5134df1e5c6118a4d"
+  },
+  {
+    "source_id": "model.qwen3.5-122b-a10b.config.json",
+    "cache_file": "model.qwen3.5-122b-a10b.config.json",
+    "sha256": "af07d0423658865afb52bd0d6fd3c2cc45d988425b76193467fd19129655cecd"
+  },
+  {
+    "source_id": "model.qwen3.6-35b-a3b.README.md",
+    "cache_file": "model.qwen3.6-35b-a3b.README.md",
+    "sha256": "c4ddaa065649ff6352648f64747a16eda31726f3e34add94ce04abb461c77b75"
+  },
+  {
+    "source_id": "model.qwen3.6-35b-a3b.config.json",
+    "cache_file": "model.qwen3.6-35b-a3b.config.json",
+    "sha256": "93a4693fa9d8392fbfccd4b3c9873f4bfdcb14fdede978b123d07d19675efe99"
+  },
+  {
+    "source_id": "model.sqlcoder-70b-alpha.README.md",
+    "cache_file": "model.sqlcoder-70b-alpha.README.md",
+    "sha256": "bc34556995dcab1ee087ea3ac6e1e46fe1830ac91925fb5b782993ecdcdc0b65"
+  },
+  {
+    "source_id": "model.sqlcoder-70b-alpha.config.json",
+    "cache_file": "model.sqlcoder-70b-alpha.config.json",
+    "sha256": "e160a5d31e218b80c194a268ca012c133774d479a62078b890a1e7af34f8ae70"
+  },
+  {
+    "source_id": "model.sqlcoder-7b-2.README.md",
+    "cache_file": "model.sqlcoder-7b-2.README.md",
+    "sha256": "cb2bcf750243bd1bf77c1e70b3b989bb69da3a5cf37702278c80467b94ecb524"
+  },
+  {
+    "source_id": "model.sqlcoder-7b-2.config.json",
+    "cache_file": "model.sqlcoder-7b-2.config.json",
+    "sha256": "258752ea11bb781e898f1587e411ccb551238b5e044d2478fcd971008e5f0642"
+  },
+  {
+    "source_id": "model.wizardcoder-33b-v1.1.README.md",
+    "cache_file": "model.wizardcoder-33b-v1.1.README.md",
+    "sha256": "10f111c859a87c86cac4ec7ce73cee250e8fc2e2c2aeeafb5610de02e59cd753"
+  },
+  {
+    "source_id": "model.wizardcoder-33b-v1.1.config.json",
+    "cache_file": "model.wizardcoder-33b-v1.1.config.json",
+    "sha256": "3a0aa1c6a1310143714eae01ca18a35616c6eb988f05d06619ed3ea6d6249fb9"
+  }
+]

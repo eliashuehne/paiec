@@ -1,0 +1,259 @@
+{
+  "schema_version": "1.0",
+  "usage": "research_only",
+  "collected_on": "2026-10-22",
+  "scope": "All exported training/development subjects in data_v2; no sealed validation/test subjects.",
+  "profiles": [
+    {
+      "profile_id": "model.metamath-mistral",
+      "entity_type": "model",
+      "config_source": "meta-math-metamath-mistral-7b-config.json"
+    },
+    {
+      "profile_id": "model.metamath-llama-candidate",
+      "entity_type": "model",
+      "config_source": "meta-math-metamath-7b-v1.0-config.json"
+    },
+    {
+      "profile_id": "model.mistral-7b-instruct-v0.1",
+      "entity_type": "model",
+      "config_source": "mistralai-mistral-7b-instruct-v0.1-config.json"
+    },
+    {
+      "profile_id": "model.sqlcoder-70b-alpha",
+      "entity_type": "model",
+      "config_source": "defog-sqlcoder-70b-alpha-config.json"
+    },
+    {
+      "profile_id": "model.deepseek-r1",
+      "entity_type": "model",
+      "config_source": "deepseek-ai-deepseek-r1-config.json"
+    },
+    {
+      "profile_id": "model.deepseek-v4-flash",
+      "entity_type": "model",
+      "config_source": "deepseek-ai-deepseek-v4-flash-config.json"
+    },
+    {
+      "profile_id": "model.qwen3.6-35b-a3b",
+      "entity_type": "model",
+      "config_source": "qwen-qwen3.6-35b-a3b-config.json"
+    },
+    {
+      "profile_id": "model.qwen-7b",
+      "entity_type": "model",
+      "config_source": "qwen-qwen-7b-config.json"
+    },
+    {
+      "profile_id": "model.llama3.1-8b-instruct",
+      "entity_type": "model"
+    },
+    {
+      "profile_id": "model.llama3-8b-instruct",
+      "entity_type": "model"
+    },
+    {
+      "profile_id": "model.llama4-maverick-fp8",
+      "entity_type": "model"
+    },
+    {
+      "profile_id": "model.llama-cdg",
+      "entity_type": "model",
+      "config_source": "cdg-config.json"
+    },
+    {
+      "profile_id": "model.codellama-34b-instruct",
+      "entity_type": "model"
+    },
+    {
+      "profile_id": "model.gpt-4o-mini",
+      "entity_type": "model"
+    },
+    {
+      "profile_id": "model.gpt-4o",
+      "entity_type": "model"
+    },
+    {
+      "profile_id": "model.gpt-5.4-mini",
+      "entity_type": "model"
+    },
+    {
+      "profile_id": "model.claude3-sonnet",
+      "entity_type": "model"
+    },
+    {
+      "profile_id": "model.gemini1.5-flash",
+      "entity_type": "model"
+    },
+    {
+      "profile_id": "harness.asprm",
+      "entity_type": "harness"
+    },
+    {
+      "profile_id": "harness.fewshot-ttt",
+      "entity_type": "harness"
+    },
+    {
+      "profile_id": "harness.erbench",
+      "entity_type": "harness"
+    },
+    {
+      "profile_id": "harness.cellverse",
+      "entity_type": "harness"
+    },
+    {
+      "profile_id": "harness.lighteval",
+      "entity_type": "harness"
+    },
+    {
+      "profile_id": "harness.opencompass",
+      "entity_type": "harness"
+    },
+    {
+      "profile_id": "harness.petavue",
+      "entity_type": "harness"
+    },
+    {
+      "profile_id": "harness.benger",
+      "entity_type": "harness"
+    },
+    {
+      "profile_id": "run.abstract-reason.1ba99d7bfc77bdf7",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.adaptivestep.50e726a69a130d06",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.adaptivestep.6d5d27eada8ef331",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.benger.1394e502b30d81aa",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.benger.50ca41ff3ddfbc0c",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.benger.6749251ee46c9561",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.benger.a001de1ce8f27a47",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.10bb30a94b496a8e",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.368b28b6e16a0aff",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.73d012b29ccaf73d",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.90eaeccc1127907b",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.cellverse.c50323d9ed017ee8",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.ceval.8c3b5004da8eaa54",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.ceval.b5268aab0701ff0d",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.ceval.baa6556dde2b5fd8",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.ceval.fdef7d2dfe85968e",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.clasheval.64cf5833a618d607",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.clasheval.8036635ac95f5614",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.clasheval.a26b1ab918ee55d3",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.clasheval.b8d2171afab2c063",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.critic-discernment-game.343a6583c9806635",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.critic-discernment-game.61ed148575c615c6",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.critic-discernment-game.e2fb0317b090c02f",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.critic-discernment-game.f7d8e786615769e0",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.erbench.013e5356705fb21d",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.erbench.887940f53d2c246e",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.erbench.8d853cb1d7813300",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.erbench.9c243d02353e1108",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.fewshot-ttt-bbh.0a5591db80e77d6f",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.fewshot-ttt-bbh.1e06294c241b2e68",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.fewshot-ttt-bbh.823b81f90c230535",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.fewshot-ttt-bbh.a614d1a9a2a919d4",
+      "entity_type": "recorded_run"
+    }
+  ],
+  "selection": {
+    "provenance_file": "runs/head_finetuning/data_v2/provenance.parquet",
+    "provenance_sha256": "ca646085f13fa75fd9fd9f7e1851528bcfd428485e2dee3639b14852632dcbd9",
+    "filter": "exported and role in [training, development]; unique benchmark, subject_id, role",
+    "frozen_split_file": "configs/head_finetuning/frozen_split_v1.json",
+    "frozen_split_sha256": "90a70246e53fd27478a1fbb7d1dc308c9cc1b19d20cc4d41f6e86ae2e5a85026",
+    "corpus_revision": "54074453da7b9911be0f48e4c560be547bc84d21",
+    "training_subjects": 24,
+    "development_subjects": 8
+  }
+}

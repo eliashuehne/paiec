@@ -1,0 +1,955 @@
+{
+  "schema_version": "1.0",
+  "usage": "research_only",
+  "collected_on": "2026-10-22",
+  "scope": "All 170 training candidates and 8 selected development systems; calibration/confirmation sealed.",
+  "profiles": [
+    {
+      "profile_id": "model.metamath-mistral",
+      "entity_type": "model",
+      "config_source": "meta-math-metamath-mistral-7b-config.json"
+    },
+    {
+      "profile_id": "model.metamath-llama-candidate",
+      "entity_type": "model",
+      "config_source": "meta-math-metamath-7b-v1.0-config.json"
+    },
+    {
+      "profile_id": "model.mistral-7b-instruct-v0.1",
+      "entity_type": "model",
+      "config_source": "mistralai-mistral-7b-instruct-v0.1-config.json"
+    },
+    {
+      "profile_id": "model.sqlcoder-70b-alpha",
+      "entity_type": "model",
+      "config_source": "defog-sqlcoder-70b-alpha-config.json"
+    },
+    {
+      "profile_id": "model.deepseek-r1",
+      "entity_type": "model",
+      "config_source": "deepseek-ai-deepseek-r1-config.json"
+    },
+    {
+      "profile_id": "model.deepseek-v4-flash",
+      "entity_type": "model",
+      "config_source": "deepseek-ai-deepseek-v4-flash-config.json"
+    },
+    {
+      "profile_id": "model.qwen3.6-35b-a3b",
+      "entity_type": "model",
+      "config_source": "qwen-qwen3.6-35b-a3b-config.json"
+    },
+    {
+      "profile_id": "model.qwen-7b",
+      "entity_type": "model",
+      "config_source": "qwen-qwen-7b-config.json"
+    },
+    {
+      "profile_id": "model.llama3.1-8b-instruct",
+      "entity_type": "model"
+    },
+    {
+      "profile_id": "model.llama3-8b-instruct",
+      "entity_type": "model"
+    },
+    {
+      "profile_id": "model.llama4-maverick-fp8",
+      "entity_type": "model"
+    },
+    {
+      "profile_id": "model.llama-cdg",
+      "entity_type": "model",
+      "config_source": "cdg-config.json"
+    },
+    {
+      "profile_id": "model.codellama-34b-instruct",
+      "entity_type": "model"
+    },
+    {
+      "profile_id": "model.gpt-4o-mini",
+      "entity_type": "model"
+    },
+    {
+      "profile_id": "model.gpt-4o",
+      "entity_type": "model"
+    },
+    {
+      "profile_id": "model.gpt-5.4-mini",
+      "entity_type": "model"
+    },
+    {
+      "profile_id": "model.claude3-sonnet",
+      "entity_type": "model"
+    },
+    {
+      "profile_id": "model.gemini1.5-flash",
+      "entity_type": "model"
+    },
+    {
+      "profile_id": "harness.asprm",
+      "entity_type": "harness"
+    },
+    {
+      "profile_id": "harness.fewshot-ttt",
+      "entity_type": "harness"
+    },
+    {
+      "profile_id": "harness.erbench",
+      "entity_type": "harness"
+    },
+    {
+      "profile_id": "harness.cellverse",
+      "entity_type": "harness"
+    },
+    {
+      "profile_id": "harness.lighteval",
+      "entity_type": "harness"
+    },
+    {
+      "profile_id": "harness.opencompass",
+      "entity_type": "harness"
+    },
+    {
+      "profile_id": "harness.petavue",
+      "entity_type": "harness"
+    },
+    {
+      "profile_id": "harness.benger",
+      "entity_type": "harness"
+    },
+    {
+      "profile_id": "model.qwen3-235b-thinking-2507",
+      "entity_type": "model",
+      "config_source": "qwen-qwen3-235b-a22b-thinking-2507-config.json"
+    },
+    {
+      "profile_id": "model.qwen3.5-122b-a10b",
+      "entity_type": "model",
+      "config_source": "qwen-qwen3.5-122b-a10b-config.json"
+    },
+    {
+      "profile_id": "model.deepseek-v4-pro",
+      "entity_type": "model",
+      "config_source": "deepseek-ai-deepseek-v4-pro-config.json"
+    },
+    {
+      "profile_id": "model.sqlcoder-7b-2",
+      "entity_type": "model",
+      "config_source": "defog-sqlcoder-7b-2-config.json"
+    },
+    {
+      "profile_id": "model.mistral-7b-instruct-v0.2",
+      "entity_type": "model",
+      "config_source": "mistralai-mistral-7b-instruct-v0.2-config.json"
+    },
+    {
+      "profile_id": "model.mixtral-8x7b-instruct-v0.1",
+      "entity_type": "model",
+      "config_source": "mistralai-mixtral-8x7b-instruct-v0.1-config.json"
+    },
+    {
+      "profile_id": "model.wizardcoder-33b-v1.1",
+      "entity_type": "model",
+      "config_source": "wizardlm-wizardcoder-33b-v1.1-config.json"
+    },
+    {
+      "profile_id": "model.dbrx-instruct",
+      "entity_type": "model"
+    },
+    {
+      "profile_id": "model.codellama-70b-instruct",
+      "entity_type": "model"
+    },
+    {
+      "profile_id": "model.llama2-70b-chat",
+      "entity_type": "model"
+    },
+    {
+      "profile_id": "model.llama3-8b-family",
+      "entity_type": "model"
+    },
+    {
+      "profile_id": "model.metamath-llama-family",
+      "entity_type": "model"
+    },
+    {
+      "profile_id": "model.metamath-mistral-family",
+      "entity_type": "model"
+    },
+    {
+      "profile_id": "model.claude3-haiku",
+      "entity_type": "model"
+    },
+    {
+      "profile_id": "model.claude3-opus",
+      "entity_type": "model"
+    },
+    {
+      "profile_id": "model.claude-sonnet4.6",
+      "entity_type": "model"
+    },
+    {
+      "profile_id": "model.claude-opus4.7",
+      "entity_type": "model"
+    },
+    {
+      "profile_id": "model.gemini3.1-pro-preview",
+      "entity_type": "model"
+    },
+    {
+      "profile_id": "model.gemini3.1-flashlite-preview",
+      "entity_type": "model"
+    },
+    {
+      "profile_id": "model.gemini1.0-pro-family",
+      "entity_type": "model"
+    },
+    {
+      "profile_id": "model.gpt5.4",
+      "entity_type": "model"
+    },
+    {
+      "profile_id": "model.gpt4-turbo-preview",
+      "entity_type": "model"
+    },
+    {
+      "profile_id": "model.gpt3.5-turbo-family",
+      "entity_type": "model"
+    },
+    {
+      "profile_id": "model.gpt3.5-turbo16k-family",
+      "entity_type": "model"
+    },
+    {
+      "profile_id": "model.bedrock-mistral7b-family",
+      "entity_type": "model"
+    },
+    {
+      "profile_id": "model.bedrock-mixtral-family",
+      "entity_type": "model"
+    },
+    {
+      "profile_id": "run.abstract-reason.1ba99d7bfc77bdf7",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.adaptivestep.50e726a69a130d06",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.adaptivestep.6d5d27eada8ef331",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.benger.1394e502b30d81aa",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.benger.148b6a6c4e72670f",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.benger.1ebaa0e8bdbd1091",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.benger.2398e1836085f56a",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.benger.25f90147fc294422",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.benger.2e8e34f98506dc10",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.benger.4080bcdf8ed5e388",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.benger.50ca41ff3ddfbc0c",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.benger.5e8414025c39d8ff",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.benger.6749251ee46c9561",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.benger.6b9bb58627730d31",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.benger.7bbbc65e2ef911c0",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.benger.7bdf82817aa9be6f",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.benger.7bf8d21df41e1f8a",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.benger.7f0881e8e06ffb55",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.benger.8ea91b5297ebb32e",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.benger.a001de1ce8f27a47",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.benger.a07487299d82b494",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.benger.b39fad85f451e932",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.benger.b7fff29b20378cb5",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.benger.b8716025571d4f4c",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.benger.d0c44f890981df51",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.benger.d13945e1954d6161",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.benger.d8c75d06c2cae510",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.benger.ec91105497d45143",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.00b19f78e453ffe9",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.041f6b30d664525f",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.0501d44675a79823",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.08af30098431a484",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.09cfa7a5691a0647",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.0a288507fe011c5c",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.0ac5ee5afad3b23b",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.0ad6b2a240d2734c",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.0d40389d9a8dcba6",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.0d6f37483f45c01c",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.0edeb87cdc790bb7",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.10bb30a94b496a8e",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.129f9f4c9581cb4b",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.12f70163a91387cc",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.133f9a0f7f4c27c5",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.15b22be8bc5bc23d",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.17a652b1de4b0700",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.18024b207d813664",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.1a4e3522ac0afd0c",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.1bf0320415fadffb",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.1cdc7d30e684e549",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.1ee569cfa32af569",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.216327b4fbed0d51",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.24289455b13e392b",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.2d1850efc702002d",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.2de820dd39d67f89",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.2f6061eb869fcb52",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.2fa137a9d64395cd",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.30493af224ce5fc4",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.30899bf494b77ec9",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.31dc6b26fc1e3381",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.368b28b6e16a0aff",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.3be560977b368cd6",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.3c1afdbd016bc8ba",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.3c9428135f3b3e6d",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.3f5dfa0caf28f138",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.40b042f9b105b960",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.413358acb8d83af4",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.4203833ce85abf7d",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.42cc82cafb4170e3",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.466d491a521090a6",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.4a1fb345f5b90da8",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.4da115fc33e5ccfc",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.4dd725cc58512dd0",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.50dbdc9f1ca5e644",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.5e149f7e725db609",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.5eb0c6084fef373d",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.5ef332f3ef2f28cd",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.6037a8466ae6b60c",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.60585f2f5a909c96",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.6194b7d6a900bbe6",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.67535034bafb629f",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.69e6590dffccb9d4",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.6ae48f0e70b0cdf3",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.6c0f501999f2e979",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.6d41009b2561aad4",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.6f54b3e6a9596e75",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.6f68d4f453645f60",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.73d012b29ccaf73d",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.7487fae4125a6adf",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.75c9a4fb59869e74",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.76ab9b253ed90ae8",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.7ae800cf716e2597",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.7b701e414473d438",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.7db6827406854230",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.7fe7ee20318dbc90",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.804533431ffdefa8",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.814bfd0072f06b95",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.823491dc1d02843b",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.8353c0bc9de9839b",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.8821dc5812178432",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.884981e3bcfee3be",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.8c1cda01ed515256",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.8c2499a9e72e411d",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.8e78a31c79e029b2",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.8ed7e89dc146d7bb",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.90eaeccc1127907b",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.958c6f7de87b0186",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.9cb554250e89b783",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.9e9dc18d95dd53da",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.9f9753ece4c0d928",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.9fae7b3b32e57159",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.a31fd5de8587c275",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.a52912026117b04f",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.a804f91d529ea8b5",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.a84b3665f94030da",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.ac2a6bb3cb540212",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.af75e96f14c0acb2",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.b3b4a520e7184449",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.b4ae74c53a718277",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.b60898914a5590ef",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.b6beb3f563c2cce7",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.b72cdb9f6f33ba1e",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.b8cbef66699a35f0",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.b967b5135a1ab97b",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.bfe4da335ffafae0",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.c32a00355f73ed0c",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.c500b95ec65032a6",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.c69a13263e7db334",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.c8f7c8a09cd2ef84",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.ce428b2abdb6d584",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.d19bba992a3cba81",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.d3c85b81888fa4ea",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.d44f715e93b3ba04",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.d47559ce91841f8b",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.d72657249163a89e",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.d797c70420ab0746",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.d92646f80421d377",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.d937adf3fdc67cc9",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.d9c2530b863d95a1",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.d9e20aae698f9595",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.db0b44fd88f1c134",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.e776a1cb2d9019c1",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.eedb2651b40f85be",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.f049b9f209c417f2",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.f27a9001cd6e92e0",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.fab877cb135d5a95",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.fcb45cbf286e4a12",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.fd51de8ef45c9421",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.bird-sql.feb16b81f91a15f8",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.cellverse.c50323d9ed017ee8",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.clasheval.0ddf665f8f9db8ec",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.clasheval.5e8b9e1c08ac27d0",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.clasheval.64cf5833a618d607",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.clasheval.8036635ac95f5614",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.clasheval.a26b1ab918ee55d3",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.clasheval.b8d2171afab2c063",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.critic-discernment-game.343a6583c9806635",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.critic-discernment-game.61ed148575c615c6",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.critic-discernment-game.e2fb0317b090c02f",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.critic-discernment-game.f7d8e786615769e0",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.fewshot-ttt-bbh.0a5591db80e77d6f",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.fewshot-ttt-bbh.1e06294c241b2e68",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.fewshot-ttt-bbh.4c2d9cf143754691",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.fewshot-ttt-bbh.823b81f90c230535",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.fewshot-ttt-bbh.9235ea93cf75de1a",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.fewshot-ttt-bbh.9e4c87587532861f",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.fewshot-ttt-bbh.a14e203a7371437e",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.fewshot-ttt-bbh.a614d1a9a2a919d4",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.fewshot-ttt-bbh.a9c171be640ef98f",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.fewshot-ttt-bbh.ce77b92ab4006283",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.fewshot-ttt-bbh.e73291439f998938",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.ceval.8c3b5004da8eaa54",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.ceval.b5268aab0701ff0d",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.ceval.baa6556dde2b5fd8",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.ceval.fdef7d2dfe85968e",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.erbench.013e5356705fb21d",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.erbench.887940f53d2c246e",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.erbench.8d853cb1d7813300",
+      "entity_type": "recorded_run"
+    },
+    {
+      "profile_id": "run.erbench.9c243d02353e1108",
+      "entity_type": "recorded_run"
+    }
+  ],
+  "selection": {
+    "candidate_inventory": "runs/head_finetuning/capability_data_audit_v1/candidate_profiles.jsonl",
+    "candidate_inventory_sha256": "73a9c062be6bbe9f6c9898063f89c15fbc625e6b2f27e1d7a8a4415086ad862e",
+    "development_inventory": "research/system_profiles/collection_v1/subjects.jsonl",
+    "development_inventory_sha256": "6f51dd4f8f1e5fd22aa07b2172e87281345c45e68ab3dcf83304daef803999eb",
+    "frozen_split_file": "configs/head_finetuning/frozen_split_v1.json",
+    "frozen_split_sha256": "90a70246e53fd27478a1fbb7d1dc308c9cc1b19d20cc4d41f6e86ae2e5a85026",
+    "training_subjects": 170,
+    "development_subjects": 8,
+    "training_admission": "No changes to frozen training export; candidates remain candidates."
+  }
+}

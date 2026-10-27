@@ -1,0 +1,212 @@
+[
+  {
+    "source_id": "meta-math-metamath-mistral-7b-config.json",
+    "cache_file": "meta-math--MetaMath-Mistral-7B--config.json",
+    "sha256": "8ddeef1abee71758db7dcf969141546570af6ab6d2683e4b56a9089648c40792"
+  },
+  {
+    "source_id": "meta-math-metamath-mistral-7b-readme.md",
+    "cache_file": "meta-math--MetaMath-Mistral-7B--README.md",
+    "sha256": "6e16a863dce35fe7c75e3ae7063f99eba52499f334f044ce4ea322e553fcdc8d"
+  },
+  {
+    "source_id": "meta-math-metamath-7b-v1.0-config.json",
+    "cache_file": "meta-math--MetaMath-7B-V1.0--config.json",
+    "sha256": "6b691139fefb9861238d80fd15909ac781465f2f82f415e8911df9ab15ba2ed4"
+  },
+  {
+    "source_id": "meta-math-metamath-7b-v1.0-readme.md",
+    "cache_file": "meta-math--MetaMath-7B-V1.0--README.md",
+    "sha256": "2e5b4d488e7f8a1332411bde9f8ae4752205bae1fb937faa9ab35f54620168ff"
+  },
+  {
+    "source_id": "mistralai-mistral-7b-instruct-v0.1-config.json",
+    "cache_file": "mistralai--Mistral-7B-Instruct-v0.1--config.json",
+    "sha256": "cf25cdf4719f181d1d1d371973285d9afe9afde0d0c6a6fd48de857555ce1e0d"
+  },
+  {
+    "source_id": "mistralai-mistral-7b-instruct-v0.1-readme.md",
+    "cache_file": "mistralai--Mistral-7B-Instruct-v0.1--README.md",
+    "sha256": "b48ba429779e88b6362b3e5ac7aa4dce3434bc7b2b0ee8cf34ceb0889c121c0f"
+  },
+  {
+    "source_id": "meta-llama-meta-llama-3.1-8b-instruct-readme.md",
+    "cache_file": "meta-llama--Meta-Llama-3.1-8B-Instruct--README.md",
+    "sha256": "ed0e2e86f7a40c38b793b0a04dfd993b2c1dfb34906804f96b999f0bbd8d70e6"
+  },
+  {
+    "source_id": "meta-llama-meta-llama-3-8b-instruct-readme.md",
+    "cache_file": "meta-llama--Meta-Llama-3-8B-Instruct--README.md",
+    "sha256": "8ca60bb111f7a6ac8922daf085c050d3c30755a7a21ee52e53982ad82eae3b49"
+  },
+  {
+    "source_id": "defog-sqlcoder-70b-alpha-config.json",
+    "cache_file": "defog--sqlcoder-70b-alpha--config.json",
+    "sha256": "e160a5d31e218b80c194a268ca012c133774d479a62078b890a1e7af34f8ae70"
+  },
+  {
+    "source_id": "defog-sqlcoder-70b-alpha-readme.md",
+    "cache_file": "defog--sqlcoder-70b-alpha--README.md",
+    "sha256": "bc34556995dcab1ee087ea3ac6e1e46fe1830ac91925fb5b782993ecdcdc0b65"
+  },
+  {
+    "source_id": "deepseek-ai-deepseek-r1-config.json",
+    "cache_file": "deepseek-ai--DeepSeek-R1--config.json",
+    "sha256": "79ddea672a62e95d3f0be27be434375538e1988975971cffcf87c96c1de84a65"
+  },
+  {
+    "source_id": "deepseek-ai-deepseek-r1-readme.md",
+    "cache_file": "deepseek-ai--DeepSeek-R1--README.md",
+    "sha256": "d26d26ddb518fee60c6c6bf7a708bd751b1619d93a4944f188143693d956c77f"
+  },
+  {
+    "source_id": "meta-llama-llama-4-maverick-17b-128e-instruct-fp8-readme.md",
+    "cache_file": "meta-llama--Llama-4-Maverick-17B-128E-Instruct-FP8--README.md",
+    "sha256": "5c514f5a2aefa6998a8b6ad37e44dbfb4b8a89364ac59c46bdca2b077e9e0187"
+  },
+  {
+    "source_id": "qwen-qwen3.6-35b-a3b-config.json",
+    "cache_file": "Qwen--Qwen3.6-35B-A3B--config.json",
+    "sha256": "93a4693fa9d8392fbfccd4b3c9873f4bfdcb14fdede978b123d07d19675efe99"
+  },
+  {
+    "source_id": "qwen-qwen3.6-35b-a3b-readme.md",
+    "cache_file": "Qwen--Qwen3.6-35B-A3B--README.md",
+    "sha256": "c4ddaa065649ff6352648f64747a16eda31726f3e34add94ce04abb461c77b75"
+  },
+  {
+    "source_id": "deepseek-ai-deepseek-v4-flash-config.json",
+    "cache_file": "deepseek-ai--DeepSeek-V4-Flash--config.json",
+    "sha256": "b628e63398a645abc711d92207f8737dd8140f7a4ef1e0a5b3616019e0ddd818"
+  },
+  {
+    "source_id": "deepseek-ai-deepseek-v4-flash-readme.md",
+    "cache_file": "deepseek-ai--DeepSeek-V4-Flash--README.md",
+    "sha256": "c4d714818a4d3333542edc7d38ea065825a0cf7aa8fea3605bbd1d1c18e4a610"
+  },
+  {
+    "source_id": "qwen-qwen-7b-config.json",
+    "cache_file": "Qwen--Qwen-7B--config.json",
+    "sha256": "69dc0b62b70422fcb2c14df80852bae544ff8087a390817108753d2fc194f27c"
+  },
+  {
+    "source_id": "qwen-qwen-7b-readme.md",
+    "cache_file": "Qwen--Qwen-7B--README.md",
+    "sha256": "e6e59d6374324da332bc13349c11b7be82517cdb417971b861ff706db846f8f4"
+  },
+  {
+    "source_id": "adamzweiger-fewshot-ttt-readme.md",
+    "cache_file": "adamzweiger--Fewshot-TTT--README.md",
+    "sha256": "676dc671ac74b8ddfc81e7e36a6e7a76472b476781ca209e49f1aa0702ca5cad"
+  },
+  {
+    "source_id": "dilab-kaist-erbench-readme.md",
+    "cache_file": "DILAB-KAIST--ERBench--README.md",
+    "sha256": "997b7388da2ef3ff0b691d52a889849d0fed3df8505d6894aa4a269a3a542ae9"
+  },
+  {
+    "source_id": "zfkarl-cellverse-readme.md",
+    "cache_file": "zfkarl--CellVerse--README.md",
+    "sha256": "5ae8d9c5d113af0cb5553bd742bbef0866a552064c82027e46baa722020b085a"
+  },
+  {
+    "source_id": "huggingface-lighteval-readme.md",
+    "cache_file": "huggingface--lighteval--README.md",
+    "sha256": "5147e564c99edeb6cb2c01f34602f05bcdda77bbae5b60f43eb251485e01c056"
+  },
+  {
+    "source_id": "open-compass-opencompass-readme.md",
+    "cache_file": "open-compass--opencompass--README.md",
+    "sha256": "494f04df6b96a922832a902f4415fee5e240c8a6dba18e999405fde93ebca5e6"
+  },
+  {
+    "source_id": "petavue-nl2sql-benchmark-readme.md",
+    "cache_file": "petavue--NL2SQL-Benchmark--README.md",
+    "sha256": "f1141d8e95705bd1af6c10a8b20246449637b4c9a99756973945926a04048cb7"
+  },
+  {
+    "source_id": "pinzhengwang322-critic_discernment_game-readme.md",
+    "cache_file": "PinzhengWang322--Critic_Discernment_Game--README.md",
+    "sha256": "3f1a638e6ee6eb3256aa9916234604aa68a6ae22fbc17990273dacfb31118874"
+  },
+  {
+    "source_id": "openai-gpt-4o-mini",
+    "cache_file": "openai-gpt-4o-mini.txt",
+    "sha256": "e860cd14c7aa256ab6151f302fc0c7d0597a5a25fed3af09e8de64e3884daa3e"
+  },
+  {
+    "source_id": "openai-gpt-4o",
+    "cache_file": "openai-gpt-4o.txt",
+    "sha256": "f3c708a3ba44098a5086c550dabed6f0eeb262d51c97261a97b5315f93dc08c9"
+  },
+  {
+    "source_id": "openai-gpt-5.4-mini",
+    "cache_file": "openai-gpt-5.4-mini.txt",
+    "sha256": "83625d2f3548c29379b3b2a44b183a26d266d2f5c3ffda7161dd19c9213a9058"
+  },
+  {
+    "source_id": "openai-gpt-3.5-turbo",
+    "cache_file": "openai-gpt-3.5-turbo.txt",
+    "sha256": "b4c0d8628e5a72d9ac94fd4a6fc26ce236ce3bda51a48d3bff042a9b8301f4e7"
+  },
+  {
+    "source_id": "anthropic-claude3",
+    "cache_file": "anthropic-claude3.txt",
+    "sha256": "54d2e43f974d86f9254847a64059e5883c6c941b97f28adf3bffcbb1f409ce59"
+  },
+  {
+    "source_id": "google-gemini15flash",
+    "cache_file": "google-gemini15flash.txt",
+    "sha256": "40b098bd314298347f4685c88e992227a4f3c598f040b1e922b91d0f43e88cf0"
+  },
+  {
+    "source_id": "benger-zenodo",
+    "cache_file": "benger-zenodo.txt",
+    "sha256": "8803a69a04a214946a2650a3d7a453102fc7ed63ef982734e3353cf298e8ff8a"
+  },
+  {
+    "source_id": "asprm-readme",
+    "cache_file": "asprm-readme--readme.md",
+    "sha256": "1cab3a7c9259a608e624f62e6124fec39b03b636afee0ba58857e21c9e638c9f"
+  },
+  {
+    "source_id": "asprm-eval",
+    "cache_file": "asprm-eval--eval.py",
+    "sha256": "631d85ca9396b94b93aee55e64d58229f79c1d3473e393ed6a73000cb23bf100"
+  },
+  {
+    "source_id": "erbench-models",
+    "cache_file": "erbench-models--run_qa.py",
+    "sha256": "1629d2029adddc7d02dc66e1aa3e041c24bb1fa833efc464848048785e210fd5"
+  },
+  {
+    "source_id": "erbench-utils",
+    "cache_file": "erbench-utils.txt",
+    "sha256": "370c7491de76d0d72d27e05251b768c3fdd78ba36af2f81da41a8d1a5ec6a4ec"
+  },
+  {
+    "source_id": "benger-paper",
+    "cache_file": "benger-paper.txt",
+    "sha256": "f699b071f057a60b89fbad55351020e76764e67869a2cfa48550feef3f570a89"
+  },
+  {
+    "source_id": "cdg-config.json",
+    "cache_file": "cdg-config.json.txt",
+    "sha256": "1c23a970eb62a9960fe0363ddf8946d937589749977563b122b1f2f4802469c9"
+  },
+  {
+    "source_id": "cdg-readme.md",
+    "cache_file": "cdg-README.md.txt",
+    "sha256": "b250ea11b241ca0c8f547a109dc94ac4ba30706bcdea38cd8f976a55a0724df9"
+  },
+  {
+    "source_id": "meta-llama-codellama",
+    "cache_file": "meta-llama--codellama--MODEL_CARD.md",
+    "sha256": "4f5feeaee49f128eba13ea5daf36db224143580947bb6e2618ab3b7a3d6ec3b3"
+  },
+  {
+    "source_id": "sebastiannagl-benger-platform",
+    "cache_file": "SebastianNagl--benger-platform--README.md",
+    "sha256": "1bbd09272e21f589c0c7ae4aefaa7941e45ed1572288038ccfa87062a0a38cf5"
+  }
+]

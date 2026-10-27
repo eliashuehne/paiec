@@ -1,0 +1,93 @@
+{
+  "scope": "170 training candidates plus 8 selected development systems",
+  "requested_model_and_harness_coverage": 1.0,
+  "full_model_and_harness_coverage_achieved": false,
+  "previous": {
+    "systems": 178,
+    "model_facts": 44,
+    "harness_facts": 171,
+    "both_model_and_harness_facts": 41,
+    "any_sourced_facts": 174,
+    "probe_model_facts_rendered": 44,
+    "probe_harness_facts_rendered": 166,
+    "exact_checkpoints_verified": 0
+  },
+  "current": {
+    "systems": 178,
+    "model_facts": 169,
+    "harness_facts": 171,
+    "both_model_and_harness_facts": 162,
+    "any_sourced_facts": 178,
+    "probe_model_facts_rendered": 169,
+    "probe_harness_facts_rendered": 159,
+    "exact_checkpoints_verified": 0
+  },
+  "by_role": {
+    "training": {
+      "systems": 170,
+      "model_facts": 168,
+      "harness_facts": 163,
+      "both_model_and_harness_facts": 161,
+      "any_sourced_facts": 170,
+      "probe_model_facts_rendered": 168,
+      "probe_harness_facts_rendered": 151,
+      "exact_checkpoints_verified": 0
+    },
+    "development": {
+      "systems": 8,
+      "model_facts": 1,
+      "harness_facts": 8,
+      "both_model_and_harness_facts": 1,
+      "any_sourced_facts": 8,
+      "probe_model_facts_rendered": 1,
+      "probe_harness_facts_rendered": 8,
+      "exact_checkpoints_verified": 0
+    }
+  },
+  "missing_by_reason": {
+    "missing_supplied_harness": 7,
+    "private_checkpoint_unverified": 2,
+    "missing_supplied_model": 3,
+    "ambiguous_study_alias": 4
+  },
+  "subject_match_scopes": {
+    "reported_identifier_match": 135,
+    "family_only": 34,
+    "unresolved_model": 9
+  },
+  "pilot_visibility": [
+    {
+      "role": "training",
+      "records": 5000,
+      "model_facts_available": 4584,
+      "model_facts_rendered": 3185,
+      "harness_facts_available": 3958,
+      "harness_facts_rendered": 2304,
+      "any_facts_rendered": 3599,
+      "no_spare_room": 0,
+      "task_omitted": 2040
+    },
+    {
+      "role": "development",
+      "records": 963,
+      "model_facts_available": 120,
+      "model_facts_rendered": 120,
+      "harness_facts_available": 963,
+      "harness_facts_rendered": 963,
+      "any_facts_rendered": 963,
+      "no_spare_room": 0,
+      "task_omitted": 0
+    }
+  ],
+  "catalog_sha256": "8124b7975b45604d44f7c4200b2c12e6606940b413530f53ad0bbe9b8494af69",
+  "policy_sha256": "093d92ddd6f5a5440ac97965d51aaa3e51d19677e3ec2b86df8757b0e8ef3484",
+  "scope_verified_against_original_subject_tables": true,
+  "training_or_model_inference": false,
+  "sealed_sets_opened": false,
+  "limitations": [
+    "A probe is a short synthetic task; it does not establish visibility on real long inputs.",
+    "All subjects having some facts is different from all model and harness identities being known.",
+    "Published capacities/capabilities do not establish enabled run settings or exact checkpoint identity.",
+    "Research eligibility remains separate from competition eligibility."
+  ]
+}

@@ -21,6 +21,18 @@ def safe_source(root, relative):
     return resolved
 
 
+def repository_root():
+    return Path(__file__).resolve().parents[3]
+
+
+def input_source(config, root, relative):
+    """Resolve only the declared enrichment subtree against its own root."""
+    prefix = config.enrichment_export.rstrip("/")
+    enrichment = relative == prefix or relative.startswith(prefix + "/")
+    base = repository_root() if enrichment and config.enrichment_scope == "repository" else root
+    return safe_source(base, relative)
+
+
 def verify_sources(config, root):
     manifest_path = safe_source(root, config.data_root + "/corpus_manifest.json")
     if file_hash(manifest_path) != config.corpus_manifest_sha256:
@@ -29,19 +41,19 @@ def verify_sources(config, root):
     if manifest["revision"] != config.dataset_revision:
         raise ValueError("Dataset revision mismatch")
     for relative, expected in config.input_hashes.items():
-        if file_hash(safe_source(root, relative)) != expected:
+        if file_hash(input_source(config, root, relative)) != expected:
             raise ValueError("Source hash mismatch: " + relative)
     required = {f"{config.data_root}/{directory}/{name}.parquet"
                 for directory in manifest["eligible_dirs"] for name in ("benchmarks", "subjects", "items", "response")}
     if not required <= set(config.input_hashes):
         raise ValueError("Every population source table must be hash-bound")
-    export = safe_source(root, config.enrichment_export)
+    export = input_source(config, root, config.enrichment_export)
     if export.exists() or config.require_enrichment:
         required = {config.enrichment_export.rstrip('/') + '/' + filename for filename in (
             "models.jsonl", "harnesses.jsonl", "sources.jsonl", "catalog_systems.jsonl", "runs.jsonl")}
         # Resolve individual files too: an export directory can contain symlinks.
         for relative in required:
-            safe_source(root, relative)
+            input_source(config, root, relative)
         if not required <= set(config.input_hashes):
             raise ValueError("Every consumed enrichment file must be hash-bound")
     if config.require_enrichment and config.matching_policy is None:

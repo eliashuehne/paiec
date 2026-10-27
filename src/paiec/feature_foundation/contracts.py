@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 from typing import Literal, Mapping
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from ..schema import SUBJECT_FIELDS, ITEM_FIELDS
 from .matching import MatchingPolicy
@@ -54,13 +54,22 @@ class FeatureFoundationConfig(BaseModel):
     frozen_roles: dict[str, list[str]] = Field(default_factory=dict)
     family_groups: list[list[str]] = Field(default_factory=list)
     seed: int = 20261025
-    enrichment_export: str = "runs/shared_data/system_enrichment_v2"
+    enrichment_export: str = "research/system_enrichment/snapshot"
+    enrichment_scope: Literal["source_root", "repository"] = "source_root"
     matching_policy: MatchingPolicy | None = None
     require_enrichment: bool = False
     review_cases_per_kind: int = Field(default=24, ge=1, le=100)
     batch_size: int = Field(default=4096, ge=1, le=65536)
     legacy_monitor_seed: int | None = None
     review_ledger: str | None = None
+
+    @model_validator(mode="after")
+    def separate_input_namespaces(self):
+        if self.enrichment_scope == "repository":
+            data, enrichment = Path(self.data_root), Path(self.enrichment_export)
+            if data.is_relative_to(enrichment) or enrichment.is_relative_to(data):
+                raise ValueError("Dataset/enrichment namespaces overlap for repository scope")
+        return self
 
 
 def write_json(path, value):

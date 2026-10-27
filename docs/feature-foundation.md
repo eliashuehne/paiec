@@ -25,10 +25,12 @@ python scripts/prepare_feature_foundation.py \
 ```
 
 Add `--execute` to build. The source root must contain the pinned public release
-under `payload/data/` and the extracted `system_enrichment_v2` collection under
-`runs/shared_data/system_enrichment_v2/`, including its provenance files. These
-are existing external inputs, not files included in a fresh checkout. The
-command does not download data or require a model checkpoint, ZenML or MLflow.
+under `payload/data/`. The [collected enrichment and evidence](../research/system_enrichment/README.md)
+are included in this checkout under `research/system_enrichment/snapshot/`.
+The default recipe reads them from the repository, independently of
+`--source-root`; no separate enrichment download or private folder is needed.
+The command does not download the original dataset or require a model
+checkpoint, ZenML or MLflow.
 
 `configs/features/foundation_v1.json` pins source hashes, reviewed matching rules,
 family groups and protected roles. Use a fresh output directory. Changed inputs,

@@ -72,3 +72,6 @@ and separate research facts. Its plan-first command and standalone validator
 require no model or experiment-tracking service. Generated data stays in `runs/`.
 Its supplied-only export adds recorded settings and task measurements to the
 [existing lift loop](docs/feature-foundation.md#use-with-the-lift-loop).
+The [collected model and harness facts](research/system_enrichment/README.md)
+are included with their evidence; the original dataset and generated tables stay
+outside Git.

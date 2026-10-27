@@ -9,6 +9,12 @@
     "model_profiles": 46,
     "preparation_descriptions": 176
   },
+  "enrichment_snapshot": {
+    "bytes": 12805721,
+    "files": 109,
+    "path": "research/system_enrichment/snapshot",
+    "source_scope": "repository"
+  },
   "excluded_tables": {
     "traces.parquet": {
       "files": 60,
@@ -52,7 +58,7 @@
     "subjects": 8163
   },
   "recipe": "configs/features/foundation_v1.json",
-  "recipe_sha256": "61555d357f841ab0f2531aceef681063b2b4085c50af5b1c223cba3317ecac16",
+  "recipe_sha256": "a240354995d08e583c3e585171fe29bf5856ff9c77134789446d3dbae2f98fbf",
   "source_family_groups": "configs/lift/benchmark_groups.json",
   "source_fields": "generated bundle/source_fields.json",
   "unlisted_downloaded_benchmark_directories": [],

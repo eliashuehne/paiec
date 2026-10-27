@@ -13,5 +13,8 @@ __pycache__/
 # Run output: predictions, score tables, cached aggregates.
 runs/
 
+# Source evidence includes original runs/ directories; keep the pinned snapshot.
+!research/system_enrichment/snapshot/**
+
 # macOS
 .DS_Store

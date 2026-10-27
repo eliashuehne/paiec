@@ -10,8 +10,8 @@
   },
   "code_hashes": {
     "__init__.py": "c41ad3e5587cf51291212540af9287450b588624373decd587acd887a85530bb",
-    "build.py": "50ded0d0c43f6cc2fae95d52aaef3f648effc79fd84ae5cc58c02291727c96b7",
-    "contracts.py": "0e2837e278cc7371072d2d9e6f882c58541a5c3a9d618bbffe43da5fa60cb391",
+    "build.py": "334ba913bbdb39166fb8e5a2114972f34770ce0a4bd84a4e729dd1e13530c5b5",
+    "contracts.py": "c5761ca2b622210618cabab4f25e24d2fab3bc8b3f7a0204a667ce4fef635c44",
     "enrichment.py": "dd98d1e1e508e7adc9233d5fe42813002d4d751d5f2e1356a986fe6b4c5d47b9",
     "joins.py": "cf3d73107fab3e8b7047b875acdac474c4511e3faeb8a1bb68796ac1dc252eb1",
     "lift.py": "fd877bad70e45bb7d994ed7b14e1e96d9c646593a370c70a4109563c4c2f4edd",
@@ -19,7 +19,7 @@
     "report.py": "2007bd977a37939b2cbb345ed0a8ffe7fdf128850c9e499bae0c66b6ae60dd81",
     "review.py": "f179d8fab98bfc4dc43ffc43909afbf485519026ac6ca8361093aa7de4aeb257",
     "settings.py": "fa6b47c115f2c6ad85c20b06933aed94c6cc8caca707d129fe1a4b74eeb9768a",
-    "sources.py": "0ae8853b846b6e786dbace439cfe6c8319a44483f45162b06740a44b1b242209",
+    "sources.py": "aeb5bb04444fbdf76c4e8e34b8611e150e58a9880f492dd33bccaf4d20133f76",
     "streaming.py": "46f4e54fb7813b3a808aa052ea8ab7f9c13084bf7396d5d1bfb7f345b42d9139",
     "tables.py": "f3606f49f312ea03017dea06ac940259c0809ba073b2bddf733f29f4efa4a2d9",
     "tasks.py": "22c724f7b2c5af2381ee8cbc267b9260345caf3ad9d5c2f7a44c1461678902f0",
@@ -136,6 +136,14 @@
       "priority_rationale": "Source reach and contract completeness, not fitted feature importance"
     }
   ],
+  "included_enrichment": {
+    "bytes": 12805721,
+    "contains_dataset_questions_or_outcomes": false,
+    "files": 109,
+    "hash_pinned": true,
+    "path": "research/system_enrichment/snapshot",
+    "source_scope": "repository"
+  },
   "item_split": {
     "test": 325803,
     "training": 947646,
@@ -164,7 +172,7 @@
       "trial"
     ],
     "source_only_smoke": {
-      "bundle_manifest_sha256": "4611176b18c416b844c4fa3410e3e82c8cb765c1ac9ce020408233537a230b9b",
+      "bundle_manifest_sha256": "d1a0302bb681b7a5d98fd162a1aaf6d0f98b2a6160dccd05d29890b1436c1edd",
       "collections": 61,
       "coverage": {
         "sample_rows": 488,
@@ -824,22 +832,23 @@
       "validator": "validate_bundle"
     },
     "clean_source_export": {
-      "passed": 267,
-      "scope": "full suite; no local payload, models or tracking",
-      "subtests_passed": 28
+      "passed": 270,
+      "scope": "full suite with tracked enrichment; no private payload, model or tracking artifacts",
+      "subtests_passed": 33
     },
     "code_review": {
       "fresh_context": true,
+      "important_findings_fixed": 1,
       "remaining_blockers": 0
     },
     "tests": {
       "python_3_10": {
-        "passed": 267,
-        "subtests_passed": 28
+        "passed": 270,
+        "subtests_passed": 33
       },
       "python_3_12": {
-        "passed": 267,
-        "subtests_passed": 28
+        "passed": 270,
+        "subtests_passed": 33
       }
     }
   },

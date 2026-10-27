@@ -1,0 +1,78 @@
+{
+  "full_objective_achieved": false,
+  "static_fields": {
+    "required": 617,
+    "missing": 404
+  },
+  "source_review": {
+    "required_static_fields": 617,
+    "reviewed": 617,
+    "pending": 0,
+    "stale": 0,
+    "known_values": 213,
+    "confirmed_known_values": 205,
+    "reviewed_conflicts": 8,
+    "independently_reviewed": 0,
+    "ledger_hashes": [
+      {
+        "path": "research/feature_collection/historical_v3/reviews_v2.jsonl",
+        "sha256": "3bfe93f182acb08fce293a1339da89d492d6689fd63b91a4d5636af0d235bfb0"
+      },
+      {
+        "path": "research/feature_collection/harness_v4/reviews_v1.jsonl",
+        "sha256": "44131783f22c5303e81cb9258749fa86c3837184c7cd1eac2d2fe32b7abe9053"
+      },
+      {
+        "path": "research/feature_collection/provider_review_v4/reviews_v1.jsonl",
+        "sha256": "c18660b6611a57f5a971c9fe0a2645cb43b104e35dedc42f67aab584c1aff7b1"
+      },
+      {
+        "path": "research/feature_collection/model_review_v5/reviews_v1.jsonl",
+        "sha256": "4c4e0a35702d609cba7b76ee164dacec6296792b9713aa5a7bb31806c896bdca"
+      }
+    ],
+    "acceptance_rule": "Complete source review; retain evidenced unknowns",
+    "unknown_values_promoted_to_known": 0,
+    "complete": true
+  },
+  "metadata_review_complete": true,
+  "unresolved_visible_identities": 10,
+  "identity_review": {
+    "required_identity_requests": 10,
+    "reviewed": 10,
+    "pending": 0,
+    "stale": 0,
+    "unresolved": 10,
+    "identities_invented": 0,
+    "ledger_sha256": "518fab72ab400033c3ec848d78e5e169dd3b1820d9fa6fc4dc1d71b05a0f4388",
+    "complete": true
+  },
+  "actual_run_fields": {
+    "known": 149,
+    "missing": 1435
+  },
+  "run_setting_review": {
+    "required_run_fields": 1584,
+    "reviewed": 1584,
+    "pending": 0,
+    "known_values": 149,
+    "unknown_values_promoted_to_known": 0,
+    "independently_reviewed": 0,
+    "complete": true
+  },
+  "task_annotations": {
+    "task_inputs": 16909,
+    "candidates": 14,
+    "independently_reviewed": 0,
+    "legacy_candidates": 7,
+    "prepared_requests": 16909,
+    "response_coverage_complete": false,
+    "semantic_quality_established": false
+  },
+  "demonstrated_abilities": "not_implemented",
+  "learned_difficulty": "not_implemented",
+  "system_task_compatibility": "not_implemented",
+  "episodic_evidence_features": "not_implemented",
+  "new_laya_input_contract": "not_implemented",
+  "sealed_roles_opened": false
+}

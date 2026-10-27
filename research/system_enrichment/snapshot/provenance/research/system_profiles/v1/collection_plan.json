@@ -1,0 +1,19 @@
+{
+  "schema_version": "1.0",
+  "usage": "research_only",
+  "p0": {
+    "identity": ["name", "version", "provider", "resolution"],
+    "model_architecture": ["family", "backbone", "attention_direction", "parameterization", "total_parameters", "active_parameters_per_token"],
+    "model_capabilities": ["model_type", "base_model", "max_input_tokens", "max_output_tokens", "max_combined_context_tokens", "input_modalities", "output_modalities", "supported_reasoning_settings", "max_reasoning_tokens"],
+    "harness": ["supported_tools", "workflow", "context_management", "default_max_turns", "default_max_tool_calls", "default_max_retries", "default_timeout_seconds", "default_prompting_strategy"],
+    "actual_run": ["enabled_tools", "reasoning_effort", "temperature", "top_p", "max_output_tokens", "max_reasoning_tokens", "few_shot_count", "system_prompt", "prompt_template", "max_turns", "max_tool_calls", "max_retries", "timeout_seconds", "candidate_count", "selection_method"]
+  },
+  "p1": {
+    "model_architecture": ["layers", "hidden_size", "attention_heads", "key_value_heads", "attention_types", "experts_total", "experts_active_per_token", "positional_encoding", "tokenizer_identifier"],
+    "model_capabilities": ["release_date", "fine_tuning_domains", "documented_languages"],
+    "actual_run": ["quantization", "serving_configuration"]
+  },
+  "excluded": ["benchmark leaderboard scores", "subjective strengths or weaknesses", "guessed proprietary parameter counts", "identities inferred from anonymous benchmark feedback"],
+  "derived_per_task_not_stored_as_model_specs": ["target-tokenizer input/context fraction", "required versus available modality", "required versus enabled tools", "estimated answer length versus output budget", "task language versus documented coverage"],
+  "external_collection_policy": "External sources require source eligibility review before competition use. A saved profile is not evidence of permission. No runtime browsing or automatic predictor joins."
+}

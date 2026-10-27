@@ -19,7 +19,7 @@ from .enrichment import load_export, read_jsonl, resolve_enrichment
 from .report import coverage_report, feature_dictionary, render_report
 from .review import select_review_cases, table_rows, validate_reviews
 from .settings import parse_run_settings, POLICY_VERSION, FIELDS, ALIASES, CONTAINERS, SETTING_BRANCHES
-from .sources import inventory_population, safe_source, verify_sources
+from .sources import input_source, inventory_population, safe_source, verify_sources
 from .streaming import stream_population
 from .tables import SCHEMAS, write_table
 
@@ -60,7 +60,7 @@ def build_bundle(config, *, source_root, out, progress=None):
     dependency_hashes = {p.name: file_hash(p) for p in dependency_paths}
     # Check physical overlap before touching either input or output contents.
     for relative in (config.data_root, config.enrichment_export):
-        source = safe_source(source_root, relative)
+        source = input_source(config, source_root, relative)
         if out == source_root or source.is_relative_to(out) or out.is_relative_to(source):
             raise ValueError("Feature outputs overlap immutable source data")
     if out.exists():
@@ -79,7 +79,7 @@ def build_bundle(config, *, source_root, out, progress=None):
         resolved.extend(parsed["resolved"])
     logical["setting_observations"] = write_table(out, "setting_observations", observations, config.batch_size)
     logical["run_settings"] = write_table(out, "run_settings", resolved, config.batch_size)
-    export_root = safe_source(source_root, config.enrichment_export)
+    export_root = input_source(config, source_root, config.enrichment_export)
     export = load_export(export_root, required=config.require_enrichment)
     resolver = None
     if config.require_enrichment:
@@ -98,7 +98,7 @@ def build_bundle(config, *, source_root, out, progress=None):
             suffix = relative[len(config.enrichment_export.rstrip("/") + "/"):]
             destination = out / suffix
             destination.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copyfile(safe_source(source_root, relative), destination)
+            shutil.copyfile(input_source(config, source_root, relative), destination)
     cases = select_review_cases(out, config, population)
     jsonl(out / "review_inputs.jsonl", cases)
     jsonl(out / "review_cases.jsonl", [{k: v for k, v in row.items() if k != "input"} for row in cases])

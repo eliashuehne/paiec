@@ -155,7 +155,7 @@ class BundleTests(unittest.TestCase):
         for escape in [False, True]:
             with self.subTest(escape=escape), tempfile.TemporaryDirectory() as root, tempfile.TemporaryDirectory() as dest:
                 raw = corpus(root)
-                export = Path(root)/raw.get('enrichment_export','runs/shared_data/system_enrichment_v2')
+                export = Path(root)/c.FeatureFoundationConfig.model_validate(raw).enrichment_export
                 export.mkdir(parents=True)
                 outside = Path(dest)/'outside.jsonl'; outside.write_text('')
                 for name in ['models','harnesses','sources','catalog_systems','runs']:

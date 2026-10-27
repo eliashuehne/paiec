@@ -1,0 +1,53 @@
+{
+  "version": "feature_collection_v1",
+  "usage": "research_only",
+  "static_fields": {
+    "model": [
+      "model_type",
+      "base_model",
+      "fine_tuning_domains",
+      "release_date",
+      "max_input_tokens",
+      "max_output_tokens",
+      "max_combined_context_tokens",
+      "input_modalities",
+      "output_modalities",
+      "architecture.total_parameters",
+      "architecture.active_parameters_per_token",
+      "architecture.parameterization",
+      "documented_languages",
+      "supported_reasoning_settings",
+      "max_reasoning_tokens"
+    ],
+    "harness": [
+      "supported_tools",
+      "workflow",
+      "context_management",
+      "default_prompting_strategy"
+    ]
+  },
+  "collection_sources": [
+    "recorded permitted fields",
+    "pinned model cards and technical reports",
+    "versioned harness repositories and recorded run settings"
+  ],
+  "buckets": {
+    "model": "Collect static documented attributes; preserve identity uncertainty.",
+    "abilities": "Fit from training-only outcomes with out-of-fold features and support counts.",
+    "harness_run": "Separate supported functionality from actually enabled tools, prompting, sampling and budgets.",
+    "task": "Ground estimated skills, language, modality and constraints in exact task spans; leave empirical difficulty null.",
+    "compatibility": "Derive from reviewed system and task fields; unknown does not imply mismatch.",
+    "evidence": "Construct disjoint training-only support/query episodes; exclude query outcomes from inputs."
+  },
+  "run_fields": [
+    "enabled_tools",
+    "few_shot_count",
+    "temperature",
+    "max_output_tokens",
+    "max_reasoning_tokens",
+    "candidate_count",
+    "selection_method",
+    "max_turns",
+    "max_tool_calls"
+  ]
+}

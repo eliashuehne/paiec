@@ -17,6 +17,65 @@ class FoundationContractsTests(unittest.TestCase):
         except ModuleNotFoundError:
             self.fail("Feature foundation " + name + " is not implemented")
 
+    def test_default_recipe_includes_all_pinned_repository_enrichment(self):
+        import json
+        contracts = self.module("contracts")
+        recipe = Path("configs/features/foundation_v1.json")
+        config = contracts.FeatureFoundationConfig.model_validate_json(recipe.read_text())
+        self.assertEqual(getattr(config, 'enrichment_scope', None), 'repository')
+        self.assertEqual(config.enrichment_export, 'research/system_enrichment/snapshot')
+        prefix = config.enrichment_export + '/'
+        expected = {key: value for key, value in config.input_hashes.items() if key.startswith(prefix)}
+        self.assertEqual(len(expected), 109)
+        for relative, digest in expected.items():
+            self.assertEqual(contracts.file_hash(relative), digest, relative)
+        directory = Path(config.enrichment_export)
+        self.assertEqual({str(path) for path in directory.rglob('*') if path.is_file()}, set(expected))
+
+    def test_repository_enrichment_cannot_shadow_the_dataset_namespace(self):
+        contracts = self.module('contracts')
+        with tempfile.TemporaryDirectory() as root:
+            raw = corpus(root)
+            for prefix in ['payload', 'payload/data', 'payload/data/enrichment', './payload/', 'payload//data']:
+                with self.subTest(prefix=prefix), self.assertRaisesRegex(ValueError, 'namespace.*overlap|overlap.*namespace'):
+                    contracts.FeatureFoundationConfig.model_validate(dict(raw, enrichment_scope='repository',
+                                                                         enrichment_export=prefix))
+
+    def test_repository_enrichment_is_loaded_separately_and_keeps_root_and_hash_guards(self):
+        contracts, sources = self.module('contracts'), self.module('sources')
+        from paiec.feature_foundation.build import build_bundle
+        with tempfile.TemporaryDirectory() as data, tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            repo = root/'checkout'
+            relative = 'research/enrichment'
+            enrichment = repo/relative
+            (enrichment/'provenance').mkdir(parents=True)
+            raw = corpus(data)
+            raw.update(enrichment_scope='repository', enrichment_export=relative)
+            for name in ['models.jsonl', 'harnesses.jsonl', 'sources.jsonl', 'catalog_systems.jsonl', 'runs.jsonl', 'provenance/evidence.json']:
+                path = enrichment/name
+                path.write_text('')
+                raw['input_hashes'][relative+'/'+name] = contracts.file_hash(path)
+            with patch.object(sources, 'repository_root', return_value=repo, create=True):
+                config = contracts.FeatureFoundationConfig.model_validate(raw)
+                out = root/'bundle'
+                build_bundle(config, source_root=data, out=out)
+                self.assertTrue((out/'provenance/evidence.json').exists())
+                # Neither an adjacent checkout directory nor a changed archive is accepted.
+                (enrichment/'models.jsonl').write_text('changed')
+                with self.assertRaisesRegex(ValueError, 'hash'):
+                    sources.verify_sources(config, data)
+                (enrichment/'models.jsonl').unlink()
+                outside = root/'outside.jsonl'
+                outside.write_text('')
+                (enrichment/'models.jsonl').symlink_to(outside)
+                with self.assertRaisesRegex(ValueError, 'root'):
+                    sources.verify_sources(config, data)
+                (enrichment/'models.jsonl').unlink()
+                (enrichment/'models.jsonl').write_text('')
+                with self.assertRaisesRegex(ValueError, 'overlap'):
+                    build_bundle(config, source_root=data, out=enrichment/'output')
+
     def test_full_population_has_no_scorer_threshold_and_preserves_protected_rows(self):
         sources = self.module("sources")
         contracts = self.module("contracts")
