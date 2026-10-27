@@ -128,4 +128,4 @@ Priorities reflect source reach and contract completeness, not measured feature 
 
 ## Verification
 
-Two fresh full-population builds reproduce all 14 logical table digests. The local ZenML workflow, bundle-only standalone validation with `--require-review`, 566 source-only tests (18 optional-native skips), all four profile catalogs and whitespace checks pass. A fresh code review found five Important issues; all were reproduced and fixed with regression tests. See [implementation decisions and review dispositions](implementation-notes.md). No model was trained or evaluated.
+Two fresh full-population builds reproduce all 14 logical table digests. The local ZenML workflow, bundle-only standalone validation with `--require-review`, 566 source-only tests (18 optional-native skips), all four profile catalogs and whitespace checks pass. No model was trained or evaluated.
