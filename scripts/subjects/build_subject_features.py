@@ -25,7 +25,6 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "src"))
 
 from paiec.subject_dates import (  # noqa: E402
-    accepted_sources,
     add_version_columns,
     backtest,
     fill_release_dates,
@@ -73,9 +72,14 @@ def main():
     sample = pd.read_parquet(args.sample, columns=["subject_id", "fold"])
     weights = table["subject_id"].map(sample["subject_id"].value_counts()).fillna(0)
 
-    reports = {mode: summarise_backtest(backtest(table, mode)) for mode in ("identity", "signature")}
-    accepted = accepted_sources(reports["identity"])
-    dates = fill_release_dates(table, subject_folds(sample), accepted)
+    sampled_folds = subject_folds(sample)
+    # Eligibility filtering can omit sealed-only subjects. Without membership
+    # evidence, retain their fields in the export but never use them as references.
+    folds_of = {s: sampled_folds.get(s, frozenset({"sealed"})) for s in table["subject_id"]}
+    unsealed = table.loc[table["subject_id"].map(lambda s: "sealed" not in folds_of.get(s, frozenset()))]
+    # These pooled reports are diagnostics only, never the method-selection gate.
+    reports = {mode: summarise_backtest(backtest(unsealed, mode)) for mode in ("identity", "signature")}
+    dates = fill_release_dates(table, folds_of, accepted=None)
     table = table.merge(dates, on="subject_id", how="left", validate="one_to_one")
 
     args.out.parent.mkdir(parents=True, exist_ok=True)
@@ -86,7 +90,7 @@ def main():
         "fields_sha256": sha256(args.fields),
         "families_sha256": sha256(args.families),
         "sample_sha256": sha256(args.sample),
-        "accepted_date_sources": accepted,
+        "date_source_selection": "backtest_per_permitted_reference_set",
         "date_backtest": {mode: report.round(4).to_dict("records") for mode, report in reports.items()},
         "release_sources": table["release_source"].value_counts().to_dict(),
         "fill_rates": rates,
@@ -97,7 +101,7 @@ def main():
     for mode, report in reports.items():
         print(f"date back-test, leaving out each {mode}:")
         print(report.round(3).to_string(index=False))
-    print(f"accepted date sources: {accepted}")
+    print("date sources selected separately from each permitted reference set")
     print(f"{'column':22s} subjects  sample rows")
     for column, rate in rates.items():
         print(f"{column:22s} {rate['subjects']:7.1%}  {rate.get('sample_rows', float('nan')):7.1%}")

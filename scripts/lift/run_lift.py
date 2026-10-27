@@ -40,6 +40,7 @@ from paiec.lift_report import (  # noqa: E402
     format_report,
     save_run,
 )
+from paiec.schema import SUBJECT_FIELDS as VISIBLE_SUBJECT_FIELDS  # noqa: E402
 from paiec.metrics import BUDGETS  # noqa: E402
 
 SUBJECT_FIELDS = ROOT / "runs" / "features" / "subject_fields.parquet"
@@ -49,6 +50,7 @@ def parse_arguments():
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--sample", type=Path, default=ROOT / "runs" / "lift" / "sample.parquet")
     parser.add_argument("--groups", type=Path, default=ROOT / "configs" / "lift" / "benchmark_groups.json")
+    parser.add_argument("--subject-fields", type=Path, default=SUBJECT_FIELDS, help="predictor-visible subject table")
     parser.add_argument("--features", type=Path, nargs="*", default=[], help="feature tables to join")
     parser.add_argument("--columns", nargs="*", default=[], help="feature columns added to the base")
     parser.add_argument("--base-columns", nargs="*", default=[], help="feature columns added to the base only")
@@ -98,9 +100,14 @@ def main():
     if not args.budgets and (args.base not in BASELINES or (args.candidate and args.candidate not in BASELINES)):
         sys.exit("the budget-0 loop on all rows supports only baselines A and B")
     tables = list(args.features)
-    if (base.abilities or candidate.abilities) and SUBJECT_FIELDS not in tables:
-        tables.append(SUBJECT_FIELDS)  # abilities are keyed by visible subject fields
     sample = load_features(pd.read_parquet(args.sample), tables)
+    needed = set(VISIBLE_SUBJECT_FIELDS) if args.budgets else set(base.abilities + candidate.abilities)
+    missing = sorted(needed - set(sample.columns))
+    if missing:
+        fields = pd.read_parquet(args.subject_fields, columns=["subject_id", *missing])
+        sample = sample.merge(fields, on="subject_id", how="left", validate="many_to_one")
+        if args.subject_fields not in tables:
+            tables.append(args.subject_fields)
     groups = load_benchmark_groups(args.groups)
     fingerprints = fingerprint_scores(sample, [*args.base_columns, *args.columns])
     base_name = args.base + (f" + {args.base_columns}" if args.base_columns else "")

@@ -7,13 +7,20 @@ with the official harness, `scripts/run_eval.py`.
 
 By default it scores every official budget (0, 1, 3, 7, 15, 31) on the same
 held-out rows and combines them with the official weights, so the headline
-number is a proxy for Brier ALC; see [Budget mode](#budget-mode).
+number averages each system–benchmark pair equally; see [Budget mode](#budget-mode).
+Evaluation responses may be sampled for speed, so this is still a local screening
+result rather than a hosted competition score.
+
+The results recorded below predate the PR review fixes. They used row weighting,
+private IDs for evidence matching, and clipped budgets. They remain historical
+results and do not establish performance under the corrected protocol.
 
 ## Quick start
 
 ```bash
 # 1. Once per data revision (~40 s each)
 python scripts/lift/build_lift_sample.py      # runs/lift/sample.parquet + manifest
+# Existing row-capped samples must be rebuilt; use --force only to replace one intentionally.
 python scripts/lift/build_subject_fields.py   # runs/features/subject_fields.parquet
 python scripts/subjects/build_subject_features.py  # runs/features/subjects.parquet (seconds)
 
@@ -97,7 +104,23 @@ benchmark (`baseline/empirical_mean/model.py` filters `labeled` by subject),
 so from budget 1 the benchmark's level can be estimated. `lift_budget` copies
 this for training and test benchmarks and adds four columns to each scored
 row: `bench_revealed_rate`, `bench_revealed_n`, `pair_revealed_rate`,
-`pair_revealed_n`. A revealed item is never scored.
+`pair_revealed_n`. A revealed item is never scored. Evidence matching uses all
+eight supplied subject fields plus the anonymous benchmark; private subject IDs
+are used only for split, budget and score bookkeeping. Identical visible profiles
+therefore share the matching evidence.
+
+The sample builder admits pairs with at least 80 distinct items, splits their
+complete item sets, and retains the first 31 acquisition observations before
+capping evaluation rows. The cap must allow at least one evaluated response per
+pair. Prepared pools and original item counts stay in the sample. Insufficient
+budgets raise an error instead of using fewer labels silently. `--legacy-sample`
+retains the earlier row-capped sampler for the non-budget loop.
+
+Budget reports calculate Brier within each pair, combine its budget scores, and
+average the resulting ALCs equally across all pairs, regardless of response or
+fold sizes. `pairs.csv` records the paired base/candidate scores. The runner
+loads missing visible fields from `--subject-fields` (default:
+`runs/features/subject_fields.parquet`).
 
 Baselines in budget mode:
 
@@ -152,7 +175,10 @@ feature (for example `release_year` against `release_year_filled`).
   (70% of rows have an item that another system also answered).
 - Thresholds (0.8, 0.001, 4 of 5) are judgment calls; the fingerprint score
   looks at one column at a time.
-- Row-weighted Brier is a proxy for the official pair-weighted Brier ALC.
+- Budget scores weight pairs equally. The legacy non-budget loop still weights
+  response rows; its scores are not directly comparable.
+- The sample retains all permitted acquisition evidence but can cap evaluation
+  responses. Confirm candidate performance using the full evaluator.
 
 ## Files
 
@@ -162,7 +188,7 @@ library code is in `src/paiec/` (the grouped folds extend the shared
 
 | Path | Role |
 | --- | --- |
-| `scripts/lift/build_lift_sample.py`, `src/paiec/lift_sample.py` | capped sample (20k responses per benchmark) with folds |
+| `scripts/lift/build_lift_sample.py`, `src/paiec/lift_sample.py` | budget pools with capped evaluation responses (20k per benchmark) and folds |
 | `scripts/lift/build_subject_fields.py`, `src/paiec/subject_fields.py` | visible subject fields keyed by `subject_id` |
 | `src/paiec/lift.py` | joins, folds, LightGBM, in-fold ability, baselines |
 | `src/paiec/lift_budget.py` | budget mode: official split, revealed columns, baselines E, K, KM, ALC weighting |

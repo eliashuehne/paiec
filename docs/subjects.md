@@ -2,6 +2,19 @@
 
 Written in Simplified Technical English (ASD-STE100).
 
+The reported scores and date back-test figures below were recorded before the
+PR review fixes. They have not been rerun with pair weighting, visible-profile
+evidence matching, full budgets, and fold-specific date-method selection.
+Treat these findings as historical, not as confirmation under the corrected test.
+
+The builder now chooses date methods separately from each permitted reference
+set, excluding sealed subjects. Its pooled back-test report excludes sealed
+subjects and is diagnostic only. Subjects absent from the sample retain their
+recorded fields but are excluded as date references because their fold is unknown. When date features enter the lift loop, both
+training and validation values are rebuilt without references or method-selection
+probes from the outer validation fold. Keep the raw date and identity/version
+columns in the joined subject table so the loop can rebuild these features.
+
 ## 1. Purpose
 
 A subject is one AI system or one human group that answers items. This

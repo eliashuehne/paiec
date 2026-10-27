@@ -22,6 +22,7 @@ import pandas as pd
 
 from .lift_sample import SEALED
 from .metrics import brier
+from .subject_dates import fill_release_dates, subject_folds
 
 KEYS = ("benchmark", "subject_id", "item_id")
 EPSILON = 1e-15
@@ -46,12 +47,13 @@ ABILITY_STRENGTH = 20
 
 @dataclass(frozen=True)
 class LiftResult:
-    """Scores per held-out fold and per benchmark."""
+    """Scores per held-out fold and benchmark, plus pairs in budget mode."""
 
     columns: tuple[str, ...]
     abilities: tuple[str, ...]
     folds: pd.DataFrame
     benchmarks: pd.DataFrame
+    pairs: pd.DataFrame | None = None
 
 
 def join_features(sample: pd.DataFrame, tables: Iterable[pd.DataFrame]) -> pd.DataFrame:
@@ -240,6 +242,7 @@ def run_lift(
     prepared_columns: Sequence[str] = (),
     increasing: Sequence[str] = (),
     predict: Callable[..., np.ndarray] | None = None,
+    pair_weighted: bool = False,
 ) -> LiftResult:
     """Score ``columns`` on every numbered fold; sealed benchmarks are skipped.
 
@@ -258,6 +261,9 @@ def run_lift(
 
     Fold rows report row-weighted Brier and log loss plus ``brier_macro``, the
     mean of per-benchmark Brier, so small benchmarks count as much as large ones.
+    With ``pair_weighted=True`` these scores instead average pair scores and
+    retain the pair table for the global equal-pair mean. Derived release-date
+    columns are always rebuilt without the outer validation fold.
     """
     missing = sorted((set(columns) | set(abilities)) - set(sample.columns) - set(prepared_columns))
     if missing:
@@ -269,8 +275,27 @@ def run_lift(
     model_columns = [*columns, *ability_columns]
     monotone = [*ability_columns, *increasing]
     predict = predict or fit_predict
-    folds, benchmarks = [], []
+    folds, benchmarks, pairs = [], [], []
+    derived_dates = {"release_days_filled", "release_year_filled", "release_lo", "release_hi",
+                     "release_source", "release_filled"} & set(columns)
+    date_inputs = ["subject_id", "identity_key", "family", "line", "version", "log_params_b",
+                   "provider_filled", "release_days", "name_date_days"]
+    if derived_dates:
+        missing_dates = set(date_inputs) - set(sample.columns)
+        if missing_dates:
+            raise ValueError(f"date features require raw subject columns: {sorted(missing_dates)}")
+        date_subjects = sample[date_inputs].drop_duplicates()
+        if date_subjects["subject_id"].duplicated().any():
+            raise ValueError("a subject has inconsistent raw date features")
+        memberships = subject_folds(sample)
     for fold, train, test in fold_splits(sample):
+        if derived_dates:
+            dates = fill_release_dates(date_subjects, memberships, accepted=None, excluded_folds={fold})
+            dates = dates.set_index("subject_id")
+            train, test = (
+                rows.assign(**{c: rows["subject_id"].map(dates[c]) for c in derived_dates})
+                for rows in (train, test)
+            )
         for key, column in zip(abilities, ability_columns):
             train, test = (
                 train.assign(**{column: in_fold_ability(train, train, key, units=units)[column]}),
@@ -279,18 +304,36 @@ def run_lift(
         if prepare is not None:
             train, test = prepare(train), prepare(test)
         scored = test.assign(p=predict(train, test, model_columns, increasing=monotone))
-        per_benchmark = [
-            {"fold": fold, "benchmark": name, **_scores(group)}
-            for name, group in scored.groupby("benchmark", sort=True)
-        ]
+        per_pair = pd.DataFrame([
+            {"fold": fold, "benchmark": benchmark, "subject_id": subject, **_scores(group)}
+            for (benchmark, subject), group in scored.groupby(["benchmark", "subject_id"], sort=True)
+        ]) if pair_weighted else None
+        if per_pair is not None:
+            pairs.append(per_pair)
+            per_benchmark = [
+                {"fold": fold, "benchmark": name, "rows": int(group["rows"].sum()),
+                 "brier": float(group["brier"].mean()), "log_loss": float(group["log_loss"].mean())}
+                for name, group in per_pair.groupby("benchmark", sort=True)
+            ]
+            scores = {"rows": len(scored), "brier": float(per_pair["brier"].mean()),
+                      "log_loss": float(per_pair["log_loss"].mean())}
+        else:
+            per_benchmark = [
+                {"fold": fold, "benchmark": name, **_scores(group)}
+                for name, group in scored.groupby("benchmark", sort=True)
+            ]
+            scores = _scores(scored)
         benchmarks.extend(per_benchmark)
         folds.append({
             "fold": fold,
             "benchmarks": len(per_benchmark),
-            **_scores(scored),
+            **scores,
             "brier_macro": float(np.mean([row["brier"] for row in per_benchmark])),
         })
-    return LiftResult(tuple(columns), tuple(abilities), pd.DataFrame(folds), pd.DataFrame(benchmarks))
+    return LiftResult(
+        tuple(columns), tuple(abilities), pd.DataFrame(folds), pd.DataFrame(benchmarks),
+        pd.concat(pairs, ignore_index=True) if pair_weighted else None,
+    )
 
 
 __all__ = [

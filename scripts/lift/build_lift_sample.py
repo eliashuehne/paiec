@@ -27,7 +27,8 @@ def parse_arguments():
     parser.add_argument("--data", type=Path, default=ROOT / "payload" / "data")
     parser.add_argument("--out", type=Path, default=ROOT / "runs" / "lift")
     parser.add_argument("--groups", type=Path, default=ROOT / "configs" / "lift" / "benchmark_groups.json")
-    parser.add_argument("--cap", type=int, default=20_000, help="responses per benchmark")
+    parser.add_argument("--cap", type=int, default=20_000, help="evaluation responses per benchmark in budget mode")
+    parser.add_argument("--legacy-sample", action="store_true", help="old row-capped sample, for --budgets with no values only")
     parser.add_argument("--folds", type=int, default=5)
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--sealed-fraction", type=float, default=0.2)
@@ -50,18 +51,25 @@ def main():
     benchmarks = training_benchmarks(args.data)
     started = time.time()
 
+    labelled_benchmarks = []
+
     def tables():
         for count, benchmark in enumerate(benchmarks, start=1):
-            yield benchmark, load_benchmark(args.data, benchmark).responses
+            responses = load_benchmark(args.data, benchmark).responses
+            if not responses.empty:
+                labelled_benchmarks.append(benchmark)
+            yield benchmark, responses
             if count % 20 == 0 or count == len(benchmarks):
                 print(f"  {count}/{len(benchmarks)} ({time.time() - started:.0f}s)", flush=True)
 
-    sample = build_sample(tables(), cap=args.cap, seed=args.seed)
-    # Folds are drawn only over benchmarks that have labelled responses.
+    sample = build_sample(tables(), cap=args.cap, seed=args.seed, budget_mode=not args.legacy_sample)
+    # Eligibility filtering must not change historical folds or sealed roles.
+    # Draw from the original labelled-benchmark universe, before removing small pairs.
     sampled = sorted(sample["benchmark"].unique())
-    no_labels = sorted(set(benchmarks) - set(sampled))
+    no_labels = sorted(set(benchmarks) - set(labelled_benchmarks))
+    no_eligible_pairs = sorted(set(labelled_benchmarks) - set(sampled))
     sealed, folds = grouped_benchmark_folds(
-        sampled,
+        sorted(labelled_benchmarks),
         load_benchmark_groups(args.groups),
         k=args.folds,
         seed=args.seed,
@@ -77,11 +85,13 @@ def main():
     manifest = {
         "data_revision": data_revision(args.data),
         "cap": args.cap,
+        "sampling_mode": "legacy_rows" if args.legacy_sample else "budget_pools_v1",
         "seed": args.seed,
         "folds": args.folds,
         "sealed_fraction": args.sealed_fraction,
         "groups_sha256": hashlib.sha256(args.groups.read_bytes()).hexdigest(),
         "skipped_no_labels": no_labels,
+        "skipped_no_eligible_pairs": no_eligible_pairs,
         "sealed": sealed,
         "fold_of": fold_of,
         **summarise_sample(sample),

@@ -18,18 +18,19 @@ from paiec.lift_budget import (
 from paiec.lift_sample import SEALED
 from paiec.metrics import alc_weights
 from paiec.split import make_split
+from paiec.schema import SUBJECT_FIELDS
 
 FOLDS = [str(k) for k in range(5)] * 5 + [SEALED] * 5
 
 
-def budget_sample(seed=0, systems=6, items=40):
+def budget_sample(seed=0, systems=6, items=80):
     """Benchmarks differ a lot in level; systems differ within each, by a visible ``skill``."""
     rng = np.random.default_rng(seed)
     parts = []
     for number, fold in enumerate(FOLDS):
         level = rng.normal(scale=2)
         for system in range(systems):
-            skill = 0.8 * rng.integers(-1, 2)  # a shared level, like a model generation
+            skill = 2.4 * rng.integers(-1, 2)  # a shared level, like a model generation
             p = 1 / (1 + np.exp(-(level + skill)))
             parts.append(pd.DataFrame({
                 "benchmark": f"b{number:02d}",
@@ -40,12 +41,16 @@ def budget_sample(seed=0, systems=6, items=40):
                 "fold": fold,
                 "skill": skill,
             }))
-    return pd.concat(parts, ignore_index=True)
+    sample = pd.concat(parts, ignore_index=True)
+    return sample.assign(**{
+        field: sample["subject_id"] if field == "normalized_name" else ""
+        for field in SUBJECT_FIELDS
+    })
 
 
 def tiny():
     """Two systems on one benchmark, four items each; s1 answers i3 twice."""
-    return pd.DataFrame({
+    frame = pd.DataFrame({
         "benchmark": "x",
         "subject_id": ["s0"] * 4 + ["s1"] * 5,
         "item_id": ["i0", "i1", "i2", "i3", "i0", "i1", "i2", "i3", "i3"],
@@ -53,6 +58,11 @@ def tiny():
         "label": [1, 0, 1, 1, 0, 0, 1, 1, 0],
         "fold": "0",
     })
+    return frame.assign(**{
+        field: frame["subject_id"] if field == "normalized_name" else ""
+        for field in SUBJECT_FIELDS
+    })
+
 
 
 def scored_keys(frame):
@@ -90,7 +100,7 @@ class BudgetFrameTests(unittest.TestCase):
             self.assertTrue(frame.index.equals(evaluate.index))
             self.assertFalse(scored_keys(frame) & reveal)
 
-    def test_pair_count_is_budget_capped_by_the_pool(self):
+    def test_pair_count_matches_the_requested_budget(self):
         pool = self.keyed[self.keyed["pool"] == "reveal"].groupby("subject_id").size()
         for budget in (0, 3, 31):
             frame = budget_frame(self.keyed, budget)

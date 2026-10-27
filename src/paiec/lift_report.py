@@ -39,6 +39,7 @@ class Comparison:
     folds: pd.DataFrame
     benchmarks: pd.DataFrame
     summary: dict
+    pairs: pd.DataFrame | None = None
 
 
 def compare(base: LiftResult, candidate: LiftResult) -> Comparison:
@@ -56,6 +57,17 @@ def compare(base: LiftResult, candidate: LiftResult) -> Comparison:
         candidate_brier=candidate.benchmarks["brier"],
         delta_brier=candidate.benchmarks["brier"] - base.benchmarks["brier"],
     )
+    pairs = None
+    if (base.pairs is None) != (candidate.pairs is None):
+        raise ValueError("runs use different scoring modes")
+    if base.pairs is not None:
+        keys = ["fold", "benchmark", "subject_id", "rows"]
+        if not base.pairs[keys].equals(candidate.pairs[keys]):
+            raise ValueError("runs were scored on different pairs")
+        pairs = base.pairs[keys].assign(
+            base_brier=base.pairs["brier"], candidate_brier=candidate.pairs["brier"],
+            delta_brier=candidate.pairs["brier"] - base.pairs["brier"],
+        )
     delta = folds["delta_brier"]
     summary = {
         "mean_delta_brier": float(delta.mean()),
@@ -71,8 +83,17 @@ def compare(base: LiftResult, candidate: LiftResult) -> Comparison:
         "base_brier": float(base.folds["brier"].mean()),
         "candidate_brier": float(candidate.folds["brier"].mean()),
     }
+    if pairs is not None:
+        summary.update(
+            base_brier=float(pairs["base_brier"].mean()),
+            candidate_brier=float(pairs["candidate_brier"].mean()),
+            mean_delta_brier=float(pairs["delta_brier"].mean()),
+            mean_delta_log_loss=float((candidate.pairs["log_loss"] - base.pairs["log_loss"]).mean()),
+            pairs=len(pairs),
+            weighting="equal_pairs",
+        )
     summary["verdict"] = verdict(summary)
-    return Comparison(folds, benchmarks, summary)
+    return Comparison(folds, benchmarks, summary, pairs)
 
 
 def verdict(summary: dict) -> str:
@@ -218,6 +239,8 @@ def save_run(
     out.mkdir(parents=True, exist_ok=False)
     for stem, table in (tables or {}).items():
         table.to_csv(out / f"{stem}.csv", index=False)
+    if comparison.pairs is not None:
+        comparison.pairs.to_csv(out / "pairs.csv", index=False)
     comparison.folds.to_csv(out / "folds.csv", index=False)
     comparison.benchmarks.to_csv(out / "benchmarks.csv", index=False)
     fingerprints.to_csv(out / "fingerprints.csv", index=False)

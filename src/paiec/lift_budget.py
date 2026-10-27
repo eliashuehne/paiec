@@ -22,7 +22,9 @@ import pandas as pd
 
 from .lift import LiftResult, fit_predict, run_lift
 from .metrics import BUDGETS, alc_weights
+from .lift_sample import MIN_PAIR_ITEMS
 from .split import make_split
+from .schema import SUBJECT_FIELDS, clean
 
 PAIR_KEYS = ["benchmark", "subject_id"]
 ITEM_KEYS = ["benchmark", "subject_id", "item_id"]
@@ -60,6 +62,16 @@ def reveal_order(sample: pd.DataFrame, seed: int = 0) -> pd.DataFrame:
 
 def attach_reveal_order(sample: pd.DataFrame, seed: int = 0) -> pd.DataFrame:
     """Add ``pool`` and ``order`` to every row; the index is kept."""
+    if {"pool", "order"} <= set(sample.columns):
+        keyed = sample.copy()
+        opened = keyed["fold"] != "sealed"
+        if not keyed.loc[opened, "pool"].isin(["reveal", "evaluate"]).all():
+            raise ValueError("prepared sample has invalid pools")
+        assignments = keyed.loc[opened, [*ITEM_KEYS, "pool", "order"]].drop_duplicates()
+        if assignments.duplicated(ITEM_KEYS).any():
+            raise ValueError("an item has conflicting acquisition/evaluation assignments")
+        keyed.loc[~opened, ["pool", "order"]] = [None, np.nan]
+        return keyed
     order = reveal_order(sample[sample["fold"] != "sealed"], seed)
     keyed = sample.merge(order, on=ITEM_KEYS, how="left", validate="many_to_one")
     keyed.index = sample.index
@@ -76,14 +88,31 @@ def budget_frame(frame: pd.DataFrame, budget: int) -> pd.DataFrame:
     """
     if budget < 0:
         raise ValueError("budget must be at least 0")
+    pool_sizes = (
+        frame.loc[(frame["pool"] == "reveal") & (frame["order"] < budget), ITEM_KEYS].drop_duplicates()
+        .groupby(PAIR_KEYS).size()
+    )
+    scored_pairs = pd.MultiIndex.from_frame(
+        frame.loc[frame["pool"] == "evaluate", PAIR_KEYS].drop_duplicates()
+    )
+    available = pool_sizes.reindex(scored_pairs, fill_value=0)
+    if (available != budget).any():
+        raise ValueError(f"budget {budget} exceeds the acquisition pool for a scored pair; rebuild the sample")
+    missing = set(SUBJECT_FIELDS) - set(frame.columns)
+    if missing:
+        raise ValueError(f"missing predictor-visible subject fields: {sorted(missing)}")
+    frame = frame.assign(**{
+        field: frame[field].map(clean) for field in SUBJECT_FIELDS
+    })
+    visible_keys = ["benchmark", *SUBJECT_FIELDS]
     revealed = frame[(frame["pool"] == "reveal") & (frame["order"] < budget)]
     revealed = revealed.sort_values("trial", kind="stable").drop_duplicates(ITEM_KEYS)
     bench = revealed.groupby("benchmark")["label"].agg(["sum", "count"])
-    pair = revealed.groupby(PAIR_KEYS)["label"].agg(["sum", "count"])
+    pair = revealed.groupby(visible_keys)["label"].agg(["sum", "count"])
 
     scored = frame[frame["pool"] == "evaluate"].drop(columns=["pool", "order"])
     bench_hits, bench_n = bench.reindex(scored["benchmark"]).fillna(0).to_numpy().T
-    pair_index = pd.MultiIndex.from_frame(scored[PAIR_KEYS])
+    pair_index = pd.MultiIndex.from_frame(scored[visible_keys])
     pair_hits, pair_n = pair.reindex(pair_index).fillna(0).to_numpy().T
     with np.errstate(invalid="ignore", divide="ignore"):
         return scored.assign(
@@ -169,6 +198,14 @@ def run_budgets(
     increasing: Sequence[str] = (),
 ) -> dict[int, LiftResult]:
     """``run_lift`` at each budget on the same scored rows; ``increasing`` columns may only raise P(correct)."""
+    if not budgets or len(set(budgets)) != len(budgets) or any(b < 0 or b > 31 for b in budgets):
+        raise ValueError("budgets must be distinct integers between 0 and 31")
+    opened = sample[sample["fold"] != "sealed"]
+    counts = opened.groupby(PAIR_KEYS)["item_id"].nunique()
+    if "n_pair_items" in opened:
+        counts = opened.groupby(PAIR_KEYS)["n_pair_items"].min()
+    if counts.empty or counts.isna().any() or (counts < MIN_PAIR_ITEMS).any():
+        raise ValueError("budget runs require at least 80 distinct items per pair; rebuild the budget sample")
     keyed = attach_reveal_order(sample, seed)
     predict = PREDICTORS[predictor] if predictor else None
     groups = [list(group) for group in groups]
@@ -182,6 +219,7 @@ def run_budgets(
             prepared_columns=REVEALED,
             increasing=increasing,
             predict=predict,
+            pair_weighted=True,
         )
         for budget in budgets
     }
@@ -190,9 +228,8 @@ def run_budgets(
 def combine_budgets(results: Mapping[int, LiftResult]) -> LiftResult:
     """Weight per-budget results with the official ALC weights into one result.
 
-    Every metric here is a mean over the same scored rows, so the weighted
-    result is the ALC of each fold and benchmark. With one budget it is that
-    budget's result.
+    Pair tables preserve equal pair weighting across budgets and across folds.
+    With one budget this returns that budget's result.
     """
     budgets = sorted(results)
     first = results[budgets[0]]
@@ -204,6 +241,12 @@ def combine_budgets(results: Mapping[int, LiftResult]) -> LiftResult:
         same = first.folds[["fold", "rows"]].equals(other.folds[["fold", "rows"]]) and first.benchmarks[
             ["fold", "benchmark", "rows"]
         ].equals(other.benchmarks[["fold", "benchmark", "rows"]])
+        if (first.pairs is None) != (other.pairs is None):
+            raise ValueError("budgets use different scoring modes")
+        if first.pairs is not None:
+            same = same and first.pairs[["fold", *PAIR_KEYS, "rows"]].equals(
+                other.pairs[["fold", *PAIR_KEYS, "rows"]]
+            )
         if not same:
             raise ValueError(f"budget {budget} scored different rows")
 
@@ -218,6 +261,7 @@ def combine_budgets(results: Mapping[int, LiftResult]) -> LiftResult:
         first.abilities,
         weighted("folds", ["brier", "log_loss", "brier_macro"]),
         weighted("benchmarks", ["brier", "log_loss"]),
+        weighted("pairs", ["brier", "log_loss"]) if first.pairs is not None else None,
     )
 
 

@@ -200,26 +200,36 @@ def subject_folds(sample: pd.DataFrame) -> dict[str, frozenset]:
 def fill_release_dates(
     features: pd.DataFrame,
     folds_of: Mapping[str, frozenset],
-    accepted: Iterable[str] = SOURCES,
+    accepted: Iterable[str] | None = SOURCES,
+    excluded_folds: Iterable[str] = (),
 ) -> pd.DataFrame:
     """Release estimates per subject, using references from other folds only.
 
     ``features`` needs the version columns (``add_version_columns``). Subjects
     with a real date keep it (source ``field``). Estimates from sources not in
     ``accepted`` are dropped. Subjects outside the sample are references for
-    everyone; sealed subjects are references for no one.
+    everyone; sealed subjects are references for no one. With ``accepted=None``,
+    methods are selected by back-testing that same permitted reference set.
+    ``excluded_folds`` additionally excludes the outer validation fold when
+    rebuilding training features inside the lift loop.
     """
-    accepted = set(accepted) | {"field"}
+    fixed_sources = set(accepted) | {"field"} if accepted is not None else None
+    excluded_folds = set(excluded_folds) | {SEALED}
     dated = features[features["release_days"].notna()]
     dated_folds = dated["subject_id"].map(lambda s: folds_of.get(s, frozenset()))
     result = {}
     undated = features[features["release_days"].isna()]
     for fold_set, group in undated.groupby(undated["subject_id"].map(lambda s: folds_of.get(s, frozenset()))):
-        usable = dated_folds.map(lambda f: not (f & fold_set) and SEALED not in f)
-        references = References(dated[usable.to_numpy()])
+        usable = dated_folds.map(lambda f: not (f & (fold_set | excluded_folds)))
+        permitted = dated.loc[usable.to_numpy(dtype=bool)]
+        # Select methods using exactly the reference set available to this group.
+        sources = fixed_sources
+        if sources is None:
+            sources = set(accepted_sources(summarise_backtest(backtest(permitted)))) | {"field"}
+        references = References(permitted)
         for row in group.itertuples(index=False):
             estimate = _apply_name_date(*references.estimate(row), row, references.first)
-            result[row.subject_id] = estimate if estimate[3] in accepted else (math.nan,) * 3 + (None,)
+            result[row.subject_id] = estimate if estimate[3] in sources else (math.nan,) * 3 + (None,)
     rows = []
     for row in features.itertuples(index=False):
         if not _missing(row.release_days):
@@ -258,7 +268,7 @@ def backtest(features: pd.DataFrame, leave_out: str = "identity") -> pd.DataFram
         truth = float(np.median(group["release_days"]))
         rows.append({"identity_key": key, "truth": truth, "estimate": estimate, "low": low, "high": high,
                      "source": source})
-    return pd.DataFrame(rows)
+    return pd.DataFrame(rows, columns=["identity_key", "truth", "estimate", "low", "high", "source"])
 
 
 def summarise_backtest(results: pd.DataFrame) -> pd.DataFrame:
