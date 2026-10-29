@@ -120,21 +120,35 @@ class TuningTests(unittest.TestCase):
     def test_vectorised_scores_match_the_runtime_posterior(self):
         pool = synthetic_pool()
         prior = PoolPrior(PARAMETERS["tau"], 0.35, PARAMETERS["sigma"], 1.5)
-        expected, weights = np.zeros(len(pool)), np.array([e["weight"] for e, _, _ in pool])
-        for alc_weight, budget in zip(alc_weights(BUDGETS), BUDGETS):
-            rows = [(start(r[k]), number, e["revealed_tags"][k], e["revealed_ids"][k], e["revealed_labels"][k])
-                    for number, (e, r, _) in enumerate(pool) for k in range(budget)]
-            posterior = PoolPosterior.fit(*(list(column) for column in zip(*rows)), prior) if rows \
-                else PoolPosterior.fit([], [], [], [], [], prior)
-            for number, (e, _, evaluated) in enumerate(pool):
-                p = np.array([posterior.predict(start(logit), number, tags, question)
-                              for logit, tags, question in zip(evaluated, e["eval_tags"], e["eval_ids"])])
-                squared = np.sum(e["eval_rows"] * p * p - 2 * p * e["eval_correct"] + e["eval_correct"])
-                expected[number] += alc_weight * squared / e["eval_rows"].sum()
-        states = [[pool_state(pool, budget, start) for budget in BUDGETS]]
-        actual = pooled_scores(states, PoolPrior(prior.tau, prior.share, prior.sigma, 0.0), [0.0, 1.5])
-        self.assertAlmostEqual(actual[1], np.average(expected, weights=weights), places=10)
-        self.assertNotAlmostEqual(actual[0], actual[1], places=6)
+        weights = np.array([e["weight"] for e, _, _ in pool])
+        # Questions two apart share their visible text, as in many real benchmarks.
+        twins = {f"q{k}": f"text {k // 2}" for k in range(70)}
+        for keys in ({}, twins):
+            expected = np.zeros(len(pool))
+            for alc_weight, budget in zip(alc_weights(BUDGETS), BUDGETS):
+                rows = [(start(r[k]), number, e["revealed_tags"][k], keys.get(e["revealed_ids"][k], e["revealed_ids"][k]),
+                         e["revealed_labels"][k])
+                        for number, (e, r, _) in enumerate(pool) for k in range(budget)]
+                posterior = PoolPosterior.fit(*(list(column) for column in zip(*rows)), prior) if rows \
+                    else PoolPosterior.fit([], [], [], [], [], prior)
+                for number, (e, _, evaluated) in enumerate(pool):
+                    p = np.array([posterior.predict(start(logit), number, tags, keys.get(question, question))
+                                  for logit, tags, question in zip(evaluated, e["eval_tags"], e["eval_ids"])])
+                    squared = np.sum(e["eval_rows"] * p * p - 2 * p * e["eval_correct"] + e["eval_correct"])
+                    expected[number] += alc_weight * squared / e["eval_rows"].sum()
+            states = [[pool_state(pool, budget, start, keys) for budget in BUDGETS]]
+            actual = pooled_scores(states, PoolPrior(prior.tau, prior.share, prior.sigma, 0.0), [0.0, 1.5])
+            self.assertAlmostEqual(actual[1], np.average(expected, weights=weights), places=10)
+            self.assertNotAlmostEqual(actual[0], actual[1], places=6)
+
+    def test_text_twins_of_own_revealed_questions_are_matched(self):
+        pool = synthetic_pool(members=1)
+        episode = pool[0][0]
+        twins = {question: f"text of {question}" for question in episode["revealed_ids"]}
+        twins[episode["eval_ids"][0]] = twins[episode["revealed_ids"][0]]
+        state = pool_state(pool, 31, start, twins)
+        self.assertEqual(state.members[0].items[0], 0)
+        self.assertTrue(np.all(state.members[0].items[1:] == -1))
 
     def test_pools_of_one_score_like_the_prior_offset(self):
         pool = synthetic_pool()

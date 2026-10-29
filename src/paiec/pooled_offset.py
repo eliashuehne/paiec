@@ -6,19 +6,25 @@ labels), then chooses ``share`` and ``item_sigma`` on the training benchmarks:
 each benchmark's sampled pairs are cut into pools of ``FIT_POOL_SIZE`` and
 every pair is scored with its pool's labels, using the same out-of-fold prior
 logits. ``share = 0`` and ``item_sigma = 0`` still pool the tag shifts.
+
+Questions are matched by their visible text, as at runtime: many benchmarks
+reuse one prompt for different questions whose difference is in an attached
+file ``predict`` never sees, and the tuning must see those collisions too.
 """
 
 from __future__ import annotations
 
-from collections.abc import Callable
+from collections.abc import Callable, Iterable
 from dataclasses import dataclass, field
 
 import numpy as np
+import pandas as pd
 
 from .groups import TagDesign, parse_tags
 from .metrics import BUDGETS, alc_weights
 from .pooling import Layout, PoolPosterior, PoolPrior, index_of, item_shifts
 from .prior_offset import PriorOffset
+from .schema import benchmark_dir, clean
 from .split import stable_seed
 from .update import laplace_posterior, sigmoid
 
@@ -29,17 +35,29 @@ def subject_key(subject: dict) -> tuple:
 
 
 def item_key(item: dict) -> tuple:
+    """How the runtime recognises a question: its visible text and tags."""
     return item.get("item_content"), item.get("item_features")
 
 
-def make_member_pools(held_out: dict, size: int, seed: int = 2) -> list[list]:
+def visible_keys(data_root, benchmark: str, item_ids: Iterable[str]) -> dict:
+    """Map item ids to the ``item_key`` the runtime sees for them."""
+    items = pd.read_parquet(benchmark_dir(data_root, benchmark) / "items.parquet",
+                            columns=["item_id", "content", "item_features"])
+    items = items[items["item_id"].isin(set(item_ids))].drop_duplicates("item_id")
+    return {
+        item_id: item_key({"item_content": clean(content), "item_features": clean(features)})
+        for item_id, content, features in zip(items["item_id"], items["content"], items["item_features"])
+    }
+
+
+def make_member_pools(held_out: dict, size: int, seed: int = 2) -> list[tuple[str, list]]:
     """Cut each benchmark's (episode, revealed logits, evaluation logits) into seeded pools."""
     pools = []
     for benchmark in sorted(held_out):
         members = held_out[benchmark]
         order = np.random.default_rng(stable_seed(seed, benchmark, "pools")).permutation(len(members))
         members = [members[index] for index in order]
-        pools.extend(members[start : start + size] for start in range(0, len(members), size))
+        pools.extend((benchmark, members[start : start + size]) for start in range(0, len(members), size))
     return pools
 
 
@@ -69,14 +87,19 @@ class PoolState:
     members: list[MemberEval]
 
 
-def pool_state(pool: list, budget: int, start: Callable) -> PoolState:
-    """Shared revealed labels of a pool at one budget, and each member's evaluation items."""
+def pool_state(pool: list, budget: int, start: Callable, keys: dict | None = None) -> PoolState:
+    """Shared revealed labels of a pool at one budget, and each member's evaluation items.
+
+    ``keys`` maps item ids to the question key the runtime would see
+    (``visible_keys``); without it questions are matched by id.
+    """
+    keys = keys or {}
     starts, subjects, tags, items, labels = [], [], [], [], []
     for number, (episode, revealed, _) in enumerate(pool):
         starts.append(start(revealed[:budget]))
         subjects += [number] * budget
         tags += episode["revealed_tags"][:budget]
-        items += episode["revealed_ids"][:budget]
+        items += [keys.get(item, item) for item in episode["revealed_ids"][:budget]]
         labels.append(np.asarray(episode["revealed_labels"][:budget], dtype=float))
     design = TagDesign.from_revealed(tags)
     item_column, item_index = index_of(items)
@@ -89,7 +112,8 @@ def pool_state(pool: list, budget: int, start: Callable) -> PoolState:
             eval_tags[row, [column - 1 for column in seen]] = 1.0
         members.append(MemberEval(
             start(evaluated), eval_tags, unseen,
-            np.asarray([item_column.get(item, -1) for item in episode["eval_ids"]], dtype=int),
+            np.asarray([item_column.get(keys.get(item, item), -1) for item in episode["eval_ids"]],
+                       dtype=int),
             np.asarray(episode["eval_rows"], dtype=float),
             np.asarray(episode["eval_correct"], dtype=float), float(episode["weight"]),
         ))
@@ -148,7 +172,7 @@ class PooledOffset(PriorOffset):
     """Prior offset whose benchmark level, tag shifts and question shifts pool all systems."""
 
     FIT_POOL_SIZE = 5
-    SHARES = (0.0, 0.2, 0.35, 0.5, 0.65, 0.8)
+    SHARES = (0.0, 0.2, 0.35, 0.5, 0.65, 0.8, 0.9, 0.95)
     ITEM_SIGMAS = (0.0, 0.5, 1.0, 1.5, 2.0, 3.0)
 
     share: float = 0.0
@@ -161,17 +185,25 @@ class PooledOffset(PriorOffset):
     def fit(self, data_root, train_benchmarks):
         base, held_out = self.held_out_episodes(data_root, train_benchmarks)
         self.fit_held_out(base, held_out)
-        self.fit_pooling(held_out)
+        self.fit_pooling(held_out, data_root)
         self.prior = self.PRIOR_CLASS().fit(data_root, train_benchmarks)
         return self
 
-    def fit_pooling(self, held_out: dict):
-        """Grid ``share`` x ``item_sigma`` with the prior offset's other parameters fixed."""
+    def fit_pooling(self, held_out: dict, data_root=None):
+        """Grid ``share`` x ``item_sigma`` with the prior offset's other parameters fixed.
+
+        With ``data_root`` questions are matched by visible text, as at runtime.
+        """
         def start(logits):
             return self.level + self.shift + self.scale * (np.asarray(logits, dtype=float) - self.center)
 
-        pools = [[pool_state(pool, budget, start) for budget in BUDGETS]
-                 for pool in make_member_pools(held_out, self.FIT_POOL_SIZE)]
+        keys = {}
+        if data_root is not None:
+            for benchmark, members in held_out.items():
+                ids = {i for episode, _, _ in members for i in episode["revealed_ids"] + episode["eval_ids"]}
+                keys[benchmark] = visible_keys(data_root, benchmark, ids)
+        pools = [[pool_state(pool, budget, start, keys.get(benchmark)) for budget in BUDGETS]
+                 for benchmark, pool in make_member_pools(held_out, self.FIT_POOL_SIZE)]
         self.fit_scores = np.array([
             pooled_scores(pools, PoolPrior(self.tau, share, self.sigma, 0.0), self.ITEM_SIGMAS)
             for share in self.SHARES
