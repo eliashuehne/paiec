@@ -2,9 +2,9 @@
 
     python scripts/run_eval.py --predictors constant empirical_mean
 
-Each fold holds out ~20% of benchmarks; predictors are scored only on held-out
-benchmarks, so every benchmark is scored exactly once across the folds. Per-pair
-results go to runs/<timestamp>/ for later comparison.
+Each fold holds out ~20% of benchmarks. Learned predictors are fitted fresh on
+the other ~80% and scored only on the held-out benchmarks, so every benchmark
+is scored exactly once across the folds. Per-pair results go to runs/<timestamp>/.
 """
 
 from __future__ import annotations
@@ -23,7 +23,7 @@ from paiec.evaluate import evaluate  # noqa: E402
 from paiec.folds import benchmark_folds  # noqa: E402
 from paiec.metrics import brier_alc  # noqa: E402
 from paiec.pairs import choose_pairs  # noqa: E402
-from paiec.predictors import REGISTRY  # noqa: E402
+from paiec.predictors import REGISTRY, build  # noqa: E402
 from paiec.schema import load_benchmark, training_benchmarks  # noqa: E402
 
 
@@ -48,6 +48,34 @@ def summarise(frame: pd.DataFrame) -> pd.Series:
     return pd.concat([summary, pd.Series({"ALC": alc.mean(), "pairs": len(alc)})])
 
 
+def fitted_parameters(predictor) -> dict[str, float]:
+    """Return displayable numeric parameters from a learned predictor."""
+    return {
+        name: round(value, 4)
+        for name, value in vars(predictor).items()
+        if isinstance(value, float)
+    }
+
+
+def evaluate_benchmark(benchmark, predictors, args, fold: int) -> list[pd.DataFrame]:
+    """Evaluate every requested predictor on one held-out benchmark."""
+    tables = load_benchmark(args.data, benchmark)
+    pairs = choose_pairs(tables, max_subjects=args.max_pairs)
+    if not pairs:
+        return []
+
+    frames = []
+    for name, predict in predictors.items():
+        result = evaluate(
+            pairs,
+            predict,
+            seed=args.seed,
+            evaluation_items=args.eval_items,
+        )
+        frames.append(result.frame.assign(predictor=name, fold=fold))
+    return frames
+
+
 def main():
     args = parse_arguments()
     benchmarks = training_benchmarks(args.data)
@@ -56,21 +84,28 @@ def main():
     folds = benchmark_folds(benchmarks, k=args.folds, seed=args.seed)
     print(f"{len(benchmarks)} public eligible benchmarks, {args.folds} folds", flush=True)
 
-    predictors = {name: REGISTRY[name]() for name in args.predictors}
     frames = []
     started = time.time()
-    for fold, (_train, test) in enumerate(folds):
+    for fold, (train, test) in enumerate(folds):
+        predictors = {name: build(name, args.data, train) for name in args.predictors}
+        elapsed = time.time() - started
+        print(f"fold {fold}: fitted on {len(train)} benchmarks ({elapsed:.0f}s)", flush=True)
+        for name, predictor in predictors.items():
+            if hasattr(predictor, "fit"):
+                print(f"  {name}: {fitted_parameters(predictor)}", flush=True)
         for benchmark in test:
-            tables = load_benchmark(args.data, benchmark)
-            pairs = choose_pairs(tables, max_subjects=args.max_pairs)
-            if not pairs:
-                continue
-            for name, predict in predictors.items():
-                result = evaluate(pairs, predict, seed=args.seed, evaluation_items=args.eval_items)
-                frames.append(result.frame.assign(predictor=name, fold=fold))
-            print(f"  fold {fold} {benchmark}: {len(pairs)} pairs ({time.time() - started:.0f}s)",
-                  flush=True)
+            benchmark_frames = evaluate_benchmark(benchmark, predictors, args, fold)
+            frames.extend(benchmark_frames)
+            if benchmark_frames:
+                pairs_scored = benchmark_frames[0][["benchmark", "subject_id"]].drop_duplicates()
+                elapsed = time.time() - started
+                print(
+                    f"  fold {fold} {benchmark}: {len(pairs_scored)} pairs ({elapsed:.0f}s)",
+                    flush=True,
+                )
 
+    if not frames:
+        raise ValueError("no scoreable benchmark/subject pairs were found")
     frame = pd.concat(frames, ignore_index=True)
     out = ROOT / "runs" / time.strftime("%Y%m%d-%H%M%S")
     out.mkdir(parents=True)
