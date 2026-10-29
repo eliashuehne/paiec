@@ -5,6 +5,10 @@
 Each fold holds out ~20% of benchmarks. Learned predictors are fitted fresh on
 the other ~80% and scored only on the held-out benchmarks, so every benchmark
 is scored exactly once across the folds. Per-pair results go to runs/<timestamp>/.
+
+``--pool-sizes 1 5 all`` scores each predictor several times: with its own
+labels only, with the labels of pools of 5 pairs per benchmark, and with all
+selected pairs of the benchmark, as the platform pools a run's labels.
 """
 
 from __future__ import annotations
@@ -36,7 +40,18 @@ def parse_arguments():
     parser.add_argument("--max-pairs", type=int, default=20, help="pairs per benchmark")
     parser.add_argument("--eval-items", type=int, default=200, help="evaluation items per pair")
     parser.add_argument("--limit-benchmarks", type=int, default=None, help="quick smoke runs")
+    parser.add_argument(
+        "--pool-sizes", nargs="+", type=pool_size, default=["1"],
+        help="pairs per benchmark that share revealed labels: integers or 'all'",
+    )
     return parser.parse_args()
+
+
+def pool_size(text: str) -> str:
+    """Accept a positive integer or 'all' and keep it as the label for results."""
+    if text != "all" and not (text.isdigit() and int(text) >= 1):
+        raise argparse.ArgumentTypeError("pool size must be a positive integer or 'all'")
+    return text
 
 
 def summarise(frame: pd.DataFrame) -> pd.Series:
@@ -66,13 +81,15 @@ def evaluate_benchmark(benchmark, predictors, args, fold: int) -> list[pd.DataFr
 
     frames = []
     for name, predict in predictors.items():
-        result = evaluate(
-            pairs,
-            predict,
-            seed=args.seed,
-            evaluation_items=args.eval_items,
-        )
-        frames.append(result.frame.assign(predictor=name, fold=fold))
+        for pool in args.pool_sizes:
+            result = evaluate(
+                pairs,
+                predict,
+                seed=args.seed,
+                evaluation_items=args.eval_items,
+                pool_size=None if pool == "all" else int(pool),
+            )
+            frames.append(result.frame.assign(predictor=name, pool=pool, fold=fold))
     return frames
 
 
@@ -112,9 +129,9 @@ def main():
     frame.to_csv(out / "pairs.csv", index=False)
 
     columns = ["benchmark", "subject_id", "budget", "brier"]
-    overall = frame.groupby("predictor")[columns].apply(summarise).round(4)
+    overall = frame.groupby(["predictor", "pool"])[columns].apply(summarise).round(4)
     by_fold = (
-        frame.groupby(["predictor", "fold"])[columns]
+        frame.groupby(["predictor", "pool", "fold"])[columns]
         .apply(lambda f: summarise(f)["ALC"])
         .unstack()
         .round(4)
