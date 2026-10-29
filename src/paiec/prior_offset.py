@@ -195,21 +195,31 @@ class PriorOffset:
     _posteriors: dict = field(default_factory=dict, init=False, repr=False, compare=False)
 
     def fit(self, data_root, train_benchmarks: Sequence[str]):
+        base, held_out = self.held_out_episodes(data_root, train_benchmarks)
+        self.fit_held_out(base, held_out)
+        self.prior = self.PRIOR_CLASS().fit(data_root, train_benchmarks)
+        return self
+
+    def held_out_episodes(self, data_root, train_benchmarks: Sequence[str]):
+        """The plain offset, and per training benchmark its episodes with out-of-fold prior logits."""
         base = BayesianOffset().fit(data_root, train_benchmarks)
         episodes = {b: tag_episodes(str(data_root), b) for b in train_benchmarks}
         usable = sorted(b for b, e in episodes.items() if e)
-        states, weights, eval_logits = [], [], []
+        held_out = {}
         for inner_train, inner_held in benchmark_folds(usable, k=self.INNER_FOLDS, seed=2):
             prior = self.PRIOR_CLASS().fit(data_root, inner_train)
             for b in inner_held:
-                for episode, (revealed, evaluated) in zip(
-                        episodes[b], episode_logits(prior, episode_vectors(data_root, b), episodes[b])):
-                    states.append(prior_states(episode, revealed, evaluated))
-                    weights.append(episode["weight"])
-                    eval_logits.append(evaluated)
-        self.fit_states(states, weights, base.level, base.tau, float(np.mean(np.concatenate(eval_logits))))
-        self.prior = self.PRIOR_CLASS().fit(data_root, train_benchmarks)
-        return self
+                logits = episode_logits(prior, episode_vectors(data_root, b), episodes[b])
+                held_out[b] = [(episode, revealed, evaluated)
+                               for episode, (revealed, evaluated) in zip(episodes[b], logits)]
+        return base, held_out
+
+    def fit_held_out(self, base, held_out: dict):
+        members = [member for b in held_out for member in held_out[b]]
+        states = [prior_states(episode, revealed, evaluated) for episode, revealed, evaluated in members]
+        weights = [episode["weight"] for episode, _, _ in members]
+        center = float(np.mean(np.concatenate([evaluated for _, _, evaluated in members])))
+        return self.fit_states(states, weights, base.level, base.tau, center)
 
     def fit_states(self, states, weights, level: float, tau: float, center: float):
         """Grid (shift, scale) at the plain tau and sigma 0.75, then (tau, sigma) at the best pair."""

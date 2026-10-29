@@ -86,6 +86,34 @@ def tag_offset_posterior(level: float, design, labels, tau: float, sigma: float)
     return shifts, covariance
 
 
+def laplace_posterior(offsets, design, labels, precision):
+    """Mode and covariance of logistic coefficients with independent Normal priors.
+
+    ``logit = offsets + design @ coefficients``; coefficient ``j`` has prior
+    Normal(0, 1 / precision[j]). ``tag_offset_posterior`` is the special case
+    of a pair-shift column plus tag columns.
+    """
+    offsets = np.asarray(offsets, dtype=float)
+    design = np.asarray(design, dtype=float)
+    labels = np.asarray(labels, dtype=float)
+    precision = np.asarray(precision, dtype=float)
+    if precision.size == 0:
+        return np.zeros(0), np.zeros((0, 0))
+    prior_curvature = np.diag(precision)
+    coefficients = np.zeros(design.shape[1])
+    for _ in range(NEWTON_STEPS):
+        probabilities = sigmoid(offsets + design @ coefficients)
+        gradient = design.T @ (labels - probabilities) - precision * coefficients
+        label_variance = probabilities * (1.0 - probabilities)
+        curvature = (design.T * label_variance) @ design + prior_curvature
+        coefficients += np.linalg.solve(curvature, gradient)
+
+    probabilities = sigmoid(offsets + design @ coefficients)
+    label_variance = probabilities * (1.0 - probabilities)
+    covariance = np.linalg.inv((design.T * label_variance) @ design + prior_curvature)
+    return coefficients, covariance
+
+
 def tag_predictive(level: float, theta, covariance, columns, unseen: int, sigma: float) -> float:
     """Predict using known tag shifts and the uncertainty of any unseen values."""
     indices = [0] + (list(columns) if sigma > 0 else [])
@@ -97,6 +125,7 @@ def tag_predictive(level: float, theta, covariance, columns, unseen: int, sigma:
 
 __all__ = [
     "constant_prior_posterior",
+    "laplace_posterior",
     "offset_posterior",
     "predictive",
     "sigmoid",
