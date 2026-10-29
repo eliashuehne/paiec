@@ -1,6 +1,6 @@
 """Assemble and zip the Codabench submission, then run the official checker.
 
-    python scripts/train_submission.py      # once: fits and saves artifacts/prior_offset.npz
+    python scripts/train_submission.py      # once: fits and saves artifacts/pooled_offset.npz
     python scripts/build_submission.py      # writes dist/submission.zip and checks it
 """
 
@@ -19,7 +19,7 @@ from paiec.submission import assemble, build_zip  # noqa: E402
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("--artifacts", type=Path, default=ROOT / "artifacts" / "prior_offset.npz")
+    parser.add_argument("--artifacts", type=Path, default=ROOT / "artifacts" / "pooled_offset.npz")
     parser.add_argument("--zip", type=Path, default=ROOT / "dist" / "submission.zip")
     args = parser.parse_args()
     if not args.artifacts.is_file():

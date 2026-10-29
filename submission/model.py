@@ -1,12 +1,13 @@
-"""PAIEC submission: logistic prior + Bayesian pair offset with tag shifts (numpy only).
+"""PAIEC submission: logistic prior + pooled Bayesian offset (numpy only).
 
 For a target (subject, item): a per-item starting logit from the logistic prior,
-scaled and centred, plus a pair shift and per-tag shifts learned from this
-subject's revealed labels on the same anonymous benchmark (see paiec_runtime).
+scaled and centred, plus shifts fitted on every revealed label of the same
+anonymous benchmark in ``labeled``: a benchmark level and tag shifts shared by
+all systems, the target system's own shift, and a shift for a question other
+systems have answered (see paiec_runtime.pooling).
 
 It also writes a short diagnostic to stderr describing what ``labeled`` contains
-(entries, distinct subjects, other subjects on the same benchmark). Predictions
-use only the target subject's own labels on the target benchmark.
+(entries, distinct subjects, other subjects on the same benchmark).
 """
 
 import sys
@@ -19,25 +20,32 @@ if str(HERE) not in sys.path:
     sys.path.insert(0, str(HERE))
 
 from paiec_runtime.features import item_vector, subject_vector  # noqa: E402
-from paiec_runtime.groups import TagDesign, parse_tags  # noqa: E402
-from paiec_runtime.update import tag_offset_posterior, tag_predictive  # noqa: E402
+from paiec_runtime.groups import parse_tags  # noqa: E402
+from paiec_runtime.pooling import PoolPosterior, PoolPrior  # noqa: E402
 
-with np.load(HERE / "artifacts" / "prior_offset.npz") as _stored:
+with np.load(HERE / "artifacts" / "pooled_offset.npz") as _stored:
     COEF = _stored["coef"].astype(float)
-    INTERCEPT, LEVEL, SHIFT, SCALE, CENTER, TAU, SIGMA = (
-        float(_stored[name]) for name in ("intercept", "level", "shift", "scale", "center", "tau", "sigma")
+    INTERCEPT, LEVEL, SHIFT, SCALE, CENTER, TAU, SIGMA, SHARE, ITEM_SIGMA = (
+        float(_stored[name]) for name in
+        ("intercept", "level", "shift", "scale", "center", "tau", "sigma", "share", "item_sigma")
     )
+PRIOR = PoolPrior(TAU, SHARE, SIGMA, ITEM_SIGMA)
 
 CACHE_LIMIT = 20000
 DIAGNOSTIC_LIMIT = 400
 _item_parts: dict = {}
 _subject_parts: dict = {}
 _posteriors: dict = {}
+_current = {"labeled": None, "size": -1, "pools": {}}
 _diagnostics_seen: set = set()
 
 
 def _key(record: dict) -> tuple:
     return tuple(sorted((str(k), str(v)) for k, v in record.items()))
+
+
+def _item_key(item: dict) -> tuple:
+    return item.get("item_content"), item.get("item_features")
 
 
 def _prior_logit(subject: dict, item: dict) -> float:
@@ -79,24 +87,34 @@ def _diagnose(subject: dict, item: dict, labeled) -> None:
     )
 
 
+def _pool(benchmark, labeled) -> PoolPosterior:
+    # Targets of one checkpoint share the same ``labeled`` list; fit each benchmark once.
+    size = len(labeled or ())
+    if labeled is not _current["labeled"] or size != _current["size"]:
+        _current.update(labeled=labeled, size=size, pools={})
+    pools = _current["pools"]
+    if benchmark not in pools:
+        examples = [(s, e, int(y)) for (s, e), y in labeled or () if e.get("benchmark_id") == benchmark]
+        key = (benchmark, tuple((_key(s), _item_key(e), y) for s, e, y in examples))
+        if key not in _posteriors:
+            if len(_posteriors) >= CACHE_LIMIT:
+                _posteriors.clear()
+            _posteriors[key] = PoolPosterior.fit(
+                [_start(s, e) for s, e, _ in examples],
+                [_key(s) for s, _, _ in examples],
+                [parse_tags(e.get("item_features", "")) for _, e, _ in examples],
+                [_item_key(e) for _, e, _ in examples],
+                [y for _, _, y in examples],
+                PRIOR,
+            )
+        pools[benchmark] = _posteriors[key]
+    return pools[benchmark]
+
+
 def predict(input, labeled=None) -> float:
     subject, item = input
     _diagnose(subject, item, labeled)
-    benchmark = item.get("benchmark_id")
-    examples = [
-        (observed_item, int(label))
-        for (observed_subject, observed_item), label in labeled or []
-        if observed_subject == subject and observed_item.get("benchmark_id") == benchmark
-    ]
-    key = (_key(subject), benchmark, tuple((e.get("item_content"), e.get("item_features"), y) for e, y in examples))
-    if key not in _posteriors:
-        if len(_posteriors) >= CACHE_LIMIT:
-            _posteriors.clear()
-        design = TagDesign.from_revealed([parse_tags(e.get("item_features", "")) for e, _ in examples])
-        revealed = np.array([_start(subject, e) for e, _ in examples], dtype=float)
-        mean, covariance = tag_offset_posterior(revealed, design.matrix, [y for _, y in examples], TAU, SIGMA)
-        _posteriors[key] = (design, mean, covariance)
-    design, mean, covariance = _posteriors[key]
-    columns, unseen = design.target_columns(parse_tags(item.get("item_features", "")))
-    probability = tag_predictive(_start(subject, item), mean, covariance, columns, unseen, SIGMA)
+    posterior = _pool(item.get("benchmark_id"), labeled)
+    probability = posterior.predict(_start(subject, item), _key(subject),
+                                    parse_tags(item.get("item_features", "")), _item_key(item))
     return float(min(max(probability, 1e-4), 1 - 1e-4))

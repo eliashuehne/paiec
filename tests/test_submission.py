@@ -7,8 +7,8 @@ from pathlib import Path
 
 import numpy as np
 
+from paiec.pooled_offset import PooledOffset
 from paiec.prior import LogisticPrior
-from paiec.prior_offset import PriorOffset
 from paiec.submission import assemble, build_zip, save_artifacts
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -31,7 +31,8 @@ def fitted_model():
     prior = LogisticPrior()
     prior.coef = np.random.default_rng(0).normal(scale=0.3, size=prior.coef.size)
     prior.intercept = -0.2
-    return PriorOffset(level=0.0, shift=0.1, scale=0.7, center=0.05, tau=1.5, sigma=0.75, prior=prior)
+    return PooledOffset(level=0.0, shift=0.1, scale=0.7, center=0.05, tau=1.5, sigma=0.75,
+                        share=0.8, item_sigma=1.5, prior=prior)
 
 
 def load_entry_point(directory):
@@ -60,20 +61,25 @@ class SubmissionTests(unittest.TestCase):
         target = subject("Model 70B")
         other = subject("Other 7B")
         labeled = [[[target, item(f"question {k}", "a" if k % 2 else "b")], k % 3 != 0] for k in range(7)]
-        labeled += [[[other, item("question 99", "a")], 1], [[target, item("elsewhere", "a", "other")], 0]]
+        shared = [[[other, item(f"question {k}", "ab"[k % 2])], int(k % 4 == 0)] for k in range(5, 12)]
+        shared += [[[target, item("elsewhere", "a", "other")], 0]]
         for budget in (0, 1, 3, 7):
-            evidence = labeled[:budget] + labeled[7:]
-            for text, task in [("new question", "a"), ("another one", "b"), ("unseen tag", "z")]:
+            evidence = labeled[:budget] + shared
+            # "question 9" was answered by the other system only: its question shift applies.
+            for text, task in [("new question", "a"), ("another one", "b"), ("unseen tag", "z"),
+                               ("question 9", "b")]:
                 expected = self.model(target, item(text, task), evidence)
                 actual = self.entry.predict([target, item(text, task)], evidence)
                 self.assertAlmostEqual(actual, expected, places=10)
 
-    def test_other_subjects_labels_do_not_change_predictions(self):
+    def test_other_systems_on_the_same_benchmark_change_predictions(self):
         target, other = subject("Model 70B"), subject("Other 7B")
         own = [[[target, item("q1", "a")], 1]]
-        noisy = own + [[[other, item(f"q{k}", "a")], 0] for k in range(20)]
-        self.assertEqual(self.entry.predict([target, item("x", "a")], own),
-                         self.entry.predict([target, item("x", "a")], noisy))
+        others = [[[other, item(f"q{k}", "a")], 0] for k in range(20)]
+        elsewhere = [[[other, item(f"q{k}", "a", "other")], 0] for k in range(20)]
+        alone = self.entry.predict([target, item("x", "a")], own)
+        self.assertLess(self.entry.predict([target, item("x", "a")], own + others), alone - 0.05)
+        self.assertAlmostEqual(self.entry.predict([target, item("x", "a")], own + elsewhere), alone, places=12)
 
     def test_official_checker_accepts_the_zip(self):
         result = subprocess.run([sys.executable, str(ROOT / "baseline" / "check_submission_zip.py"),

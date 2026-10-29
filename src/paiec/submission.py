@@ -1,8 +1,8 @@
 """Save the trained model's parameters and assemble the Codabench submission.
 
 The zip holds ``model.py`` at its root, the numpy-only runtime modules it needs
-(``features``, ``groups``, ``update``) under ``paiec_runtime/``, and the fitted
-parameters in ``artifacts/prior_offset.npz``.
+(``features``, ``groups``, ``pooling``, ``update``) under ``paiec_runtime/``, and
+the fitted parameters in ``artifacts/pooled_offset.npz``.
 """
 
 from __future__ import annotations
@@ -16,19 +16,19 @@ import numpy as np
 PACKAGE = Path(__file__).resolve().parent
 ROOT = PACKAGE.parents[1]
 ENTRY_POINT = ROOT / "submission" / "model.py"
-RUNTIME_MODULES = ("features.py", "groups.py", "update.py")
-ARTIFACT = Path("artifacts") / "prior_offset.npz"
+RUNTIME_MODULES = ("features.py", "groups.py", "pooling.py", "update.py")
+ARTIFACT = Path("artifacts") / "pooled_offset.npz"
 
 
 def save_artifacts(model, path: Path) -> Path:
-    """Write a fitted ``PriorOffset`` (logistic prior) as plain arrays and numbers."""
+    """Write a fitted ``PooledOffset`` (logistic prior) as plain arrays and numbers."""
     path.parent.mkdir(parents=True, exist_ok=True)
     np.savez_compressed(
         path,
         coef=np.asarray(model.prior.coef, dtype=float),
         intercept=float(model.prior.intercept),
         level=model.level, shift=model.shift, scale=model.scale, center=model.center,
-        tau=model.tau, sigma=model.sigma,
+        tau=model.tau, sigma=model.sigma, share=model.share, item_sigma=model.item_sigma,
     )
     return path
 
