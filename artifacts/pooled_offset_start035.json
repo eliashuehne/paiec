@@ -1,0 +1,23 @@
+{
+  "source": "pooled_offset.npz",
+  "start_probability": 0.35,
+  "text_prior": false,
+  "trained": {
+    "level": 0.0,
+    "shift": 0.0,
+    "scale": 0.75,
+    "center": -0.012574370055202419
+  },
+  "calibrated": {
+    "level": -0.6190392084062235,
+    "shift": 0.0,
+    "scale": 0.0,
+    "center": -0.012574370055202419
+  },
+  "unchanged": {
+    "tau": 1.584893192461114,
+    "sigma": 0.75,
+    "share": 0.8,
+    "item_sigma": 1.5
+  }
+}

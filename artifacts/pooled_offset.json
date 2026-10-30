@@ -1,0 +1,18 @@
+{
+  "model": "pooled_offset",
+  "benchmarks": 160,
+  "data_revision": "54074453da7b9911be0f48e4c560be547bc84d21",
+  "git_commit": "8a213c183f2aa903104850f1d4b3f72b0ced004b",
+  "parameters": {
+    "level": 0.0,
+    "shift": 0.0,
+    "scale": 0.75,
+    "center": -0.012574370055202419,
+    "tau": 1.584893192461114,
+    "sigma": 0.75,
+    "share": 0.8,
+    "item_sigma": 1.5
+  },
+  "prior_regularization": 0.01,
+  "seconds": 675
+}
