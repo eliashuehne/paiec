@@ -75,16 +75,16 @@ CURVES = [
     ("empirical_mean", "empirical mean (organizers)", "tab:gray", "--"),
     ("shrunk_mean", "shrunk mean", "tab:brown", "-"),
     ("prior_offset", "prior offset (own labels)", "tab:blue", "-"),
-    ("pooled_2", "pooled offset, $M=2$", "tab:olive", "-"),
-    ("pooled_5", "pooled offset, $M=5$", "tab:orange", "-"),
-    ("pooled_all", "pooled offset, $M\\leq 20$", "tab:red", "-"),
+    ("pooled_2", "LfHL, $M=2$", "tab:olive", "-"),
+    ("pooled_5", "LfHL, $M=5$", "tab:orange", "-"),
+    ("pooled_all", "LfHL, $M\\leq 20$", "tab:red", "-"),
 ]
 
 # Formative Codabench scores of our own uploads (submissions page, 2026-10-27 to 10-29).
 UPLOADS = {
     "prior offset\n(n = 4)": [0.193516, 0.165583, 0.200787, 0.194646],
-    "pooled\n(n = 4)": [0.189107, 0.178399, 0.165440, 0.193250],
-    "pooled, start\n0.35 (n = 20)": [0.153152, 0.147621, 0.172424, 0.185839, 0.169210, 0.182736,
+    "LfHL\n(n = 4)": [0.189107, 0.178399, 0.165440, 0.193250],
+    "LfHL-cal\n(n = 20)": [0.153152, 0.147621, 0.172424, 0.185839, 0.169210, 0.182736,
                                     0.176607, 0.176266, 0.191711, 0.166216, 0.182580, 0.194638,
                                     0.174210, 0.195390, 0.195070, 0.176440, 0.178951, 0.204280,
                                     0.202830, 0.171094],

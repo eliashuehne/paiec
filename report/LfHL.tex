@@ -19,18 +19,23 @@
 \usepackage{multirow}
 \usepackage{enumitem}
 
-\hypersetup{colorlinks=true, linkcolor=blue!50!black, citecolor=blue!50!black, urlcolor=blue!50!black}
+\hypersetup{colorlinks=true, linkcolor=blue!50!black, citecolor=blue!50!black, urlcolor=blue!50!black,
+  pdftitle={LfHL: Learning from a Handful of Labels},
+  pdfauthor={Arno Demarteau, Elias H\"uhne, Quentin Geoffroy}}
 \setlist{leftmargin=1.5em, itemsep=1pt, topsep=2pt}
 
 % The Codabench submission selected for the final evaluation.
 \newcommand{\selectedid}{1020464}
+% Names of the model (pooled_offset in the code) and of its formative-calibrated variant.
+\newcommand{\lfhl}{LfHL}
+\newcommand{\lfhlcal}{LfHL-cal}
 \newcommand{\repo}{\url{https://github.com/eliashuehne/paiec}}
 \newcommand{\code}[1]{\texttt{#1}}
 \newcommand{\labeled}{\code{labeled}}
 \newcommand{\ALC}{\mathrm{ALC}}
 \newcommand{\N}{\mathcal{N}}
 
-\title{Learning from a Handful of Labels: Pooled Bayesian Offsets for Predicting AI Performance on Unseen Benchmarks}
+\title{\lfhl: Learning from a Handful of Labels to Predict AI Performance on Unseen Benchmarks}
 
 \author{%
   Arno Demarteau \qquad Elias H\"uhne \qquad Quentin Geoffroy \\
@@ -43,7 +48,7 @@
 \maketitle
 
 \begin{abstract}
-The Predictive AI Evaluation Competition asks for the probability that an AI system answers a question correctly on a benchmark that was never seen in training, given between zero and 31 of that system's revealed answers. We describe our entry and what we learned while building it under a local evaluation that mirrors the platform: benchmark-level five-fold cross-validation on 1{,}720 system--benchmark pairs from 142 public benchmarks, scored with the competition's Brier area under the learning curve (ALC). Three findings shape the method. First, nothing computable before any label is revealed (text and format features, system metadata, tree-based interactions, difficulty judgements of a small language model) improves ALC on unseen benchmarks by more than 0.001. Second, once a system's own labels enter through a calibrated Bayesian update, three different prior shapes agree to within 0.0001 (ALC 0.2108--0.2109) and tag shifts and a text prior add only 0.0013 (0.2096): the information in a pair's own labels is essentially exhausted, while reacting naively to one label is worse than not learning at all. Third, the evaluation interface shares every revealed label of a run with all targets. A hierarchical logistic model that pools a benchmark-level shift, tag shifts and per-question shifts across systems lowers ALC to 0.2067, 0.2026 and 0.1968 when 2, 5 or up to 20 systems share a benchmark, better in all five folds (95\% interval of the largest gain $-0.0150$ to $-0.0106$). Uncertainty-based label acquisition does not help. Finally, we characterise the formative platform, disclose a one-parameter calibration of the starting probability to its unusually hard pairs, and show that identical uploads score with a standard deviation of 0.015.
+The Predictive AI Evaluation Competition asks for the probability that an AI system answers a question correctly on a benchmark that was never seen in training, given between zero and 31 of that system's revealed answers. We describe our entry and what we learned while building it under a local evaluation that mirrors the platform: benchmark-level five-fold cross-validation on 1{,}720 system--benchmark pairs from 142 public benchmarks, scored with the competition's Brier area under the learning curve (ALC). Three findings shape the method. First, nothing computable before any label is revealed (text and format features, system metadata, tree-based interactions, difficulty judgements of a small language model) improves ALC on unseen benchmarks by more than 0.001. Second, once a system's own labels enter through a calibrated Bayesian update, three different prior shapes agree to within 0.0001 (ALC 0.2108--0.2109) and tag shifts and a text prior add only 0.0013 (0.2096): the information in a pair's own labels is essentially exhausted, while reacting naively to one label is worse than not learning at all. Third, the evaluation interface shares every revealed label of a run with all targets. Our model, \lfhl{} (Learning from a Handful of Labels), is a hierarchical logistic model that pools a benchmark-level shift, tag shifts and per-question shifts across systems; it lowers ALC to 0.2067, 0.2026 and 0.1968 when 2, 5 or up to 20 systems share a benchmark, better in all five folds (95\% interval of the largest gain $-0.0150$ to $-0.0106$). Uncertainty-based label acquisition does not help. Finally, we characterise the formative platform, disclose a one-parameter calibration of the starting probability to its unusually hard pairs, and show that identical uploads score with a standard deviation of 0.015.
 \end{abstract}
 
 \section{Introduction}
@@ -55,7 +60,7 @@ This is a cold start at the level of the whole benchmark. Benchmarks differ in f
 \begin{itemize}
   \item \textbf{A platform-faithful local evaluation} (Section~\ref{sec:protocol}): benchmark-level five-fold cross-validation over 1{,}720 pairs that reproduces the platform's split, nested budgets, shared \labeled{} lists and streaming acquisition, with every learned parameter fitted on training folds only.
   \item \textbf{Budget-0 information does not transfer; a pair's own labels saturate quickly} (Sections~\ref{sec:results} and~\ref{sec:negative}): text, metadata, gradient-boosted and language-model features gain at most 0.001 ALC on unseen benchmarks, three prior shapes for the own-label update tie at ALC 0.2108--0.2109, and tag shifts and a text prior reach 0.2096.
-  \item \textbf{Pooling labels across systems} (Section~\ref{sec:method}): a hierarchical Bayesian offset model that shares a benchmark level, tag shifts and per-question shifts among the systems of a run. With one system it reduces to the own-label model (up to repeated question texts), and with 2 to 20 systems it lowers ALC by 0.0029 to 0.0128.
+  \item \textbf{\lfhl: pooling labels across systems} (Section~\ref{sec:method}): a hierarchical Bayesian offset model that shares a benchmark level, tag shifts and per-question shifts among the systems of a run. With one system it reduces to the own-label model (up to repeated question texts), and with 2 to 20 systems it lowers ALC by 0.0029 to 0.0128.
   \item \textbf{An analysis of the formative platform} (Section~\ref{sec:formative}): the hidden pairs are hard (mean accuracy 0.33), runs rarely contain two systems of one benchmark, single formative scores are noisy, and our calibrated model is within 0.0013 ALC of the best possible pair-level predictor there.
 \end{itemize}
 
@@ -102,9 +107,9 @@ Many benchmarks label their questions with \code{key=value} tags (\code{task=qa3
 \label{sec:prior}
 To give questions different starting points we fit an L2-regularised logistic regression~\citep{pedregosa2011} on hashed features~\citep{weinberger2009} of what \code{predict} receives: 22 hand-made features (length, digits, code, mathematics, number of answer options and the implied guessing rate, release year, size and reasoning effort of the system) and hashed tokens of the question text, tags and system fields, in $2^{16}$ slots. Pairs are weighted equally, and the regularisation is chosen on held-out \emph{benchmarks}. The prior enters as $a_{sq} = \ell + c + \lambda\,(f_{sq} - \mu)$, where $f_{sq}$ is its logit and $\lambda$ a learned trust. Because the prior was fitted on the training benchmarks, the logits used to fit $(c,\lambda,\tau,\sigma)$ are out-of-fold (three inner folds); $\lambda = 0$ recovers the tag model exactly, so the prior can only be used if it helps on held-out data.
 
-\subsection{Pooling across systems}
+\subsection{\lfhl: pooling across systems}
 \label{sec:pooled}
-For system $s$ answering question $q$ of benchmark $b$, our final model is
+For system $s$ answering question $q$ of benchmark $b$, our final model, \lfhl{}, is
 \begin{equation}
   \operatorname{logit} P(y_{sq}=1) = a_{sq} + \beta_b + u_s + \sum_{g \in G(q)} \gamma_g + v_q,
   \label{eq:pooled}
@@ -140,10 +145,10 @@ The benchmark level $\beta_b$ and the tag shifts are shared by every system in \
     \quad + tag shifts & .2505 & .2299 & .2133 & .1991 & .1908 & .1842 & .2101 & $-.0008$ [$-.0012$, $-.0004$] & 5 \\
     \quad + text prior & .2494 & .2290 & .2127 & .1988 & .1907 & .1842 & .2096 & $-.0005$ [$-.0017$, $+.0007$] & 4 \\
     \midrule
-    Pooled offset, $M=1$ & .2494 & .2290 & .2127 & .1988 & .1907 & .1842 & .2096 & $|\Delta| < .0001$ (text twins, \S\ref{sec:pooled}) & -- \\
-    Pooled offset, $M=2$ & .2494 & .2241 & .2082 & .1962 & .1890 & .1827 & .2067 & $-.0029$ [$-.0038$, $-.0020$] & 5 \\
-    Pooled offset, $M=5$ & .2494 & .2151 & .2036 & .1930 & .1865 & .1799 & .2026 & $-.0070$ [$-.0088$, $-.0054$] & 5 \\
-    Pooled offset, $M\le 20$ & .2494 & .2055 & .1971 & .1886 & .1815 & .1734 & \textbf{.1968} & $-.0128$ [$-.0150$, $-.0106$] & 5 \\
+    \lfhl, $M=1$ & .2494 & .2290 & .2127 & .1988 & .1907 & .1842 & .2096 & $|\Delta| < .0001$ (text twins, \S\ref{sec:pooled}) & -- \\
+    \lfhl, $M=2$ & .2494 & .2241 & .2082 & .1962 & .1890 & .1827 & .2067 & $-.0029$ [$-.0038$, $-.0020$] & 5 \\
+    \lfhl, $M=5$ & .2494 & .2151 & .2036 & .1930 & .1865 & .1799 & .2026 & $-.0070$ [$-.0088$, $-.0054$] & 5 \\
+    \lfhl, $M\le 20$ & .2494 & .2055 & .1971 & .1886 & .1815 & .1734 & \textbf{.1968} & $-.0128$ [$-.0150$, $-.0106$] & 5 \\
     \midrule
     Oracle pair accuracy & .1800 & .1800 & .1800 & .1800 & .1800 & .1800 & .1800 & & \\
     \bottomrule
@@ -165,7 +170,7 @@ Table~\ref{tab:main} and Figure~\ref{fig:curves} show the progression.
 
 \paragraph{Item-level information helps only inside a benchmark.} Tag shifts are the first item-level information that transfers to unseen benchmarks ($-0.0008$, five of five folds, from budget 7 on): they work because they are learned from the benchmark's own revealed questions instead of as global weights. The text prior adds $-0.0005$ and is the first model below 0.25 at budget 0, but its interval includes zero.
 
-\paragraph{Pooling is the largest lever.} Sharing labels with one other system of the same benchmark gains 0.0029; with five, 0.0070; with up to 20, 0.0128, better in all five folds and on 78\% of pairs. The gain is largest at budget 1 (from 0.2290 to 0.2055 with $M\le 20$), where a single own label says little but the other systems' labels pin down the benchmark's level, and it persists at budget 31 (0.1842 to 0.1734), where shared questions and tags carry question-level information. At budget 31 the pooled model beats the oracle that knows each pair's true accuracy (0.1800), which is impossible for any model that only learns one number per pair. With one system the model reproduces the own-label results fold for fold (text twins change 148 of 1{,}720 pairs slightly, the mean by less than $10^{-4}$), so pooling costs nothing when \labeled{} contains no other system.
+\paragraph{Pooling is the largest lever.} Sharing labels with one other system of the same benchmark gains 0.0029; with five, 0.0070; with up to 20, 0.0128, better in all five folds and on 78\% of pairs. The gain is largest at budget 1 (from 0.2290 to 0.2055 with $M\le 20$), where a single own label says little but the other systems' labels pin down the benchmark's level, and it persists at budget 31 (0.1842 to 0.1734), where shared questions and tags carry question-level information. At budget 31 \lfhl{} beats the oracle that knows each pair's true accuracy (0.1800), which is impossible for any model that only learns one number per pair. With one system the model reproduces the own-label results fold for fold (text twins change 148 of 1{,}720 pairs slightly, the mean by less than $10^{-4}$), so pooling costs nothing when \labeled{} contains no other system.
 
 \section{What did not help, and why}
 \label{sec:negative}
@@ -209,18 +214,18 @@ During development the platform scores each upload on a fresh draw of about nine
 
 \paragraph{Recovering the pool.} If a model predicts the same probability $c$ for all evaluation questions of a pair with accuracy $a$, then $\mathrm{BS} = (c-a)^2 + a(1-a)$ and $\mathrm{ECE} = |c-a|$, so $\mathrm{BS} - \mathrm{ECE}^2 = a(1-a)$, and a known $c \ne 0.5$ also fixes on which side of 0.5 $a$ lies. Applying this to the published per-pair feedback of 52 formative runs of a model whose budget-0 prediction is constant per pair,\footnote{These scoring logs were posted publicly by another participant together with their code; we used only the per-pair Brier and ECE values and no part of their method. Our own uploads are consistent with the estimates (Appendix~\ref{app:formative}).} the identity holds across budgets (median standard deviation 0.003), the implied constant matches the known one, and repeated draws of a pair agree on the side of 0.5 in 101 of 101 cases. The pool has 7 benchmarks and 183 pairs with 44 to 113 evaluation questions each; within one draw a benchmark has one pair (274 times) or two (90 times), never more, so pooling across systems is rarely active on the formative platform. Most importantly, the pairs are hard: mean accuracy 0.33 over draws, with 74\% of draws below 0.5, against 0.50 on public pairs.
 
-\paragraph{Calibrating the starting probability.} With pairs this hard, our text prior pushed budget-0 predictions the wrong way on the platform (mean budget-0 Brier 0.258 over our first 44 pair draws, above 0.25 in 29), and a start of 0.5 is far from optimal there (Figure~\ref{fig:formative}, left): over the pool's draws a start of 0.35 lowers the expected ALC of the pair-level offset from 0.1896 to 0.1832, while on public pairs it raises it from 0.2105 to 0.2132. The public data prefer 0.5, so this shift is not justified by training data; it is a calibration to the formative pool. We therefore keep both versions: the \emph{trained} model of Section~\ref{sec:method}, fitted on public data only, and a \emph{calibrated} variant that sets $\ell + c = \operatorname{logit}(0.35)$ and $\lambda = 0$ (text prior off), leaving every other parameter unchanged (\code{scripts/calibrate\_submission.py}). Its budget-0 prediction is $0.392$ for every question (the prior uncertainty pulls 0.35 towards 0.5). On the formative pool it is close to the best a pair-level model can do: the best constant start (0.25) gives 0.1819 and a Bayes predictor that knows the pool's accuracy distribution (leave one pair out) gives 0.1822, against an oracle of 0.1545 that knows each pair's accuracy.
+\paragraph{Calibrating the starting probability.} With pairs this hard, our text prior pushed budget-0 predictions the wrong way on the platform (mean budget-0 Brier 0.258 over our first 44 pair draws, above 0.25 in 29), and a start of 0.5 is far from optimal there (Figure~\ref{fig:formative}, left): over the pool's draws a start of 0.35 lowers the expected ALC of the pair-level offset from 0.1896 to 0.1832, while on public pairs it raises it from 0.2105 to 0.2132. The public data prefer 0.5, so this shift is not justified by training data; it is a calibration to the formative pool. We therefore keep both versions: the \emph{trained} \lfhl{} of Section~\ref{sec:method}, fitted on public data only, and a \emph{calibrated} variant, \lfhlcal{}, that sets $\ell + c = \operatorname{logit}(0.35)$ and $\lambda = 0$ (text prior off), leaving every other parameter unchanged (\code{scripts/calibrate\_submission.py}). Its budget-0 prediction is $0.392$ for every question (the prior uncertainty pulls 0.35 towards 0.5). On the formative pool it is close to the best a pair-level model can do: the best constant start (0.25) gives 0.1819 and a Bayes predictor that knows the pool's accuracy distribution (leave one pair out) gives 0.1822, against an oracle of 0.1545 that knows each pair's accuracy.
 
-\paragraph{How much a single formative score tells.} Figure~\ref{fig:formative} (right) shows every upload of three unchanged archives. Twenty uploads of the calibrated variant score 0.180 on average with a standard deviation of 0.015, between 0.148 and 0.204; four uploads each of the trained pooled model and of the own-label prior offset average 0.182 and 0.189. Resolving a difference of 0.005 between two models at the 95\% level would take about 70 uploads of each, and the best of many uploads mostly reflects the draw. Better evidence comes from pairs that recur across uploads: the platform's split and default acquisition are deterministic per pair, so a recurring pair is scored on the same questions with the same revealed labels. On the three pairs that recur in the scoring logs we have of both versions, all with low accuracy, the calibrated variant lowers the pair's ALC by 0.018 to 0.022.
+\paragraph{How much a single formative score tells.} Figure~\ref{fig:formative} (right) shows every upload of three unchanged archives. Twenty uploads of \lfhlcal{} score 0.180 on average with a standard deviation of 0.015, between 0.148 and 0.204; four uploads each of the trained \lfhl{} and of the own-label prior offset average 0.182 and 0.189. Resolving a difference of 0.005 between two models at the 95\% level would take about 70 uploads of each, and the best of many uploads mostly reflects the draw. Better evidence comes from pairs that recur across uploads: the platform's split and default acquisition are deterministic per pair, so a recurring pair is scored on the same questions with the same revealed labels. On the three pairs that recur in the scoring logs we have of both versions, all with low accuracy, \lfhlcal{} lowers the pair's ALC by 0.018 to 0.022.
 
-\paragraph{Selected submission.} We select the calibrated variant (Codabench submission \#\selectedid) for the final evaluation, on the assumption that the common hidden test set resembles the formative pool; if the test pairs instead resemble the public ones, its expected cost is about 0.003 ALC (Figure~\ref{fig:formative}, left). Both archives are rebuilt from the repository by the commands in Appendix~\ref{app:repro}.
+\paragraph{Selected submission.} We select \lfhlcal{} (Codabench submission \#\selectedid) for the final evaluation, on the assumption that the common hidden test set resembles the formative pool; if the test pairs instead resemble the public ones, its expected cost is about 0.003 ALC (Figure~\ref{fig:formative}, left). Both archives are rebuilt from the repository by the commands in Appendix~\ref{app:repro}.
 
 \section{Limitations}
 \label{sec:limitations}
 
 \begin{itemize}
   \item \textbf{Local protocol.} The pooled results assume a fixed number $M$ of systems per benchmark sharing labels; the number in the final test is unknown and, on the formative platform, mostly one or two. The platform's candidate order is not published, so acquisition is simulated. Our folds group benchmarks, not benchmark families (e.g.\ the ten \code{medhelm\_*} benchmarks); since our gains come from labels at test time rather than from learned features this should matter little, but family-grouped folds would be stricter. For speed we score at most 20 pairs per benchmark and 200 questions per pair, with a single seed for splits and folds.
-  \item \textbf{Calibration to the formative pool.} The calibrated start is fitted to the formative pool, whose accuracies we estimated from scoring feedback. If the final test differs, the trained model is the better choice; we report both.
+  \item \textbf{Calibration to the formative pool.} The calibrated start is fitted to the formative pool, whose accuracies we estimated from scoring feedback. If the final test differs, the trained \lfhl{} is the better choice; we report both.
   \item \textbf{Question-level information.} The question oracle (0.133) is far below everything we reach. Pooling recovers part of it when several systems share a benchmark; we found no transferable source for a single system, but we did not test large language models or sentence embeddings at test time.
   \item \textbf{Scope of the pilot studies.} The language-model study covers 40 benchmarks and two model sizes; the within-pair diagnostics of the text prior one fold.
 \end{itemize}
@@ -228,7 +233,7 @@ During development the platform scores each upload on a fresh draw of about nine
 \section{Conclusion}
 \label{sec:conclusion}
 
-On unseen benchmarks, nearly all usable information arrives with revealed labels. A calibrated Bayesian update of one shift per pair extracts what a system's own labels hold, and three prior shapes confirm that little more is left there. The one large lever is that the platform shares labels across systems: a hierarchical model that pools a benchmark level, tag shifts and per-question shifts lowers ALC by up to 0.013 in cross-validation and degrades gracefully to the own-label model when no other system is present. We hope the protocol, the negative results and the analysis of formative noise are as useful to others as the model.
+On unseen benchmarks, nearly all usable information arrives with revealed labels. A calibrated Bayesian update of one shift per pair extracts what a system's own labels hold, and three prior shapes confirm that little more is left there. The one large lever is that the platform shares labels across systems: \lfhl{}, a hierarchical model that pools a benchmark level, tag shifts and per-question shifts, lowers ALC by up to 0.013 in cross-validation and degrades gracefully to the own-label model when no other system is present. We hope the protocol, the negative results and the analysis of formative noise are as useful to others as the model.
 
 \paragraph{Reproducibility.} Code, tests and the scripts that produce every number and figure are at \repo{} (branch \code{pooling}); Appendix~\ref{app:repro} lists the commands, run times and seeds.
 
@@ -280,7 +285,7 @@ python report/make_figures.py [--formative FORMATIVE_DRAWS.csv]
 \end{verbatim}
 \end{footnotesize}
 
-{\raggedright Each run of \code{run\_eval.py} writes per-pair scores to \code{runs/<timestamp>/pairs.csv}. From these, \code{report/make\_figures.py} computes the tables, the bootstrap intervals (4{,}000 resamples of benchmarks, seed 0) and the figures, and writes \code{report/results/numbers.json}. The nonparametric prior of Table~\ref{tab:negative} is on branch \code{logreg} (commit \code{aa0f0b2}). We do not redistribute the per-pair formative estimates behind Figure~\ref{fig:formative} (left); they are derived as described in Section~\ref{sec:formative} and Appendix~\ref{app:formative}. All experiments ran on one laptop (Intel Core Ultra 9 185H, 32\,GB RAM); only the language-model pilot used its GPU (NVIDIA RTX 4060 Laptop).\par}
+{\raggedright In the code, \lfhl{} is the predictor \code{pooled\_offset} and \lfhlcal{} the archive \code{dist/pooled\_offset\_start035.zip}. Each run of \code{run\_eval.py} writes per-pair scores to \code{runs/<timestamp>/pairs.csv}. From these, \code{report/make\_figures.py} computes the tables, the bootstrap intervals (4{,}000 resamples of benchmarks, seed 0) and the figures, and writes \code{report/results/numbers.json}. The nonparametric prior of Table~\ref{tab:negative} is on branch \code{logreg} (commit \code{aa0f0b2}). We do not redistribute the per-pair formative estimates behind Figure~\ref{fig:formative} (left); they are derived as described in Section~\ref{sec:formative} and Appendix~\ref{app:formative}. All experiments ran on one laptop (Intel Core Ultra 9 185H, 32\,GB RAM); only the language-model pilot used its GPU (NVIDIA RTX 4060 Laptop).\par}
 
 \section{Implementation details}
 \label{app:details}
@@ -304,7 +309,7 @@ Each formative scoring log lists, per pair and budget, the number of evaluation 
 \section{Disclosures}
 \label{app:disclosure}
 
-\paragraph{Training data and models.} The submission is trained only on the 160 public benchmarks of Measurement DB (revision \code{54074453}). It uses no pretrained model. Qwen2.5-1.5B/3B-Instruct were used offline in the pilot of Appendix~\ref{app:lm} only. The calibrated variant's starting probability was set from formative scoring feedback (Section~\ref{sec:formative}), including publicly posted scoring logs of another participant's formative runs.
+\paragraph{Training data and models.} The submission is trained only on the 160 public benchmarks of Measurement DB (revision \code{54074453}). It uses no pretrained model. Qwen2.5-1.5B/3B-Instruct were used offline in the pilot of Appendix~\ref{app:lm} only. The starting probability of \lfhlcal{} was set from formative scoring feedback (Section~\ref{sec:formative}), including publicly posted scoring logs of another participant's formative runs.
 
 \paragraph{Other teams.} During development we read code that other participants released publicly and scored two public submissions under our protocol for reference; some share ideas with ours, such as pooling labels across systems or a lower starting level for formative pairs. Our pooled model grew out of our own pooling simulation, run before we read that code, and all code in our repository is our own.
 
