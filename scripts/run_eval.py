@@ -9,6 +9,10 @@ is scored exactly once across the folds. Per-pair results go to runs/<timestamp>
 ``--pool-sizes 1 5 all`` scores each predictor several times: with its own
 labels only, with the labels of pools of 5 pairs per benchmark, and with all
 selected pairs of the benchmark, as the platform pools a run's labels.
+
+``--policies random uncertainty15`` additionally scores each predictor (own
+labels only) with labels bought by those acquisition policies instead of the
+fixed random order; ``--acquisition-items`` caps each pair's candidate stream.
 """
 
 from __future__ import annotations
@@ -23,6 +27,7 @@ import pandas as pd
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
+from paiec.acquisition import POLICIES  # noqa: E402
 from paiec.evaluate import evaluate  # noqa: E402
 from paiec.folds import benchmark_folds  # noqa: E402
 from paiec.metrics import brier_alc  # noqa: E402
@@ -44,6 +49,10 @@ def parse_arguments():
         "--pool-sizes", nargs="+", type=pool_size, default=["1"],
         help="pairs per benchmark that share revealed labels: integers or 'all'",
     )
+    parser.add_argument("--policies", nargs="+", default=[], choices=list(POLICIES),
+                        help="acquisition policies to score at pool size 1")
+    parser.add_argument("--acquisition-items", type=int, default=None,
+                        help="acquisition candidates per pair (all runs, for comparable splits)")
     return parser.parse_args()
 
 
@@ -79,17 +88,16 @@ def evaluate_benchmark(benchmark, predictors, args, fold: int) -> list[pd.DataFr
     if not pairs:
         return []
 
+    caps = dict(seed=args.seed, evaluation_items=args.eval_items,
+                acquisition_items=args.acquisition_items)
     frames = []
     for name, predict in predictors.items():
         for pool in args.pool_sizes:
-            result = evaluate(
-                pairs,
-                predict,
-                seed=args.seed,
-                evaluation_items=args.eval_items,
-                pool_size=None if pool == "all" else int(pool),
-            )
+            result = evaluate(pairs, predict, pool_size=None if pool == "all" else int(pool), **caps)
             frames.append(result.frame.assign(predictor=name, pool=pool, fold=fold))
+        for policy in args.policies:
+            result = evaluate(pairs, predict, policy=POLICIES[policy](), **caps)
+            frames.append(result.frame.assign(predictor=name, pool=policy, fold=fold))
     return frames
 
 

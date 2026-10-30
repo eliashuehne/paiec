@@ -7,6 +7,9 @@ the same call pattern the platform uses, minus the hidden data.
 The platform sends every target the labels revealed so far for all pairs in
 the run, all at the same budget. ``pool_size`` reproduces that: pairs of one
 benchmark are cut into pools, and each pair sees its whole pool's labels.
+
+By default each pair reveals a fixed random order of its acquisition items;
+``policy`` instead chooses them as a ``labeling.py`` would (see ``acquisition``).
 """
 
 from __future__ import annotations
@@ -18,6 +21,7 @@ from dataclasses import dataclass
 import numpy as np
 import pandas as pd
 
+from .acquisition import Policy, streamed_evidence
 from .contracts import Predictor
 from .metrics import BUDGETS, brier, brier_alc, ece
 from .pairs import Pair
@@ -129,11 +133,13 @@ def score_pair(
     acquisition_items: int | None = None,
     evaluation_items: int | None = None,
     evidence: Mapping[int, list] | None = None,
+    policy: Policy | None = None,
 ) -> list[dict]:
     """Score one pair at every budget.
 
     ``evidence`` maps each budget to a shared ``labeled`` list (see
-    ``pooled_evidence``); without it the pair sees only its own labels.
+    ``pooled_evidence``); without it the pair sees only its own labels, bought
+    by ``policy`` if one is given.
     """
     split = pair_split(
         pair,
@@ -148,6 +154,10 @@ def score_pair(
     ]
 
     labels = evaluation_responses["label"].to_numpy()
+    if evidence is None and policy is not None:
+        evidence = streamed_evidence(
+            pair, split, predict, policy, first_response_by_item, seed=seed, budgets=budgets
+        )
     results = []
     for budget in budgets:
         if evidence is None:
@@ -191,12 +201,16 @@ def evaluate(
     acquisition_items: int | None = None,
     evaluation_items: int | None = None,
     pool_size: int | None = 1,
+    policy: Policy | None = None,
 ) -> EvalResult:
     """Score a suite of pairs and average the curves with equal pair weight.
 
     ``pool_size`` is how many pairs of a benchmark share revealed labels
-    (1 = own labels only, ``None`` = all pairs of the benchmark).
+    (1 = own labels only, ``None`` = all pairs of the benchmark). ``policy``
+    chooses each pair's labels instead of its fixed random order (own labels only).
     """
+    if policy is not None and pool_size != 1:
+        raise ValueError("an acquisition policy is only simulated with pool_size=1")
     pairs = list(pairs)
     caps = dict(seed=seed, acquisition_items=acquisition_items, evaluation_items=evaluation_items)
     evidence_by_pair = {}
@@ -214,6 +228,7 @@ def evaluate(
                 predict,
                 budgets=budgets,
                 evidence=evidence_by_pair.get((pair.benchmark, pair.subject_id)),
+                policy=policy,
                 **caps,
             )
         )
