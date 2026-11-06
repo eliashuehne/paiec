@@ -41,6 +41,9 @@ RUNS = {
     "prior_offset": ("20261025-201534", "prior_offset", None),
     "gbdt_offset": ("20261025-213952", "gbdt_offset", None),
     "histogram_mean": ("20261025-221617", "histogram_mean", None),
+    # Q.G.'s prior variants, run from branch model/subject-features-enhanced (commit 39f93d2).
+    "mix_prior_offset": ("20261030-131512", "mix_prior_offset", None),
+    "zero_prior_offset": ("20261030-174959", "zero_prior_offset", None),
     "pooled_1": ("20261029-165020", "pooled_offset", "1"),
     "pooled_2": ("20261029-165020", "pooled_offset", "2"),
     "pooled_5": ("20261029-165020", "pooled_offset", "5"),
@@ -60,6 +63,8 @@ COMPARISONS = [
     ("tag_offset", "offset"),
     ("prior_offset", "tag_offset"),
     ("gbdt_offset", "prior_offset"),
+    ("mix_prior_offset", "prior_offset"),
+    ("zero_prior_offset", "prior_offset"),
     ("logreg_prior", "constant"),
     ("pooled_1", "prior_offset"),
     ("pooled_2", "pooled_1"),

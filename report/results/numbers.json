@@ -153,6 +153,40 @@
       ],
       "pairs": 1720
     },
+    "mix_prior_offset": {
+      "B0": 0.2493,
+      "B1": 0.229,
+      "B3": 0.2127,
+      "B7": 0.1986,
+      "B15": 0.1904,
+      "B31": 0.1841,
+      "ALC": 0.2095,
+      "folds": [
+        0.2098,
+        0.2202,
+        0.2039,
+        0.209,
+        0.2055
+      ],
+      "pairs": 1720
+    },
+    "zero_prior_offset": {
+      "B0": 0.2493,
+      "B1": 0.229,
+      "B3": 0.2127,
+      "B7": 0.1988,
+      "B15": 0.1907,
+      "B31": 0.1842,
+      "ALC": 0.2096,
+      "folds": [
+        0.2098,
+        0.2204,
+        0.204,
+        0.2091,
+        0.2056
+      ],
+      "pairs": 1720
+    },
     "pooled_1": {
       "B0": 0.2494,
       "B1": 0.229,
@@ -373,6 +407,30 @@
       "folds": 5,
       "pairs_better": 0.451,
       "pairs_worse": 0.549,
+      "pairs": 1720
+    },
+    "mix_prior_offset - prior_offset": {
+      "mean": -0.0001,
+      "ci95": [
+        -0.00026,
+        4e-05
+      ],
+      "folds_better": 5,
+      "folds": 5,
+      "pairs_better": 0.544,
+      "pairs_worse": 0.456,
+      "pairs": 1720
+    },
+    "zero_prior_offset - prior_offset": {
+      "mean": -1e-05,
+      "ci95": [
+        -7e-05,
+        4e-05
+      ],
+      "folds_better": 2,
+      "folds": 5,
+      "pairs_better": 0.287,
+      "pairs_worse": 0.287,
       "pairs": 1720
     },
     "logreg_prior - constant": {
