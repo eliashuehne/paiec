@@ -129,7 +129,7 @@ All terms beyond the starting logit $a_{sq}$ are learned from \labeled{} at pred
 \paragraph{Runtime.} Our submission uses only \code{numpy} and consists of \code{model.py}, four runtime modules and fitted parameters stored in a 0.5\,MB archive. It requires neither a pretrained model nor network access. Since all targets at a checkpoint receive the same \labeled{} list, we compute each benchmark's posterior once per list and cache the result.
 
 
-\section{Results: where the information comes from}
+\section{Results}
 \label{sec:results}
 
 \begin{table}[t]
@@ -171,7 +171,7 @@ All terms beyond the starting logit $a_{sq}$ are learned from \labeled{} at pred
 Table~\ref{tab:main} and Figure~\ref{fig:curves} show the progression. We take the three sources in the order in which they become available.
 
 
-\subsection{Before any label: little transfers}
+\subsection{Features from other benchmarks}
 \label{sec:before}
 
 The logistic text prior performs worse than a constant prediction of 0.5 when used on its own (Figure~\ref{fig:negative}). Furthermore, the regularisation selected on held-out benchmarks is the strongest in our grid for four of five folds. When incorporated into the own-label update, it improves ALC by only 0.0005, with an interval that includes zero. To investigate this result, we train the same features with a separate intercept for each pair, allowing the model to learn differences between questions rather than overall pair accuracy. On new questions from \emph{known} benchmarks, the model achieves an AUC of up to 0.66 (0.59--0.66 across regularisation strengths, 40 benchmarks). However, performance drops to 0.52 on an unseen fold. This suggests that surface features largely identify the benchmark rather than generalisable question difficulty. For example, 79\% of the variance in log question length occurs between benchmarks. The meaning of a correct label also differs across benchmarks, with some safety benchmarks treating a refusal as correct. We additionally evaluate gradient-boosted trees~\citep{NEURIPS2017_6449f44a} on the same features, allowing the model to capture system $\times$ question interactions. However, the fitting procedure assigns them less trust, and they perform worse than the logistic prior in four of five folds.
@@ -180,7 +180,7 @@ Two independent studies within our team support the same conclusion (Appendix~\r
 
 We further investigate whether language models can provide useful estimates of question difficulty. On 5{,}843 text questions from 40 benchmarks, we evaluate Qwen2.5-1.5B and 3B~\citep{qwen2025qwen25technicalreport} alongside two hosted models, gpt-4.1-mini and gpt-4.1 (Appendix~\ref{app:lm}). Each model rates the difficulty of individual questions. Even when given the benchmark's true level, these ratings explain only about 2\% of the remaining gap between a level-only prediction and a question oracle. The hosted models do not outperform the smaller models. However, this evaluation covers only a few models and one prompt, which we discuss further in Section~\ref{sec:limitations}.
 
-\subsection{A system's own labels: a large first gain followed by saturation}
+\subsection{A system's own labels}
 \label{sec:own}
 
 \begin{figure}[t]
@@ -196,7 +196,7 @@ We further investigate whether language models can provide useful estimates of q
 
 \paragraph{Choosing which labels to buy does not help.} We evaluate an acquisition strategy that prioritises questions with predicted probabilities closest to 0.5. This corresponds to the official baseline's acquisition rule and a classic active-learning heuristic~\citep{settles.tr09}. However, it performs slightly worse than random sampling at both widths, with improvements in only two folds. With a single system, the main objective is to estimate the pair's overall level, for which any representative sample of labels is equally informative. Selecting questions based on their proximity to 0.5 under a weak text prior instead makes the sample less representative. Our simulation also allows skipped candidates to return at the next checkpoint, whereas the platform removes them from the stream. The acquisition policy is therefore more constrained on the actual platform. We submit no \code{labeling.py}.
 
-\subsection{Other systems' labels: a different kind of evidence}
+\subsection{Other systems' labels}
 \label{sec:others}
 
 Sharing labels across systems evaluated on the same benchmark improves performance. With one other system, the gain is 0.0029; with five, it reaches 0.0070; and with up to 20, it increases to 0.0128, with improvements in all five folds and on 78\% of pairs. At budget 31, \lfhl{} with up to 20 systems achieves a score of 0.1734, outperforming the oracle that knows each pair's true accuracy (0.1800). This is impossible for a model that estimates only one number per pair. With one system, \lfhl{} reproduces the own-label results. Repeated question texts slightly affect 148 of 1{,}720 pairs, changing the mean by less than $10^{-4}$. As a result, pooling introduces no cost when \labeled{} contains no labels from other systems.
