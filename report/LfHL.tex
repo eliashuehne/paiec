@@ -265,7 +265,7 @@ hf auth login && python scripts/download_data.py     # revision 54074453, ~5 GB
 python -m pytest                                     # 286 tests
 
 # Table 1, Figures 1-2 (five folds, seed 0; 0.5-3 h per command on a laptop CPU)
-python scripts/run_eval.py --predictors constant empirical_mean Beta-binomial \
+python scripts/run_eval.py --predictors constant empirical_mean shrunk_mean \
     offset tag_offset
 python scripts/run_eval.py --predictors prior_offset gbdt_offset logreg_prior
 python scripts/run_eval.py --predictors pooled_offset --pool-sizes 1 2 5 all
@@ -354,7 +354,7 @@ The first three studies were run by team members with their own harnesses on the
 
 \paragraph{Formative feedback.} We used formative scores of our own uploads to measure score noise and to check runtime behaviour. Section~\ref{sec:platform} discloses a further analysis of scoring feedback and the variant built from it, which we did not select.
 
-\paragraph{Coding assistants.} We used Claude Code (Anthropic) and Codex (OpenAI) to write and refactor code and tests, to run and summarise experiments, and to draft this report. The authors checked the experiments, the code and the text.
+\paragraph{Use of AI assistants.} We used Claude Code (Anthropic) and Codex (OpenAI) for code implementation, unit testing and refactoring. The research methodology and experimental design were developed by the authors through joint discussions, with Claude also used to support brainstorming. We further used Claude for assistance with parts of the report's writing. All AI-assisted code and text were reviewed and revised by the authors, who take full responsibility for the methodology, results and final manuscript.
 
 \paragraph{Contributions.} A.D.\ designed and implemented the predictors, the fitting procedures, the pooled and acquisition evaluation, the submission and the analysis of formative scores, and wrote the report. E.H.\ set up the repository and the original evaluation harness (metrics, split, pairs, evaluation) on which ours builds, explored neural and gradient-boosted cold-start predictors, and ran the studies of shared question difficulty and of the ability $\times$ difficulty model (Appendix~\ref{app:team}). Q.G.\ built the feature-screening harness with grouped folds and sealed benchmarks, the system-identity and release-date features and their screen, and the mixture and budget-0 prior variants (Appendix~\ref{app:team}). All authors discussed the results and edited the report.
 
