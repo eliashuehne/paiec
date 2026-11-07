@@ -5,10 +5,10 @@ predicts whether an AI system will answer an item correctly and adapts using
 revealed labels from systems on the same benchmark.
 
 - [Technical report](report/LfHL.pdf)
-- [Codabench competition](https://www.codabench.org/competitions/17828/) and selected submission **#1019997**
+- [Codabench competition](https://www.codabench.org/competitions/17828/) and selected submission **#1038337** (development Brier ALC **0.133303**)
 - [Competition rules and predictor interface](https://aims.stanford.edu/competition)
 
-## Build the selected submission
+## Build the LfHL submission archive
 
 From a fresh checkout, use Python 3.10 and initialize the organizers' baseline
 submodule at its pinned commit (`cc88a95`). The build uses the checked-in

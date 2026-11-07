@@ -25,7 +25,7 @@
 \setlist{leftmargin=1.5em, itemsep=1pt, topsep=2pt}
 
 % The Codabench submission selected for the final evaluation.
-\newcommand{\selectedid}{1019997}
+\newcommand{\selectedid}{1038337}
 % Name of the model (pooled_offset in the code).
 \newcommand{\lfhl}{LfHL}
 \newcommand{\repo}{\url{https://github.com/eliashuehne/paiec}}
@@ -214,7 +214,7 @@ Sharing labels across systems evaluated on the same benchmark improves performan
 \section{Selected submission}
 \label{sec:platform}
 
-We select \lfhl{} as described in Section~\ref{sec:model}, fitted on public data only, without a \code{labeling.py} (Codabench submission \#\selectedid). Development-platform runs score only eight or nine pairs in our logs, so the relevant gain there is that of $M=2$ (0.0029) rather than $M \le 20$ (0.0128). Identical uploads of one archive vary with a standard deviation of 0.0185 (47 uploads), so single scores cannot rank models. During development we also explored a variant built from pair accuracies estimated from scoring feedback; we asked the organizers whether this is permitted, did not select it, and report no statistics from it.
+We designate Codabench submission \#\selectedid{} for final evaluation. Its development leaderboard Brier ALC was 0.133303. The \lfhl{} archive described in Section~\ref{sec:model} is fitted on public data only and uses random label acquisition. Development-platform runs score only eight or nine pairs in our logs, so the relevant gain there is that of $M=2$ (0.0029) rather than $M \le 20$ (0.0128). Identical uploads of one archive vary with a standard deviation of 0.0185 (47 uploads), so single scores cannot rank models. During development we also explored a variant built from pair accuracies estimated from scoring feedback; we asked the organizers whether this is permitted, did not select it, and report no statistics from it.
 
 \begin{figure}[t]
   \centering
@@ -240,7 +240,7 @@ We select \lfhl{} as described in Section~\ref{sec:model}, fitted on public data
 
 Our results show that on unseen benchmarks, the most useful information comes from revealed labels rather than features learned from other benchmarks. A calibrated update of a single shift per pair captures most of the information provided by a system's own labels, with four different prior shapes showing that further improvements are limited. In contrast, labels from other systems provide additional information about the benchmark's overall difficulty and, as more labels become available, the difficulty of individual questions. \lfhl{} uses this information when other systems are available, while reducing to the own-label model when they are not. These findings suggest that, for evaluation design, increasing the overlap between systems on a benchmark may be more useful than developing a more complex predictor. Beyond the proposed model, we hope that our evaluation protocol, negative results and analysis of score noise will also be useful for future work.
 
-\paragraph{Reproducibility.} We release the code, tests and scripts used to generate the tables and figures at \repo{} (branch \code{main}). Appendix~\ref{app:repro} provides the commands, run times and seeds. We verify the reproducibility of our submission from a fresh clone, successfully completing installation, all 286 tests and both archive builds. The official checker accepts the resulting archives, and the rebuilt selected archive matches the uploaded version, with identical code apart from line endings and fitted arrays differing by at most $3 \times 10^{-14}$. This verification uses an existing copy of the data rather than downloading it again. We additionally re-run the pooled model at $M=2$ using the ablation script and find that all reported numbers remain unchanged, with the largest difference on a single score being $1.2 \times 10^{-4}$ and the mean ALC difference remaining below $10^{-6}$.
+\paragraph{Reproducibility.} We release the code, tests and scripts used to generate the tables and figures at \repo{} (branch \code{main}). Appendix~\ref{app:repro} provides the commands, run times and seeds. We verify the reproducibility of the LfHL build from a fresh clone, successfully completing installation, all 286 tests and both archive builds. The official checker accepts the resulting archives, and the rebuilt archive matches the earlier LfHL upload (\#1019997), with identical code apart from line endings and fitted arrays differing by at most $3 \times 10^{-14}$. This verification uses an existing copy of the data rather than downloading it again. We additionally re-run the pooled model at $M=2$ using the ablation script and find that all reported numbers remain unchanged, with the largest difference on a single score being $1.2 \times 10^{-4}$ and the mean ALC difference remaining below $10^{-6}$.
 
 {\small
 \bibliographystyle{plainnat}
@@ -276,7 +276,7 @@ python scripts/run_eval.py --predictors prior_offset --acquisition-items 100 \
 python scripts/run_pooling_ablation.py --folds 0 1 2 3 4
 python scripts/run_pooling_ablation.py --merge
 
-# Selected archive (training on all 160 benchmarks: 11-15 min)
+# LfHL archive (training on all 160 benchmarks: 11-15 min)
 python scripts/train_submission.py      # artifacts/pooled_offset.npz
 python scripts/build_submission.py      # dist/submission.zip, official checker
 
