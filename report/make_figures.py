@@ -1,17 +1,13 @@
 """Numbers and figures of the technical report, from the saved cross-validation runs.
 
-    python report/make_figures.py                       # tables, bootstrap CIs, learning curves
-    python report/make_figures.py --formative PAIRS.csv # plus the formative-pool figure
+    python report/make_figures.py
 
-Each run directory is the output of ``scripts/run_eval.py`` (``runs/<timestamp>/pairs.csv``);
-the defaults below are the runs quoted in the report. Paired differences are
-compared on the same 1,720 (benchmark, system) pairs, with 95% intervals from a
-bootstrap that resamples benchmarks, since pairs of one benchmark are correlated.
-
-``--formative`` takes one row per formative pair draw with the recovered pair
-accuracy ``a`` (see Section 6 of the report); it is not redistributed. The
-public pair accuracies for that figure are recomputed from ``payload/data``.
-Needs matplotlib and scipy in addition to the project dependencies.
+Each run directory is the output of ``scripts/run_eval.py`` (``runs/<timestamp>/pairs.csv``)
+or of ``scripts/run_pooling_ablation.py --merge`` (``runs/ablation/pairs.csv``); the
+defaults below are the runs quoted in the report. Paired differences are compared on
+the same 1,720 (benchmark, system) pairs, with 95% intervals from a bootstrap that
+resamples benchmarks, since pairs of one benchmark are correlated.
+Needs matplotlib in addition to the project dependencies.
 """
 
 from __future__ import annotations
@@ -19,7 +15,6 @@ from __future__ import annotations
 import argparse
 import json
 import sys
-from math import comb
 from pathlib import Path
 
 import numpy as np
@@ -52,6 +47,12 @@ RUNS = {
     "acq_random": ("20261030-093545", "prior_offset", "random"),
     "acq_uncertainty10": ("20261030-093545", "prior_offset", "uncertainty10"),
     "acq_uncertainty15": ("20261030-093545", "prior_offset", "uncertainty15"),
+    # scripts/run_pooling_ablation.py: the same fitted models with shared terms switched off.
+    "control_2": ("ablation", "ablate_all", "2"),
+    **{f"tags_{pool}": ("ablation", "ablate_tags", pool) for pool in ("2", "5", "all")},
+    **{f"level_{pool}": ("ablation", "ablate_tags_level", pool) for pool in ("2", "5", "all")},
+    **{f"questions_{pool}": ("ablation", "ablate_tags_questions", pool) for pool in ("2", "5", "all")},
+    **{f"calibrated_{pool}": ("ablation", "calibrated", pool) for pool in ("1", "2", "5", "all")},
 }
 
 # (candidate, reference): candidate minus reference, negative = candidate better.
@@ -73,31 +74,80 @@ COMPARISONS = [
     ("acq_random", "acq_fixed"),
     ("acq_uncertainty10", "acq_random"),
     ("acq_uncertainty15", "acq_random"),
+    ("control_2", "pooled_2"),
+    *[(f"{part}_{pool}", "pooled_1") for part in ("tags", "level", "questions") for pool in ("2", "5", "all")],
+    *[(f"calibrated_{pool}", f"pooled_{pool}") for pool in ("1", "2", "5", "all")],
 ]
+
+# Colours by what they identify, the same in every figure (checked for colour-blind
+# separation against a white page). Neutrals are for reference marks and text only.
+OWN_LABELS = ("#86b6ef", "#256abf")  # own-label models, weaker to stronger
+OTHER_BENCHMARKS = "#1baf7a"
+OTHER_SYSTEMS = ("#ef9169", "#eb6834", "#a93a12")  # LfHL with M = 2, 5, up to 20
+LEVEL, QUESTIONS = "#6250d6", "#008300"
+INK, SECONDARY, MUTED, GRID, AXIS = "#0b0b0b", "#52514e", "#898781", "#e1e0d9", "#c3c2b7"
 
 CURVES = [
-    ("constant", "constant 0.5", "0.6", ":"),
-    ("empirical_mean", "empirical mean (organizers)", "tab:gray", "--"),
-    ("shrunk_mean", "shrunk mean", "tab:brown", "-"),
-    ("prior_offset", "prior offset (own labels)", "tab:blue", "-"),
-    ("pooled_2", "LfHL, $M=2$", "tab:olive", "-"),
-    ("pooled_5", "LfHL, $M=5$", "tab:orange", "-"),
-    ("pooled_all", "LfHL, $M\\leq 20$", "tab:red", "-"),
+    ("constant", "constant 0.5", MUTED, "v"),
+    ("empirical_mean", "empirical mean (organizers)", SECONDARY, "s"),
+    ("shrunk_mean", "Beta-binomial", OWN_LABELS[0], "o"),
+    ("prior_offset", "own labels, tags and text prior", OWN_LABELS[1], "o"),
+    ("pooled_2", "LfHL, $M=2$", OTHER_SYSTEMS[0], "o"),
+    ("pooled_5", "LfHL, $M=5$", OTHER_SYSTEMS[1], "o"),
+    ("pooled_all", "LfHL, $M\\leq 20$", OTHER_SYSTEMS[2], "o"),
 ]
 
-# Formative Codabench scores of our own uploads (submissions page, 2026-10-27 to 10-29).
+# Each step adds to the one above: (label, run, colour).
+SOURCES = [
+    ("Calibrated update on own labels", "shrunk_mean", OWN_LABELS[1]),
+    ("+ tag shifts", "tag_offset", OWN_LABELS[1]),
+    ("+ text prior", "prior_offset", OTHER_BENCHMARKS),
+    ("+ one other system ($M=2$)", "pooled_2", OTHER_SYSTEMS[1]),
+    ("+ more systems ($M=5$)", "pooled_5", OTHER_SYSTEMS[1]),
+    ("+ more systems ($M\\leq 20$)", "pooled_all", OTHER_SYSTEMS[1]),
+]
+
+# Groups of negative results: (label, comparison, reference).
+NEGATIVE = [
+    [("Logistic text prior alone, no update", "logreg_prior - constant", "constant 0.5"),
+     ("LightGBM prior instead of logistic", "gbdt_offset - prior_offset", "+ text prior")],
+    [("Nonparametric prior over pair accuracy", "histogram_mean - shrunk_mean", "Beta-binomial"),
+     ("Mixture of widths $\\{0.5, 1, 2\\}\\,\\tau$", "mix_prior_offset - prior_offset", "+ text prior")],
+    [("Uncertainty acquisition, $|p-0.5|\\leq 0.10$", "acq_uncertainty10 - acq_random", "streamed random"),
+     ("Uncertainty acquisition, $|p-0.5|\\leq 0.15$", "acq_uncertainty15 - acq_random", "streamed random")],
+]
+
+# Pooling ablation: (label, run prefix, colour, marker).
+ABLATION = [
+    ("Tags only", "tags", MUTED, "s"),
+    ("Tags + level", "level", LEVEL, "o"),
+    ("Tags + question shifts", "questions", QUESTIONS, "^"),
+    ("All three (LfHL)", "pooled", INK, "D"),
+]
+
+# Formative Codabench scores of our own uploads (submissions page). Every upload with a
+# score is listed, including two left in status "Scoring"; five uploads that finished
+# without a score cannot be included.
 UPLOADS = {
-    "prior offset\n(n = 4)": [0.193516, 0.165583, 0.200787, 0.194646],
-    "LfHL\n(n = 4)": [0.189107, 0.178399, 0.165440, 0.193250],
-    "LfHL-cal\n(n = 20)": [0.153152, 0.147621, 0.172424, 0.185839, 0.169210, 0.182736,
-                                    0.176607, 0.176266, 0.191711, 0.166216, 0.182580, 0.194638,
-                                    0.174210, 0.195390, 0.195070, 0.176440, 0.178951, 0.204280,
-                                    0.202830, 0.171094],
+    "prior offset": [0.193516, 0.165583, 0.200787, 0.194646],
+    "LfHL": [0.189107, 0.178399, 0.165440, 0.193250],
+    "LfHL with start 0.35": [
+        0.153152, 0.147621, 0.172424, 0.185839, 0.169210, 0.182736, 0.176607, 0.176266, 0.191711, 0.166216,
+        0.182580, 0.194638, 0.222347, 0.174210, 0.195390, 0.195070, 0.176440, 0.178951, 0.204280, 0.202830,
+        0.214894, 0.171094, 0.176671, 0.182647, 0.171399, 0.190614, 0.193975, 0.193274, 0.173747, 0.201840,
+        0.199011, 0.187301, 0.168214, 0.213478, 0.200819, 0.140015, 0.186713, 0.198403, 0.165686, 0.179899,
+        0.182864, 0.154155, 0.152993, 0.211372, 0.171697, 0.193064, 0.214446,
+    ],
 }
-TAU = 1.584893192461114
-# Embed TrueType fonts (no Type 3) and match the report's Times text.
+# Embed TrueType fonts (no Type 3) and match the report's Times text; recessive axes.
 STYLE = {"pdf.fonttype": 42, "ps.fonttype": 42, "font.family": "serif",
-         "font.serif": ["Times New Roman", "Times", "DejaVu Serif"], "mathtext.fontset": "stix"}
+         "font.serif": ["Times New Roman", "Times", "DejaVu Serif"], "mathtext.fontset": "stix",
+         "font.size": 8, "axes.labelsize": 8, "xtick.labelsize": 7.5, "ytick.labelsize": 7.5, "legend.fontsize": 7.5,
+         "text.color": INK, "axes.labelcolor": SECONDARY, "axes.edgecolor": AXIS, "axes.linewidth": 0.6,
+         "axes.spines.top": False, "axes.spines.right": False, "xtick.color": AXIS, "ytick.color": AXIS,
+         "xtick.labelcolor": SECONDARY, "ytick.labelcolor": SECONDARY, "xtick.major.width": 0.6,
+         "ytick.major.width": 0.6, "xtick.major.size": 2.5, "ytick.major.size": 2.5, "legend.frameon": False,
+         "lines.solid_capstyle": "round", "lines.solid_joinstyle": "round"}
 
 
 def load(runs_dir: Path, label: str) -> pd.DataFrame:
@@ -157,135 +207,222 @@ def comparisons(curves: dict) -> dict:
     return out
 
 
-def learning_curves(curves: dict, oracle: float, path: Path):
+def upload_summary() -> dict:
+    """Mean, spread and range of repeated uploads of one unchanged archive."""
+    return {name: {"n": len(scores), "mean": round(float(np.mean(scores)), 4),
+                   "sd": round(float(np.std(scores, ddof=1)), 4), "min": round(float(np.min(scores)), 4),
+                   "max": round(float(np.max(scores)), 4)}
+            for name, scores in UPLOADS.items()}
+
+
+def pyplot():
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
 
     plt.rcParams.update(STYLE)
+    return plt
+
+
+def signed(value: float) -> str:
+    """Four decimals without the leading zero, as in the report's tables: -.0064, +.0014."""
+    return ("−" if value < 0 else "+") + f"{abs(value):.4f}"[1:]
+
+
+def bare(value: float) -> str:
+    return f"{value:.4f}"[1:]
+
+
+def grid(ax, axis: str = "both"):
+    ax.set_axisbelow(True)
+    ax.grid(axis=axis, color=GRID, linewidth=0.5)
+
+
+def learning_curves(curves: dict, oracle: float, path: Path):
+    plt = pyplot()
     x = np.log2(np.asarray(BUDGETS) + 1.0)
-    fig, ax = plt.subplots(figsize=(5.5, 3.3))
-    for label, name, color, style in CURVES:
-        ax.plot(x, [curves[label][b].mean() for b in BUDGETS], style, color=color, marker="o",
-                markersize=3, linewidth=1.4, label=name)
-    ax.axhline(oracle, color="black", linewidth=0.8, linestyle="-.", label="oracle pair accuracy")
+    fig, ax = plt.subplots(figsize=(5.5, 2.75))
+    for label, name, color, marker in CURVES:
+        ax.plot(x, [curves[label][b].mean() for b in BUDGETS], color=color, marker=marker, markersize=3.8,
+                markeredgecolor="white", markeredgewidth=0.5, linewidth=1.3, label=name)
+    ax.axhline(oracle, color=SECONDARY, linewidth=0.8)
+    ax.text(x[0], oracle - 0.0012, f"oracle pair accuracy ({oracle:.3f})", color=SECONDARY, fontsize=7.5, va="top")
     ax.set_xticks(x, [str(b) for b in BUDGETS])
     ax.set_xlabel("revealed labels per system (budget)")
     ax.set_ylabel("mean Brier score")
-    ax.set_ylim(0.165, 0.262)
-    ax.grid(alpha=0.3, linewidth=0.5)
-    ax.annotate(f"empirical mean at budget 1: {curves['empirical_mean'][1].mean():.3f} (off scale)",
-                xy=(2.45, 0.2595), fontsize=7, color="tab:gray", va="top")
-    ax.legend(fontsize=7, ncol=3, frameon=False, loc="upper center", bbox_to_anchor=(0.5, -0.2))
+    ax.set_ylim(0.168, 0.262)
+    grid(ax, "y")
+    ax.text(x[2] + 0.06, 0.2595, f"empirical mean at budget 1: {curves['empirical_mean'][1].mean():.3f} (off scale)",
+            color=SECONDARY, fontsize=7.5, va="top")
+    ax.legend(ncol=4, loc="upper center", bbox_to_anchor=(0.47, -0.2), columnspacing=1.2, handlelength=1.8)
     fig.tight_layout()
     fig.savefig(path, bbox_inches="tight")
     plt.close(fig)
 
 
-def expected_alc(a: np.ndarray, start_probability: float, tau: float = TAU) -> np.ndarray:
-    """Expected ALC of the pair-level offset for pairs of true accuracy ``a`` (items exchangeable)."""
-    from paiec.update import constant_prior_posterior, predictive
+def sources_figure(curves: dict, oracle: float, path: Path):
+    """Waterfall of ALC: what each information source adds, in the order of Table 1."""
+    plt = pyplot()
+    from matplotlib.patches import Patch
 
-    level = np.log(start_probability / (1 - start_probability))
-    total = np.zeros_like(a)
-    for weight, budget in zip(alc_weights(BUDGETS), BUDGETS):
-        correct = np.arange(budget + 1, dtype=float)
-        mean, variance = constant_prior_posterior(level, correct, budget, tau)
-        p = predictive(level, mean, variance)
-        pmf = np.array([comb(budget, k) * a**k * (1 - a) ** (budget - k) for k in range(budget + 1)])
-        total += weight * (pmf * (p[:, None] ** 2 - 2 * p[:, None] * a + a)).sum(axis=0)
-    return total
-
-
-def bayes_optimal_alc(a: np.ndarray, groups: np.ndarray) -> np.ndarray:
-    """Expected ALC of the posterior mean under the empirical accuracy distribution.
-
-    Each draw's prior is the accuracies of all draws of *other* pairs (leave one
-    pair out), so no draw is predicted with its own accuracy.
-    """
-    total = np.zeros_like(a)
-    others = groups[:, None] != groups[None, :]
-    for weight, budget in zip(alc_weights(BUDGETS), BUDGETS):
-        brier = np.zeros_like(a)
-        for k in range(budget + 1):
-            likelihood = a**k * (1 - a) ** (budget - k)
-            evidence = others @ likelihood
-            p = (others @ (likelihood * a)) / np.maximum(evidence, 1e-300)
-            pmf = comb(budget, k) * likelihood
-            brier += pmf * (p * p - 2 * p * a + a)
-        total += weight * brier
-    return total
-
-
-def public_accuracies(data_root: Path) -> tuple[np.ndarray, np.ndarray]:
-    """Evaluation-pool accuracy of every scoreable public pair, weighted as in the harness."""
-    from paiec.episodes import training_episodes
-    from paiec.schema import training_benchmarks
-
-    episodes = training_episodes(str(data_root), training_benchmarks(data_root))
-    return episodes["eval_mean"].to_numpy(), episodes["weight"].to_numpy()
+    fig, ax = plt.subplots(figsize=(5.5, 1.85))
+    y = len(SOURCES)
+    # Rounded as in Table 1, so that the printed steps add up to the printed totals.
+    previous = round(float(curves["constant"]["alc"].mean()), 4)
+    ax.plot([previous, previous], [y - 0.31, y + 0.31], color=INK, linewidth=1.4)
+    ax.text(previous - 0.0007, y, f"{bare(previous)}", va="center", ha="left", fontsize=7.5)
+    # Parenthesised ALC only where a source ends, so the labels stay sparse.
+    totals = {"prior_offset", "pooled_all"}
+    for offset, (_, run, color) in enumerate(SOURCES, 1):
+        row = y - offset
+        current = round(float(curves[run]["alc"].mean()), 4)
+        ax.barh(row, previous - current, left=current, height=0.62, color=color, linewidth=0)
+        ax.plot([previous, previous], [row + 1 - 0.31, row + 0.31], color=AXIS, linewidth=0.6)
+        text = signed(current - previous) + (f" ({bare(current)})" if run in totals else "")
+        ax.text(current - 0.0007, row, text, va="center", ha="left", fontsize=7.5, color=INK)
+        previous = current
+    ax.axvline(oracle, color=SECONDARY, linewidth=0.8, zorder=1)
+    ax.text(oracle + 0.0007, y, f"oracle pair accuracy ({bare(oracle)})", color=SECONDARY, fontsize=7.5,
+            va="center", ha="right")
+    ax.set_yticks([y, *[y - i for i in range(1, y + 1)]], ["Constant 0.5", *[name for name, _, _ in SOURCES]],
+                  color=INK)
+    ax.tick_params(axis="y", length=0)
+    ax.spines["left"].set_visible(False)
+    ax.set_xlim(0.2515, 0.1715)
+    ax.set_ylim(-0.6, y + 0.6)
+    ax.set_xticks(np.arange(0.18, 0.2501, 0.01), [f"{v:.2f}" for v in np.arange(0.18, 0.2501, 0.01)])
+    ax.set_xlabel("ALC on 1,720 held-out pairs (lower is better)")
+    grid(ax, "x")
+    ax.legend(handles=[Patch(color=OWN_LABELS[1], label="A system's own labels"),
+                       Patch(color=OTHER_BENCHMARKS, label="Knowledge from other benchmarks"),
+                       Patch(color=OTHER_SYSTEMS[1], label="Other systems' labels")],
+              ncol=3, loc="lower left", bbox_to_anchor=(-0.02, 0.99), columnspacing=1.2, handlelength=1.1)
+    fig.tight_layout()
+    fig.savefig(path, bbox_inches="tight")
+    plt.close(fig)
 
 
-def formative_figure(hidden: np.ndarray, groups: np.ndarray, public: tuple, path: Path) -> dict:
-    import matplotlib
-    matplotlib.use("Agg")
-    import matplotlib.pyplot as plt
+def negative_figure(table: dict, deltas: dict, path: Path):
+    """Forest plot of the negative results, with the exact numbers beside each interval."""
+    plt = pyplot()
+    from matplotlib.transforms import blended_transform_factory
 
-    plt.rcParams.update(STYLE)
-    starts = np.round(np.arange(0.20, 0.601, 0.01), 2)
-    hidden_alc = np.array([expected_alc(hidden, s).mean() for s in starts])
-    public_alc = np.array([np.average(expected_alc(public[0], s), weights=public[1]) for s in starts])
+    fig = plt.figure(figsize=(5.5, 1.62))
+    ax = fig.add_axes([0.335, 0.235, 0.2, 0.63])
+    across = blended_transform_factory(ax.transAxes, ax.transData)
+    columns = {"ALC": 1.05, "Δ ALC [95% CI]": 1.36, "Reference": 2.35, "Folds": 3.13}
 
-    fig, (left, right) = plt.subplots(1, 2, figsize=(5.5, 2.4), gridspec_kw={"width_ratios": [1.15, 1]})
-    left.plot(starts, hidden_alc, color="tab:red", label="formative pool")
-    left.plot(starts, public_alc, color="tab:blue", label="public benchmarks")
-    for s, style in ((0.5, ":"), (0.35, "--")):
-        left.axvline(s, color="0.4", linestyle=style, linewidth=0.8)
-    left.set_xlabel("starting probability")
-    left.set_ylabel("expected ALC")
-    left.legend(fontsize=7, frameon=False, loc="center left")
-    left.grid(alpha=0.3, linewidth=0.5)
+    def column(name: str, y: float, text: str, **style):
+        ax.text(columns[name], y, text, transform=across, va="center", ha="left", clip_on=False, fontsize=7.5, **style)
 
+    y, labels, positions = 0.0, [], []
+    for group in reversed(NEGATIVE):
+        for name, key, reference in reversed(group):
+            delta = deltas[key]
+            ax.plot(delta["ci95"], [y, y], color=SECONDARY, linewidth=1.0)
+            ax.plot(delta["mean"], y, marker="o", markersize=4.2, color=INK, markeredgecolor="white", markeredgewidth=0.5)
+            column("ALC", y, bare(table[key.split(" - ")[0]]["ALC"]))
+            column("Δ ALC [95% CI]", y, f"{signed(delta['mean'])} [{signed(delta['ci95'][0])}, {signed(delta['ci95'][1])}]")
+            column("Reference", y, reference, color=SECONDARY)
+            column("Folds", y, str(delta["folds_better"]))
+            labels.append(name)
+            positions.append(y)
+            y += 1.0
+        y += 0.45
+    top = y - 0.45
+    for name in columns:
+        column(name, top + 0.1, name, color=SECONDARY)
+    ax.axvline(0, color=SECONDARY, linewidth=0.8, zorder=1)
+    ax.set_yticks(positions, labels, color=INK)
+    ax.tick_params(axis="y", length=0)
+    ax.spines["left"].set_visible(False)
+    ax.set_ylim(-0.6, top + 0.5)
+    ax.set_xlim(-0.0075, 0.0105)
+    ax.set_xticks([-0.005, 0, 0.005], ["−.005", "0", "+.005"])
+    ax.set_xlabel("Δ ALC (negative is better)")
+    grid(ax, "x")
+    fig.savefig(path)
+    plt.close(fig)
+
+
+def ablation_figure(curves: dict, deltas: dict, path: Path):
+    """(a) ALC gain by number of systems, with intervals; (b) Brier gain by budget at M <= 20."""
+    plt = pyplot()
+    from matplotlib.lines import Line2D
+
+    fig, (left, right) = plt.subplots(1, 2, figsize=(5.5, 2.2))
+    pools = ["2", "5", "all"]
+    for index, (name, part, color, marker) in enumerate(ABLATION):
+        # A gain is a negated difference, so its interval runs from -high to -low.
+        gains, below, above = [], [], []
+        for pool in pools:
+            delta = deltas[f"{part}_{pool} - pooled_1"]
+            gains.append(-delta["mean"])
+            below.append(delta["ci95"][1] - delta["mean"])
+            above.append(delta["mean"] - delta["ci95"][0])
+        x = np.arange(len(pools)) + (index - 1.5) * 0.07
+        left.errorbar(x, gains, yerr=[below, above], color=color, marker=marker, markersize=3.8,
+                      markeredgecolor="white", markeredgewidth=0.5, linewidth=1.2, elinewidth=0.8, capsize=0, label=name)
+        budgets = [b for b in BUDGETS if b > 0]
+        base = curves["pooled_1"]
+        series = [float(base[b].mean() - curves[f"{part}_all"][b].mean()) for b in budgets]
+        right.plot(np.log2(np.asarray(budgets) + 1.0), series, color=color, marker=marker, markersize=3.8,
+                   markeredgecolor="white", markeredgewidth=0.5, linewidth=1.2)
+    left.set_xticks(range(len(pools)), ["2", "5", "$\\leq$ 20"])
+    left.set_xlabel("systems sharing a benchmark ($M$)")
+    left.set_ylabel("reduction in ALC")
+    left.set_title("(a) Against one system, by $M$", loc="left", fontsize=8, color=INK)
+    budgets = [b for b in BUDGETS if b > 0]
+    right.set_xticks(np.log2(np.asarray(budgets) + 1.0), [str(b) for b in budgets])
+    right.set_xlabel("revealed labels per system (budget)")
+    right.set_ylabel("reduction in Brier score")
+    right.set_title("(b) Against one system, by budget, $M \\leq 20$", loc="left", fontsize=8, color=INK)
+    for ax in (left, right):
+        ax.set_ylim(bottom=0)
+        ax.yaxis.set_major_formatter(lambda value, _: f"{value:.3f}"[1:] if value else "0")
+        grid(ax, "y")
+    handles = [Line2D([], [], color=color, marker=marker, markersize=3.8, markeredgecolor="white",
+                      markeredgewidth=0.5, linewidth=1.2, label=name) for name, _, color, marker in ABLATION]
+    fig.legend(handles=handles, ncol=4, loc="upper center", bbox_to_anchor=(0.5, 1.07), columnspacing=1.4, handlelength=1.8)
+    fig.tight_layout()
+    fig.savefig(path, bbox_inches="tight")
+    plt.close(fig)
+
+
+def uploads_figure(path: Path):
+    """Every scored upload of three unchanged archives, with mean, spread and range beside it."""
+    plt = pyplot()
+    from matplotlib.transforms import blended_transform_factory
+
+    fig = plt.figure(figsize=(5.5, 1.2))
+    ax = fig.add_axes([0.2, 0.31, 0.42, 0.67])
+    across = blended_transform_factory(ax.transAxes, ax.transData)
+    rows = [("LfHL with start 0.35", "LfHL with start 0.35", MUTED), ("LfHL (selected)", "LfHL", OTHER_SYSTEMS[1]),
+            ("Prior offset", "prior offset", MUTED)]
     rng = np.random.default_rng(0)
-    for position, (name, scores) in enumerate(UPLOADS.items()):
-        scores = np.asarray(scores)
-        right.scatter(position + rng.uniform(-0.12, 0.12, scores.size), scores, s=12, color="tab:gray",
-                      edgecolors="none")
-        right.hlines(scores.mean(), position - 0.25, position + 0.25, color="black", linewidth=1.5)
-    right.set_xticks(range(len(UPLOADS)), list(UPLOADS), fontsize=7)
-    right.set_ylabel("formative Brier ALC")
-    right.grid(alpha=0.3, linewidth=0.5, axis="y")
-    fig.tight_layout()
-    fig.savefig(path, bbox_inches="tight")
+    for y, (_, key, color) in enumerate(rows):
+        scores = np.asarray(UPLOADS[key])
+        ax.scatter(scores, y + rng.uniform(-0.2, 0.2, scores.size), s=13, color=color, edgecolors="white",
+                   linewidths=0.4, zorder=3)
+        ax.plot([scores.mean()] * 2, [y - 0.36, y + 0.36], color=INK, linewidth=1.4, zorder=4)
+        ax.text(1.03, y, f"$n$ = {scores.size}, mean {bare(scores.mean())}, SD {bare(scores.std(ddof=1))}, "
+                         f"{bare(scores.min())}–{bare(scores.max())}",
+                transform=across, va="center", ha="left", fontsize=7.5, clip_on=False)
+    ax.set_yticks(range(len(rows)), [name for name, _, _ in rows], color=INK)
+    ax.tick_params(axis="y", length=0)
+    ax.spines["left"].set_visible(False)
+    ax.set_ylim(-0.55, len(rows) - 0.45)
+    ax.set_xlim(0.135, 0.227)
+    ax.set_xticks([0.14, 0.16, 0.18, 0.20, 0.22], [".14", ".16", ".18", ".20", ".22"])
+    ax.set_xlabel("formative Brier ALC of one upload")
+    grid(ax, "x")
+    fig.savefig(path)
     plt.close(fig)
-    best = lambda values: float(starts[int(np.argmin(values))])  # noqa: E731
-    return {
-        "hidden_draws": int(hidden.size), "hidden_mean_accuracy": round(float(hidden.mean()), 4),
-        "hidden_share_below_half": round(float((hidden < 0.5).mean()), 3),
-        "public_pairs": int(public[0].size),
-        "public_mean_accuracy": round(float(np.average(public[0], weights=public[1])), 4),
-        "hidden_alc_at_0.50": round(float(hidden_alc[starts == 0.5][0]), 4),
-        "hidden_alc_at_0.35": round(float(hidden_alc[starts == 0.35][0]), 4),
-        "public_alc_at_0.50": round(float(public_alc[starts == 0.5][0]), 4),
-        "public_alc_at_0.35": round(float(public_alc[starts == 0.35][0]), 4),
-        "hidden_best_start": best(hidden_alc), "public_best_start": best(public_alc),
-        "hidden_alc_at_best": round(float(hidden_alc.min()), 4),
-        "public_alc_at_best": round(float(public_alc.min()), 4),
-        "hidden_bayes_optimal": round(float(bayes_optimal_alc(hidden, groups).mean()), 4),
-        "hidden_oracle": round(float(np.mean(hidden * (1 - hidden))), 4),
-        "hidden_distinct_pairs": int(np.unique(groups).size),
-        "uploads": {" ".join(name.split()): {"n": len(s), "mean": round(float(np.mean(s)), 4),
-                                               "sd": round(float(np.std(s, ddof=1)), 4),
-                                               "min": round(float(np.min(s)), 4)}
-                    for name, s in UPLOADS.items()},
-    }
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--runs", type=Path, default=ROOT / "runs")
-    parser.add_argument("--data", type=Path, default=ROOT / "payload" / "data")
-    parser.add_argument("--formative", type=Path, help="CSV of formative pair draws with column 'a'")
     parser.add_argument("--out", type=Path, default=ROOT / "report")
     args = parser.parse_args()
 
@@ -298,14 +435,14 @@ def main():
         "oracle_pair_accuracy_brier": round(oracle, 4),
         "pairs": int(len(curves["constant"])),
         "benchmarks": int(curves["constant"].index.get_level_values("benchmark").nunique()),
+        "uploads": upload_summary(),
     }
-    (args.out / "figures").mkdir(parents=True, exist_ok=True)
-    learning_curves(curves, oracle, args.out / "figures" / "learning_curves.pdf")
-    if args.formative:
-        draws = pd.read_csv(args.formative)
-        groups = (draws["subject"] + "/" + draws["benchmark"]).to_numpy()
-        numbers["formative"] = formative_figure(draws["a"].to_numpy(), groups, public_accuracies(args.data),
-                                                args.out / "figures" / "formative.pdf")
+    # The figures sit next to the report's source, so the folder compiles as it is (also on Overleaf).
+    learning_curves(curves, oracle, args.out / "learning_curves.pdf")
+    sources_figure(curves, oracle, args.out / "sources.pdf")
+    negative_figure(numbers["table"], numbers["comparisons"], args.out / "negative_results.pdf")
+    ablation_figure(curves, numbers["comparisons"], args.out / "ablation.pdf")
+    uploads_figure(args.out / "uploads.pdf")
     (args.out / "results").mkdir(parents=True, exist_ok=True)
     (args.out / "results" / "numbers.json").write_text(json.dumps(numbers, indent=2))
     print(json.dumps(numbers, indent=1))

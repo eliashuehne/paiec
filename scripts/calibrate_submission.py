@@ -10,12 +10,8 @@ The budget-0 output is pulled towards 0.5 by the shift's prior uncertainty
 (start 0.35 with tau 1.58 predicts 0.392).
 All fitted update parameters (tau, sigma, share, item_sigma) stay as trained.
 
-Why: on the hidden formative benchmarks, recovered from public Codabench feedback
-logs, pairs average about 33% accuracy and our text prior pushes budget-0
-predictions the wrong way (mean budget-0 Brier 0.258 against 0.250 for 0.5).
-Starting at 0.35 scores better there but worse on the public benchmarks
-(5-fold ALC +0.004 to +0.005), so it is a calibration to the formative pool and
-is reported as such.
+This builds the variant described, and not selected, in Section 5 of the report. The
+public benchmarks prefer a start of 0.5, so a lower start is not justified by training data.
 """
 
 from __future__ import annotations
