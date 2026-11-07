@@ -10,7 +10,7 @@ The budget-0 output is pulled towards 0.5 by the shift's prior uncertainty
 (start 0.35 with tau 1.58 predicts 0.392).
 All fitted update parameters (tau, sigma, share, item_sigma) stay as trained.
 
-This builds the variant described, and not selected, in Section 5 of the report. The
+This builds the variant selected in Section 5 of the report. The
 public benchmarks prefer a start of 0.5, so a lower start is not justified by training data.
 """
 

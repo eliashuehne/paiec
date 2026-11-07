@@ -8,11 +8,13 @@ revealed labels from systems on the same benchmark.
 - [Codabench competition](https://www.codabench.org/competitions/17828/) and selected submission **#1038337** (development Brier ALC **0.133303**)
 - [Competition rules and predictor interface](https://aims.stanford.edu/competition)
 
-## Build the LfHL submission archive
+## Build the selected LfHL submission
 
 From a fresh checkout, use Python 3.10 and initialize the organizers' baseline
-submodule at its pinned commit (`cc88a95`). The build uses the checked-in
-`artifacts/pooled_offset.npz` weights and needs no training data.
+submodule at its pinned commit (`cc88a95`). Submission #1038337 uses the `start035` variant. It sets the starting probability
+to 0.35 before the Bayesian update, disables the text prior, and keeps the
+fitted update parameters. The build uses the checked-in weights and needs no
+training data.
 
 ```bash
 git clone https://github.com/eliashuehne/paiec.git
@@ -22,10 +24,10 @@ python3.10 -m venv .venv
 source .venv/bin/activate
 python -m pip install -e ".[dev]"
 python -m pytest
-python scripts/build_submission.py
+python scripts/build_submission.py --artifacts artifacts/pooled_offset_start035.npz --zip dist/pooled_offset_start035.zip
 ```
 
-The build writes `dist/submission.zip` and runs the organizers' ZIP checker.
+The build writes `dist/pooled_offset_start035.zip` and runs the organizers' ZIP checker.
 The archive contains `model.py` at its root, the NumPy runtime modules, and the
 fitted weights. At scoring time it runs offline and uses Codabench's default
 random label acquisition.
@@ -40,11 +42,12 @@ before downloading. Refit to a separate path to preserve the released weights.
 hf auth login
 python scripts/download_data.py
 python scripts/train_submission.py --out dist/retrained/pooled_offset.npz
-python scripts/build_submission.py --artifacts dist/retrained/pooled_offset.npz --zip dist/retrained/submission.zip
+python scripts/calibrate_submission.py --artifacts dist/retrained/pooled_offset.npz --start 0.35 --no-text-prior --out dist/retrained/pooled_offset_start035.npz
+python scripts/build_submission.py --artifacts dist/retrained/pooled_offset_start035.npz --zip dist/retrained/pooled_offset_start035.zip
 python scripts/run_eval.py --predictors pooled_offset --pool-sizes 2
 ```
 
-The last command reruns the two-system result. Appendix A of the
+The last command reruns the two-system result for the default LfHL configuration in Table 1. Appendix A of the
 [report](report/LfHL.pdf) gives the full evaluation and figure commands,
 including the other pool sizes, acquisition experiments, and pooling ablations.
 
